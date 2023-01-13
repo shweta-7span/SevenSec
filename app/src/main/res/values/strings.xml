@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">SevenSec</string>
+    <string name="title_activity_splash">SplashActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="warning">Warning</string>
+    <string name="continue_with">Continue on</string>
+    <string name="not_go">I don\'t want to open</string>
+    <string name="str_attempts_description">Attempts to open Instagram within 24 hours.</string>
+    <string name="title_activity_warning">WarningActivity</string>
+    <string name="attempt_to_open">Attempts to open</string>
+    <string name="within_24_hrs">within 24 hours.</string>
+    <string name="str_breath_description">It\'s time to take a deep breath…</string>
+    <string name="raw_app_name">App Name</string>
+
+    <string-array name="arrFavApps">
+        <item>com.whatsapp</item>
+        <item>com.instagram.android</item>
+        <item>com.facebook.katana</item>
+        <item>com.facebook.orca</item>
+        <item>com.camerasideas.instashot</item>
+    </string-array>
+</resources>

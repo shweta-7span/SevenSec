@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "213355730574",
+    "project_id": "applock-72b55",
+    "storage_bucket": "applock-72b55.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:213355730574:android:bf478f34934c2b68ae5bdf",
+        "android_client_info": {
+          "package_name": "com.sevensec"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "213355730574-cj0us8qehakthmkhjhs4uimf3cm1d1oi.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sevensec",
+            "certificate_hash": "cc06717728d8a7a29d11f557e49de65230ff57af"
+          }
+        },
+        {
+          "client_id": "213355730574-e19n72e6sqmj8gt8scnndos7e1fs6tg5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBNqAl-DmgBrarI8ZbNVj-f8IE8Y5_s578"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "213355730574-e19n72e6sqmj8gt8scnndos7e1fs6tg5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

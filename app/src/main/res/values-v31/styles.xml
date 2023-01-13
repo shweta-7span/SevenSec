@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- <style name="unlock_activity_style" parent="AppTheme">
+         <item name="android:windowIsTranslucent">true</item>
+         <item name="android:windowActionBar">false</item>
+         <item name="android:windowBackground">@android:color/transparent</item>
+         <item name="android:windowBlurBehindEnabled">true</item>
+         <item name="android:activityOpenEnterAnimation">@null</item>
+         <item name="android:activityOpenExitAnimation">@null</item>
+         <item name="android:activityCloseEnterAnimation">@null</item>
+         <item name="android:activityCloseExitAnimation">@null</item>
+     </style>-->
+
+    <style name="attempt_activity_style" parent="AppTheme">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowBackground">@drawable/gradient</item>
+        <item name="android:windowBlurBehindEnabled">false</item>
+        <item name="android:windowBlurBehindRadius">40dp</item>
+        <item name="android:windowBackgroundBlurRadius">40dp</item>
+        <item name="android:activityOpenEnterAnimation">@anim/slide_in_up</item>
+        <item name="android:activityOpenExitAnimation">@anim/nothing</item>
+        <item name="android:activityCloseEnterAnimation">@anim/nothing</item>
+        <item name="android:activityCloseExitAnimation">@anim/slide_out_up</item>
+    </style>
+
+    <style name="warning_activity_style" parent="AppTheme">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowActionBar">false</item>
+    </style>
+</resources>
