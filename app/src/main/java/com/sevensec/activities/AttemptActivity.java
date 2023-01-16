@@ -24,9 +24,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
-import com.sevensec.base.AppConstants;
-import com.sevensec.R;
-import com.sevensec.utils.SharedPref;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -35,6 +32,9 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
+import com.sevensec.R;
+import com.sevensec.base.AppConstants;
+import com.sevensec.utils.SharedPref;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -60,6 +60,7 @@ public class AttemptActivity extends Activity {
     private TextView tvBreathDesc;
     private TextView tvAttempts;
     private TextView tvAttemptDesc;
+    private TextView tvLastUse;
     private ImageView ivAppLogo;
     private RelativeLayout rlAttempt;
 
@@ -87,6 +88,7 @@ public class AttemptActivity extends Activity {
         tvBreathDesc = findViewById(R.id.tvBreathDesc);
         tvAttempts = findViewById(R.id.tvAttempts);
         tvAttemptDesc = findViewById(R.id.tvAttemptDesc);
+        tvLastUse = findViewById(R.id.tvLastUse);
         ivAppLogo = findViewById(R.id.ivAppLogo);
         rlAttempt = findViewById(R.id.rlAttempt);
 
@@ -234,10 +236,13 @@ public class AttemptActivity extends Activity {
             Log.v(TAG, "FireStore: getLastAttemptAndTime: " + timeStamp);
             if (check24Hour(timeStamp)) {
                 removeTimeFromArray(timeStamp);
-            }else{
+            } else {
                 attemptCount++;
             }
         }
+
+        long lastUsedDifference = Math.abs(timeList.get(timeList.size() - 1) - (new Date().getTime()));
+        getLastUSedTime(lastUsedDifference);
 
         addAppDataWithAttempt(attemptCount);
     }
@@ -265,7 +270,7 @@ public class AttemptActivity extends Activity {
     }
 
     private void addAppDataWithAttempt(int attempt) {
-        Log.i(TAG, "FireStore: addAppDataWithAttempt attempt: "+attempt);
+        Log.i(TAG, "FireStore: addAppDataWithAttempt attempt: " + attempt);
         setAttempt(attempt + 1);
 
         Map<String, Object> apps = new HashMap<>();
@@ -309,5 +314,56 @@ public class AttemptActivity extends Activity {
                         Log.w(TAG, "FireStore: Error adding App", e);
                     }
                 });
+    }
+
+    public void getLastUSedTime(long difference) {
+
+        System.out.println("difference : " + difference);
+
+        StringBuilder s = new StringBuilder(100);
+
+        long secondsInMilli = 1000;
+        long minutesInMilli = secondsInMilli * 60;
+        long hoursInMilli = minutesInMilli * 60;
+        long daysInMilli = hoursInMilli * 24;
+
+        long elapsedDays = difference / daysInMilli;
+        difference = difference % daysInMilli;
+
+        long elapsedHours = difference / hoursInMilli;
+        difference = difference % hoursInMilli;
+
+        long elapsedMinutes = difference / minutesInMilli;
+        difference = difference % minutesInMilli;
+
+        long elapsedSeconds = difference / secondsInMilli;
+
+        if (elapsedDays != 0) {
+            if (elapsedDays == 1)
+                s.append(elapsedDays).append(" day ago");
+            else
+                s.append(elapsedDays).append(" days ago");
+        } else if (elapsedHours != 0) {
+            if (elapsedHours == 1)
+                s.append(elapsedHours).append(" hr ago");
+            else
+                s.append(elapsedHours).append(" hrs ago");
+        } else if (elapsedMinutes != 0) {
+            if (elapsedMinutes == 1)
+                s.append(elapsedMinutes).append(" min ago");
+            else
+                s.append(elapsedMinutes).append(" mins ago");
+        } else if (elapsedSeconds != 0) {
+            if (elapsedSeconds == 1)
+                s.append(elapsedSeconds).append(" second ago");
+            else
+                s.append(elapsedSeconds).append(" seconds ago");
+        }
+
+        System.out.printf(
+                "DIFFERENCE: %d days, %d hours, %d minutes, %d seconds%n",
+                elapsedDays, elapsedHours, elapsedMinutes, elapsedSeconds);
+
+        tvLastUse.setText(String.format("Last use: %s", s));
     }
 }

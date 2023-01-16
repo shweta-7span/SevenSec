@@ -12,6 +12,7 @@
     <string name="within_24_hrs">within 24 hours.</string>
     <string name="str_breath_description">It\'s time to take a deep breath…</string>
     <string name="raw_app_name">App Name</string>
+    <string name="zero">0</string>
 
     <string-array name="arrFavApps">
         <item>com.whatsapp</item>
