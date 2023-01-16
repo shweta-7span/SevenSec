@@ -72,10 +72,6 @@
             android:label=""
             android:launchMode="singleTask" />
         <activity
-            android:name="com.sevensec.activities.WarningActivity"
-            android:exported="true"
-            android:theme="@style/Theme.AppCompat.NoActionBar" />
-        <activity
             android:name="com.sevensec.activities.GreyActivity"
             android:exported="true"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
