@@ -24,12 +24,14 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.sevensec.R;
 import com.sevensec.adapter.MyListAdapter;
 import com.sevensec.base.AppConstants;
+import com.sevensec.databinding.ActivityMainBinding;
 import com.sevensec.service.SaveMyAppsService;
 import com.sevensec.model.AppInfoModel;
 import com.sevensec.utils.SharedPref;
@@ -56,11 +58,12 @@ public class MainActivity extends AppCompatActivity {
     PowerManager pm;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     List<String> favAppList;
+    ActivityMainBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
 
         pm = (PowerManager) getSystemService(POWER_SERVICE);
         TAG = getApplicationContext().getClass().getName();
@@ -144,11 +147,10 @@ public class MainActivity extends AppCompatActivity {
 
         Log.i(TAG, "onCreate appInfoModelList length after sorting: " + appInfoModelList.size());
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         MyListAdapter adapter = new MyListAdapter(appInfoModelList, favAppList);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(adapter);
+        binding.recyclerView.setHasFixedSize(true);
+        binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        binding.recyclerView.setAdapter(adapter);
 
         askPermissions();
     }

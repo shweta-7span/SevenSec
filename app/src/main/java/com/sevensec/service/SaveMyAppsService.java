@@ -33,10 +33,8 @@ import java.util.concurrent.TimeUnit;
 public class SaveMyAppsService extends Service {
 
     String TAG;
-//    String CURRENT_PACKAGE_NAME;
     String activityOnTop = "";
     String lastAppPN = "";
-    boolean noDelay = false;
     public static SaveMyAppsService instance;
 //    String[] androidStrings;
     List<String> favAppList = new ArrayList<>();
@@ -61,11 +59,7 @@ public class SaveMyAppsService extends Service {
         // TODO Auto-generated method stub
 
         TAG = getApplicationContext().getClass().getName();
-//        androidStrings = getResources().getStringArray(R.array.arrFavApps);
-
-        //CURRENT_PACKAGE_NAME = getApplicationContext().getPackageName();
-        //Log.e(TAG + "Current PN", "" + CURRENT_PACKAGE_NAME);
-
+        //        androidStrings = getResources().getStringArray(R.array.arrFavApps);
         lastAppPN = APP_PACKAGE_NAME;
 
         scheduleMethod();
@@ -140,9 +134,8 @@ public class SaveMyAppsService extends Service {
         }
         Log.v(TAG, "TEST activity on Top: " + activityOnTop);
 
-        // Provide the packageName(s) of apps here, you want to show password activity
+        // Provide the packageName(s) of apps here, you want to show attempt activity
         // you can make this check even better
-//        if (activityOnTop.contains(WARNING_APP)/*||
 //        if (Arrays.asList(androidStrings).contains(activityOnTop)/*||
         if (favAppList.contains(activityOnTop)/*||
                 activityOnTop.contains(CURRENT_PACKAGE_NAME) */) {
