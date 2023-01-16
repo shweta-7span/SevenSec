@@ -121,7 +121,7 @@ public class MainActivity extends FireStoreDataOperation {
 
                     if (favAppList.contains(t1.getPackageName()))
                         return 1;
-                    else if (!favAppList.contains(t1.getPackageName()))
+                    else if (favAppList.contains(appInfoModel.getPackageName()))
                         return -1;
                     else
                         return 0;
