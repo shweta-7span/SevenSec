@@ -1,8 +1,7 @@
 package com.sevensec.service;
-
-import static com.sevensec.base.AppConstants.APP_PACKAGE_NAME;
-import static com.sevensec.base.AppConstants.STR_LAST_WARN_APP;
+import static com.sevensec.utils.Constants.APP_PACKAGE_NAME;
 import static com.sevensec.utils.Constants.STR_FAV_APP_LIST;
+import static com.sevensec.utils.Constants.STR_LAST_WARN_APP;
 
 import android.app.ActivityManager;
 import android.app.Notification;

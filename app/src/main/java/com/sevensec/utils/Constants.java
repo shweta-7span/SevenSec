@@ -1,6 +1,13 @@
 package com.sevensec.utils;
 
+import com.sevensec.BuildConfig;
+
 public class Constants {
+
+    //intent constant
+    public static final String APP_PACKAGE_NAME = BuildConfig.APPLICATION_ID;
+    public static final String STR_LAST_WARN_APP = "STR_LAST_WARN_APP";
+
     //SharedPref Keys
     public static final String DB_COLLECTION_USERS = "Users";
     public static final String DB_COLLECTION_APPS = "Apps";

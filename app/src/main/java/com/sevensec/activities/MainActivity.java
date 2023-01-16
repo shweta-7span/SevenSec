@@ -1,8 +1,5 @@
 package com.sevensec.activities;
 
-import static com.sevensec.utils.Constants.ANDROID;
-import static com.sevensec.utils.Constants.DB_COLLECTION_USERS;
-import static com.sevensec.utils.Constants.DB_DOCUMENT_KEY_TYPE;
 import static com.sevensec.utils.Constants.STR_DEVICE_ID;
 import static com.sevensec.utils.Constants.STR_FAV_APP_LIST;
 import static com.sevensec.utils.Utils.isAccessGranted;
@@ -22,41 +19,28 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
+import com.sevensec.repo.FireStoreDataOperation;
 import com.sevensec.R;
 import com.sevensec.adapter.MyListAdapter;
-import com.sevensec.base.AppConstants;
 import com.sevensec.databinding.ActivityMainBinding;
 import com.sevensec.service.SaveMyAppsService;
 import com.sevensec.model.AppInfoModel;
+import com.sevensec.utils.Constants;
 import com.sevensec.utils.SharedPref;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends FireStoreDataOperation {
 
     String TAG;
     String DEVICE_ID;
     PowerManager pm;
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
     List<String> favAppList;
     ActivityMainBinding binding;
 
@@ -155,58 +139,6 @@ public class MainActivity extends AppCompatActivity {
         askPermissions();
     }
 
-    private void checkDeviceIsStored() {
-
-        db.collection(DB_COLLECTION_USERS).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-
-                Log.d("TAG", "FireStore: document Size: " + task.getResult().size());
-
-                if (task.isSuccessful()) {
-                    if (task.getResult().size() > 0) {
-                        for (DocumentSnapshot document : task.getResult()) {
-                            //Log.d("TAG", "FireStore: document: " + document.get(DB_DOCUMENT_KEY_USER));
-                            Log.d("TAG", "FireStore: document: " + document.getId());
-
-                            if (Objects.equals(document.getId(), DEVICE_ID)) {
-                                Log.d("TAG", "FireStore: DEVICE_ID already exists");
-                            } else {
-                                Log.e("TAG", "FireStore: DEVICE_ID NOT exists");
-                            }
-                        }
-                    } else {
-                        Log.e("TAG", "FireStore: Collection Not exists");
-                        addUserOnFireStore();
-                    }
-                } else {
-                    Log.e("TAG", "FireStore: task NOT successful");
-                }
-            }
-        });
-    }
-
-    private void addUserOnFireStore() {
-        // Create a new user with a first and last name
-        Map<String, Object> type = new HashMap<>();
-        type.put(DB_DOCUMENT_KEY_TYPE, ANDROID);
-
-        // Add a new document with a generated ID
-        db.collection(DB_COLLECTION_USERS).document(DEVICE_ID)
-                .set(type)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void unused) {
-                        Log.d(TAG, "FireStore: DocumentSnapshot successfully written!");
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "FireStore: FireStore: Error adding document", e);
-                    }
-                });
-    }
-
     ActivityResultLauncher<Intent> startActivityIntent = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             new ActivityResultCallback<ActivityResult>() {
@@ -223,17 +155,18 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
             startActivityIntent.launch(intent);
         } else {
-            Log.e(TAG, "askPermissions app: " + AppConstants.APP_PACKAGE_NAME);
-            Log.e(TAG, "askPermissions isBatteryOptimized: " + pm.isIgnoringBatteryOptimizations(AppConstants.APP_PACKAGE_NAME));
+            Log.e(TAG, "askPermissions app: " + Constants.APP_PACKAGE_NAME);
+            Log.e(TAG, "askPermissions isBatteryOptimized: " + pm.isIgnoringBatteryOptimizations(Constants.APP_PACKAGE_NAME));
 
-            if (!pm.isIgnoringBatteryOptimizations(AppConstants.APP_PACKAGE_NAME)) {
+            if (!pm.isIgnoringBatteryOptimizations(Constants.APP_PACKAGE_NAME)) {
                 Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
-                intent.setData(Uri.parse("package:" + AppConstants.APP_PACKAGE_NAME));
+                intent.setData(Uri.parse("package:" + Constants.APP_PACKAGE_NAME));
                 startActivityIntent.launch(intent);
+
             } else {
                 if (!isDrawOverlayPermissionGranted(getApplicationContext())) {
                     Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                            Uri.parse("package:" + AppConstants.APP_PACKAGE_NAME));
+                            Uri.parse("package:" + Constants.APP_PACKAGE_NAME));
                     startActivityIntent.launch(intent); //It will call onActivityResult Function After you press Yes/No and go Back after giving permission
                 } else {
                     Log.w(TAG, "onActivityResult All Permissions Granted: ");
@@ -241,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
                     //start service
                     startService(new Intent(this, SaveMyAppsService.class));
 
-                    checkDeviceIsStored();
+                    checkDeviceIsStored(DEVICE_ID);
                 }
             }
         }
