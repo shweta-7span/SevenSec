@@ -20,7 +20,7 @@ public class GreyActivity extends AppCompatActivity {
             @Override
             public void run() {
                 finish();
-                GreyActivity.this.overridePendingTransition(R.anim.nothing, R.anim.slide_out_up);
+                GreyActivity.this.overridePendingTransition(R.anim.nothing, R.anim.slide_out_down);
             }
         }, 3000);
     }
