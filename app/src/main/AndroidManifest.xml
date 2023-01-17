@@ -71,6 +71,7 @@
             android:excludeFromRecents="true"
             android:label=""
             android:launchMode="singleTask"
+            android:noHistory="true"
             android:theme="@style/Theme.AppCompat.NoActionBar"/>
         <activity
             android:name="com.sevensec.activities.GreyActivity"
