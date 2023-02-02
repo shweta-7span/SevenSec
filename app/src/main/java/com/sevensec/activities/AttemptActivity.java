@@ -1,5 +1,7 @@
 package com.sevensec.activities;
 
+import static com.sevensec.utils.Constants.DELAY_CHANGE_ATTEMPT_VIEW;
+import static com.sevensec.utils.Constants.DELAY_OPEN_GREY_PAGE;
 import static com.sevensec.utils.Constants.STR_DEVICE_ID;
 
 import android.content.Intent;
@@ -14,8 +16,11 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import androidx.databinding.DataBindingUtil;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.sevensec.R;
+import com.sevensec.activities.fragments.GreyFragment;
 import com.sevensec.databinding.ActivityAttemptBinding;
 import com.sevensec.repo.FireStoreDataOperation;
 import com.sevensec.utils.Constants;
@@ -67,38 +72,28 @@ public class AttemptActivity extends FireStoreDataOperation {
             Log.e(TAG, "getAppName Error: " + e.getMessage());
         }
 
-        binding.tvContinue.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                finish();
-            }
+        binding.tvContinue.setOnClickListener(view -> finish());
+
+        binding.tvNotGoWithApp.setOnClickListener(view -> {
+            Intent homeIntent = new Intent(Intent.ACTION_MAIN);
+            homeIntent.addCategory(Intent.CATEGORY_HOME);
+            startActivity(homeIntent);
+            finish();
         });
 
-        binding.tvNotGoWithApp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent homeIntent = new Intent(Intent.ACTION_MAIN);
-                homeIntent.addCategory(Intent.CATEGORY_HOME);
-                startActivity(homeIntent);
-                finish();
-            }
-        });
+        new Handler().postDelayed(() -> {
+            binding.tvBreathDesc.setVisibility(View.GONE);
+            binding.rlAttempt.setVisibility(View.VISIBLE);
+        }, DELAY_CHANGE_ATTEMPT_VIEW);
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                binding.tvBreathDesc.setVisibility(View.GONE);
-                binding.rlAttempt.setVisibility(View.VISIBLE);
-            }
-        }, 4000);
-
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Intent intent = new Intent(getApplicationContext(), GreyActivity.class);
-                startActivity(intent);
-            }
-        }, 500);
+        new Handler().postDelayed(() -> {
+            FragmentManager manager = getSupportFragmentManager();
+            FragmentTransaction transaction = manager.beginTransaction();
+            transaction.setCustomAnimations(R.anim.slide_in_up, R.anim.nothing, R.anim.nothing, R.anim.slide_out_down);
+            transaction.add(R.id.container, GreyFragment.newInstance(), "GREY");
+            transaction.addToBackStack(null);
+            transaction.commit();
+        }, DELAY_OPEN_GREY_PAGE);
 
         checkAppAddedOrNot(DEVICE_ID, appLabel, lastAppPackage);
     }

@@ -21,4 +21,8 @@ public class Constants {
     public static final String STR_FAV_APP_LIST = "STR_FAV_APP_LIST";
     public static final String ANDROID = "Android";
 
+    public static final long DELAY_OPEN_GREY_PAGE = 500;
+    public static final long GRAY_PAGE_ANIMATION_TIMER = 3000;
+    public static final long DELAY_CHANGE_ATTEMPT_VIEW = GRAY_PAGE_ANIMATION_TIMER + DELAY_OPEN_GREY_PAGE;
+
 }
