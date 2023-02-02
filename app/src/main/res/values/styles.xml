@@ -38,7 +38,7 @@
         <item name="android:activityOpenEnterAnimation">@anim/slide_in_up</item>
         <item name="android:activityOpenExitAnimation">@anim/nothing</item>
         <item name="android:activityCloseEnterAnimation">@anim/nothing</item>
-        <item name="android:activityCloseExitAnimation">@anim/slide_out_up</item>
+        <item name="android:activityCloseExitAnimation">@anim/slide_out_down</item>
     </style>
 
     <style name="warning_activity_style" parent="AppTheme">

@@ -70,11 +70,9 @@
             android:exported="true"
             android:excludeFromRecents="true"
             android:label=""
-            android:launchMode="singleTask" />
-        <activity
-            android:name="com.sevensec.activities.GreyActivity"
-            android:exported="true"
-            android:theme="@style/Theme.AppCompat.NoActionBar" />
+            android:launchMode="singleTask"
+            android:noHistory="true"
+            android:theme="@style/Theme.AppCompat.NoActionBar"/>
 
         <service android:name="com.sevensec.service.SaveMyAppsService" />
     </application>
