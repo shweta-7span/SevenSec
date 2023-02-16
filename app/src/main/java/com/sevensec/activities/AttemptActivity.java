@@ -12,22 +12,19 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.view.WindowManager;
 
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.bumptech.glide.Glide;
 import com.sevensec.R;
 import com.sevensec.activities.fragments.GreyFragment;
 import com.sevensec.databinding.ActivityAttemptBinding;
 import com.sevensec.repo.FireStoreDataOperation;
 import com.sevensec.utils.Constants;
 import com.sevensec.utils.SharedPref;
-
-import java.text.SimpleDateFormat;
-import java.util.TimeZone;
 
 public class AttemptActivity extends FireStoreDataOperation {
 
@@ -50,6 +47,9 @@ public class AttemptActivity extends FireStoreDataOperation {
         binding.tvBreathDesc.setVisibility(View.VISIBLE);
         binding.rlAttempt.setVisibility(View.GONE);
 
+//        GlideDrawableImageViewTarget imageViewTarget = new GlideDrawableImageViewTarget(imageView);
+        Glide.with(this).load(R.raw.breathe).into(binding.ivGif);
+
         if (getIntent().getStringExtra(Constants.STR_LAST_WARN_APP) != null) {
             lastAppPackage = getIntent().getStringExtra(Constants.STR_LAST_WARN_APP);
             Log.e(TAG, "Last App's Package: " + lastAppPackage);
@@ -63,8 +63,9 @@ public class AttemptActivity extends FireStoreDataOperation {
                 binding.ivAppLogo.setImageDrawable(iconDrawable);
                 binding.tvAppLabel.setText(appLabel);
 
-                binding.tvContinue.setText(String.format("%s %s", getString(R.string.continue_with), appLabel));
-                binding.tvNotGoWithApp.setText(String.format("%s %s", getString(R.string.not_go), appLabel));
+//                binding.tvContinue.setText(String.format("%s %s", getString(R.string.strContinue), appLabel));
+                binding.tvContinue.setText(getString(R.string.strContinue));
+                binding.tvNotGoWithApp.setText(getString(R.string.exit));
             }
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
@@ -83,16 +84,19 @@ public class AttemptActivity extends FireStoreDataOperation {
         new Handler().postDelayed(() -> {
             binding.tvBreathDesc.setVisibility(View.GONE);
             binding.rlAttempt.setVisibility(View.VISIBLE);
+
+            Glide.with(this).clear(binding.ivGif);
+
         }, DELAY_CHANGE_ATTEMPT_VIEW);
 
-        new Handler().postDelayed(() -> {
+        /*new Handler().postDelayed(() -> {
             FragmentManager manager = getSupportFragmentManager();
             FragmentTransaction transaction = manager.beginTransaction();
             transaction.setCustomAnimations(R.anim.slide_in_up, R.anim.nothing, R.anim.nothing, R.anim.slide_out_down);
             transaction.add(R.id.container, GreyFragment.newInstance(), "GREY");
             transaction.addToBackStack(null);
             transaction.commit();
-        }, DELAY_OPEN_GREY_PAGE);
+        }, DELAY_OPEN_GREY_PAGE);*/
 
         checkAppAddedOrNot(DEVICE_ID, appLabel, lastAppPackage);
     }
@@ -101,11 +105,11 @@ public class AttemptActivity extends FireStoreDataOperation {
     public void setAttempt(int lastAttempt, String lastUsedTime) {
         super.setAttempt(lastAttempt, lastUsedTime);
 
-        binding.tvAttempts.setText(String.valueOf(lastAttempt));
+//        binding.tvAttempts.setText(String.valueOf(lastAttempt));
         if (lastAttempt == 1) {
-            binding.tvAttemptDesc.setText(String.format("%s%s%s", getString(R.string.attempt_to_open), " " + appLabel + " ", getString(R.string.within_24_hrs)));
+            binding.tvAttempts.setText(String.format("%s%s%s%s%s", lastAttempt," ", getString(R.string.attempt_to_open), " " + appLabel + " ", getString(R.string.within_24_hrs)));
         } else {
-            binding.tvAttemptDesc.setText(String.format("%s%s%s", getString(R.string.attempts_to_open), " " + appLabel + " ", getString(R.string.within_24_hrs)));
+            binding.tvAttempts.setText(String.format("%s%s%s%s%s", lastAttempt, " ",getString(R.string.attempts_to_open), " " + appLabel + " ", getString(R.string.within_24_hrs)));
         }
 
         if (lastUsedTime != null)

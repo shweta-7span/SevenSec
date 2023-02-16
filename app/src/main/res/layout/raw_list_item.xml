@@ -2,7 +2,11 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="10dp">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp">
 
     <ImageView
         android:id="@+id/ivRawAppIcon"
@@ -18,16 +22,20 @@
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:text="@string/raw_app_name"
-        android:textColor="@color/black"
+        android:textColor="@color/grey900"
         android:layout_marginStart="12dp"
         android:layout_toEndOf="@id/ivRawAppIcon"
-        android:textSize="16sp" />
+        android:textSize="16sp"
+        android:textFontWeight="500"/>
 
     <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/rawSwitch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
-        android:layout_centerVertical="true" />
+        android:layout_centerVertical="true"
+        android:thumb="@drawable/thumb_selector"
+        app:track="@drawable/track_selector"/>
+
 
 </RelativeLayout>

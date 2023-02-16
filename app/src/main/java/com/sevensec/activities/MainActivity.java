@@ -20,6 +20,7 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.databinding.DataBindingUtil;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.sevensec.repo.FireStoreDataOperation;
@@ -131,7 +132,11 @@ public class MainActivity extends FireStoreDataOperation {
 
         Log.i(TAG, "onCreate appInfoModelList length after sorting: " + appInfoModelList.size());
 
+
+
         MyListAdapter adapter = new MyListAdapter(appInfoModelList, favAppList);
+        binding.recyclerView.addItemDecoration(new DividerItemDecoration(getApplicationContext(),
+                DividerItemDecoration.VERTICAL));
         binding.recyclerView.setHasFixedSize(true);
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
         binding.recyclerView.setAdapter(adapter);

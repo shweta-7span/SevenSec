@@ -5,7 +5,7 @@
     <data>
 
     </data>
-    
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -13,20 +13,36 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="@color/white"
             tools:context="com.sevensec.activities.AttemptActivity">
 
-            <TextView
-                android:id="@+id/tvBreathDesc"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_centerInParent="true"
-                android:background="@color/black"
-                android:text="@string/str_breath_description"
-                android:textColor="@color/white"
-                android:gravity="center"
-                android:textStyle="bold"
-                android:textSize="30sp"
-                android:visibility="visible"/>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:orientation="vertical"
+                android:visibility="visible">
+
+                <TextView
+                    android:id="@+id/tvBreathDesc"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:paddingLeft="36dp"
+                    android:paddingRight="36dp"
+                    android:text="@string/str_breath_description"
+                    android:textColor="@color/black"
+                    android:textFontWeight="400"
+                    android:textSize="24sp" />
+
+                <ImageView
+                    android:id="@+id/ivGif"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="80dp"
+                    android:layout_marginBottom="40dp"/>
+
+            </LinearLayout>
 
             <RelativeLayout
                 android:id="@+id/rlAttempt"
@@ -35,49 +51,14 @@
                 android:background="@drawable/gradient"
                 android:visibility="gone">
 
-                <TextView
-                    android:id="@+id/tvAttempts"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginTop="120dp"
-                    android:text="@string/zero"
-                    android:textColor="@color/white"
-                    android:textSize="80sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tvAttemptDesc"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginTop="20dp"
-                    android:textAlignment="center"
-                    android:layout_marginStart="64dp"
-                    android:layout_marginEnd="64dp"
-                    android:layout_below="@+id/tvAttempts"
-                    android:textColor="@color/white"
-                    android:textSize="16sp" />
-
-                <TextView
-                    android:id="@+id/tvLastUse"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginTop="20dp"
-                    android:textAlignment="center"
-                    android:layout_marginStart="64dp"
-                    android:layout_marginEnd="64dp"
-                    android:layout_below="@+id/tvAttemptDesc"
-                    android:textColor="@color/white"
-                    android:textSize="16sp" />
-
                 <LinearLayout
+                    android:id="@+id/llAppInfo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_centerInParent="true"
-                    android:gravity="center">
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="100dp"
+                    android:gravity="center"
+                    android:orientation="vertical">
 
                     <ImageView
                         android:id="@+id/ivAppLogo"
@@ -89,43 +70,97 @@
                         android:id="@+id/tvAppLabel"
                         android:layout_width="wrap_content"
                         android:layout_height="30dp"
-                        android:layout_marginTop="20dp"
+                        android:layout_marginTop="7dp"
                         android:text="@string/app_name"
-                        android:textColor="@color/white"
-                        android:textSize="18sp" />
+                        android:textColor="@color/grey100"
+                        android:textFontWeight="400"
+                        android:textSize="20sp" />
 
                 </LinearLayout>
 
                 <TextView
-                    android:id="@+id/tvNotGoWithApp"
+                    android:id="@+id/tvAttempts"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_above="@+id/tvContinue"
+                    android:layout_below="@+id/llAppInfo"
                     android:layout_centerHorizontal="true"
-                    android:paddingTop="15dp"
-                    android:paddingBottom="15dp"
-                    android:paddingLeft="30dp"
-                    android:paddingRight="30dp"
-                    android:background="@drawable/bg_btn_blue"
-                    android:text="@string/not_go"
-                    android:textStyle="bold"
-                    android:textColor="@color/black"
-                    android:textSize="16sp" />
+                    android:layout_marginStart="34dp"
+                    android:layout_marginTop="50dp"
+                    android:layout_marginEnd="34dp"
+                    android:textAlignment="center"
+                    android:textColor="@color/primary50"
+                    android:textFontWeight="700"
+                    android:textSize="24sp"
+                    tools:text="@string/str_attempts_description" />
+
+                <!--<TextView
+                    android:id="@+id/tvAttemptDesc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/tvAttempts"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginStart="64dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginEnd="64dp"
+                    android:textAlignment="center"
+                    android:textColor="@color/white"
+                    android:textSize="16sp" />-->
 
                 <TextView
-                    android:id="@+id/tvContinue"
+                    android:id="@+id/tvLastUse"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentBottom="true"
+                    android:layout_below="@+id/tvAttempts"
                     android:layout_centerHorizontal="true"
-                    android:text="@string/continue_with"
-                    android:paddingTop="20dp"
+                    android:layout_marginStart="64dp"
+                    android:layout_marginTop="30dp"
+                    android:layout_marginEnd="64dp"
+                    android:textAlignment="center"
+                    android:textColor="@color/secondary300"
+                    android:textFontWeight="400"
+                    android:textSize="16sp"
+                    tools:text="Last use:" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginBottom="40dp"
+                    android:orientation="horizontal"
                     android:paddingStart="20dp"
                     android:paddingEnd="20dp"
-                    android:paddingBottom="20dp"
-                    android:layout_marginBottom="30dp"
-                    android:textColor="@color/white"
-                    android:textSize="16sp" />
+                    android:weightSum="2">
+
+                    <TextView
+                        android:id="@+id/tvContinue"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/rounded_border"
+                        android:paddingTop="11dp"
+                        android:paddingBottom="11dp"
+                        android:text="@string/strContinue"
+                        android:textAlignment="center"
+                        android:textColor="@color/white"
+                        android:textFontWeight="500"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:id="@+id/tvNotGoWithApp"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/rounded_corner"
+                        android:paddingTop="11dp"
+                        android:paddingBottom="11dp"
+                        android:text="@string/exit"
+                        android:textAlignment="center"
+                        android:textColor="@color/secondary700"
+                        android:textFontWeight="500"
+                        android:textSize="20sp" />
+
+                </LinearLayout>
 
             </RelativeLayout>
 
@@ -135,6 +170,6 @@
             android:id="@+id/container"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
-        
+
     </FrameLayout>
 </layout>

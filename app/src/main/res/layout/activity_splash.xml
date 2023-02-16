@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/fullscreenBackgroundColor"
+    android:background="@color/primary900"
     android:theme="@style/ThemeOverlay.SevenSec.FullscreenContainer"
     tools:context="com.sevensec.activities.SplashActivity">
 
@@ -16,9 +16,9 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:keepScreenOn="true"
-        android:text="@string/dummy_content"
-        android:textColor="?attr/fullscreenTextColor"
-        android:textSize="50sp"
+        android:text="@string/app_name"
+        android:textColor="@color/primary800"
+        android:textSize="100sp"
         android:textStyle="bold" />
 
     <!-- This FrameLayout insets its children based on system windows using
