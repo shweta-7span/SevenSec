@@ -8,12 +8,12 @@
 
     <gradient
         android:angle="90"
-        android:centerColor="#FF1A237E"
+        android:centerColor="@color/primary900"
         android:centerY="0.1"
-        android:endColor="#FF3F51B5"
-        android:startColor="#FF1A237E"
+        android:endColor="@color/primary500"
+        android:startColor="@color/primary900"
         android:type="linear" />
 
-    <corners android:topLeftRadius="20dp"
-        android:topRightRadius="20dp"/>
+    <corners android:topLeftRadius="@dimen/warning_page_radius"
+        android:topRightRadius="@dimen/warning_page_radius"/>
 </shape>

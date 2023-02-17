@@ -23,4 +23,10 @@
         <item name="fullscreenTextColor">@color/primary800</item>
     </style>
 
+    <!-- Alert Dialog -->
+    <style name="MyAlertDialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">@color/primary600</item>
+        <item name="android:textColorPrimary">@color/grey600</item>
+    </style>
+
 </resources>

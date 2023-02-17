@@ -17,6 +17,9 @@
     <string name="raw_app_name">App Name</string>
     <string name="zero">0</string>
     <string name="exit">Exit</string>
+    <string name="permission_required">Permission Required</string>
+    <string name="permission_description">7Sec requires special permissions to access your app usage data and to overlay the breathing exercise screen when you open configured apps. Your data remains private, offline, on-device.</string>
+    <string name="grant_permission">Grant Permission</string>
 
     <string-array name="arrFavApps">
         <item>com.whatsapp</item>
