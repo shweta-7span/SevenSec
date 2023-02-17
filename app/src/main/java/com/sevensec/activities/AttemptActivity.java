@@ -84,8 +84,7 @@ public class AttemptActivity extends FireStoreDataOperation {
         new Handler().postDelayed(() -> {
             binding.tvBreathDesc.setVisibility(View.GONE);
             binding.rlAttempt.setVisibility(View.VISIBLE);
-
-            Glide.with(this).clear(binding.ivGif);
+//            Glide.with(this).clear(binding.ivGif);
 
         }, DELAY_CHANGE_ATTEMPT_VIEW);
 
