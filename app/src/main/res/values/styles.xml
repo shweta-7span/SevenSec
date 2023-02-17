@@ -5,6 +5,8 @@
         <item name="colorPrimary">@color/primary900</item>
         <item name="colorPrimaryDark">@color/primary900</item>
         <item name="android:statusBarColor">@color/primary800</item>
+        <item name="colorControlHighlight">@color/primary400</item>
+        <item name="colorControlActivated">@color/primary200</item>
     </style>
 
     <style name="AppTheme.NoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
@@ -12,6 +14,8 @@
         <item name="colorPrimary">@color/primary900</item>
         <item name="colorPrimaryDark">@color/primary900</item>
         <item name="android:statusBarColor">@color/primary800</item>
+        <item name="colorControlHighlight">@color/primary400</item>
+        <item name="colorControlActivated">@color/primary200</item>
     </style>
 
     <style name="ThemeOverlay.SevenSec.FullscreenContainer" parent="">

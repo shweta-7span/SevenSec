@@ -3,7 +3,12 @@
     <color name="primary900">#FF1A237E</color>
     <color name="primary800">#FF283593</color>
     <color name="primary700">#FF303F9F</color>
+    <color name="primary600">#FF3949AB</color>
+    <color name="primary500">#FF3F51B5</color>
+    <color name="primary400">#FF5C6BC0</color>
+    <color name="primary300">#FF7986CB</color>
     <color name="primary200">#FF9FA8DA</color>
+    <color name="primary100">#FFC5CAE9</color>
     <color name="primary50">#FFE8EAF6</color>
 
     <color name="secondary700">#FFBE185D</color>
