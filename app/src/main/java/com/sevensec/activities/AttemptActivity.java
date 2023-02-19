@@ -1,12 +1,11 @@
 package com.sevensec.activities;
 
-import static com.sevensec.utils.Constants.DELAY_CHANGE_ATTEMPT_VIEW;
-import static com.sevensec.utils.Constants.DELAY_OPEN_GREY_PAGE;
 import static com.sevensec.utils.Constants.STR_DEVICE_ID;
 
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Movie;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -15,16 +14,14 @@ import android.view.View;
 import android.view.WindowManager;
 
 import androidx.databinding.DataBindingUtil;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
-import com.bumptech.glide.Glide;
 import com.sevensec.R;
-import com.sevensec.activities.fragments.GreyFragment;
 import com.sevensec.databinding.ActivityAttemptBinding;
 import com.sevensec.repo.FireStoreDataOperation;
 import com.sevensec.utils.Constants;
 import com.sevensec.utils.SharedPref;
+
+import java.io.InputStream;
 
 public class AttemptActivity extends FireStoreDataOperation {
 
@@ -46,9 +43,6 @@ public class AttemptActivity extends FireStoreDataOperation {
 
         binding.tvBreathDesc.setVisibility(View.VISIBLE);
         binding.rlAttempt.setVisibility(View.GONE);
-
-//        GlideDrawableImageViewTarget imageViewTarget = new GlideDrawableImageViewTarget(imageView);
-        Glide.with(this).load(R.raw.breathe).into(binding.ivGif);
 
         if (getIntent().getStringExtra(Constants.STR_LAST_WARN_APP) != null) {
             lastAppPackage = getIntent().getStringExtra(Constants.STR_LAST_WARN_APP);
@@ -81,12 +75,15 @@ public class AttemptActivity extends FireStoreDataOperation {
             finish();
         });
 
+        InputStream is = getResources().openRawResource(R.raw.breathe);
+        Movie movie = Movie.decodeStream(is);
+        int duration = movie.duration();
+        Log.e(TAG, ".gif duration: " + duration);
+
         new Handler().postDelayed(() -> {
             binding.tvBreathDesc.setVisibility(View.GONE);
             binding.rlAttempt.setVisibility(View.VISIBLE);
-//            Glide.with(this).clear(binding.ivGif);
-
-        }, DELAY_CHANGE_ATTEMPT_VIEW);
+        }, duration);
 
         /*new Handler().postDelayed(() -> {
             FragmentManager manager = getSupportFragmentManager();
@@ -106,9 +103,9 @@ public class AttemptActivity extends FireStoreDataOperation {
 
 //        binding.tvAttempts.setText(String.valueOf(lastAttempt));
         if (lastAttempt == 1) {
-            binding.tvAttempts.setText(String.format("%s%s%s%s%s", lastAttempt," ", getString(R.string.attempt_to_open), " " + appLabel + " ", getString(R.string.within_24_hrs)));
+            binding.tvAttempts.setText(String.format("%s%s%s%s%s", lastAttempt, " ", getString(R.string.attempt_to_open), " " + appLabel + " ", getString(R.string.within_24_hrs)));
         } else {
-            binding.tvAttempts.setText(String.format("%s%s%s%s%s", lastAttempt, " ",getString(R.string.attempts_to_open), " " + appLabel + " ", getString(R.string.within_24_hrs)));
+            binding.tvAttempts.setText(String.format("%s%s%s%s%s", lastAttempt, " ", getString(R.string.attempts_to_open), " " + appLabel + " ", getString(R.string.within_24_hrs)));
         }
 
         if (lastUsedTime != null)
