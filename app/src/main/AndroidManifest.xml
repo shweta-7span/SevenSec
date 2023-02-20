@@ -12,6 +12,7 @@
         android:name="android.permission.GET_TASKS"
         android:maxSdkVersion="20" />-->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <permission android:name="android.permission.QUERY_ALL_PACKAGES" />
 
@@ -66,6 +67,16 @@
             android:noHistory="true"/>
 
         <service android:name="com.sevensec.service.SaveMyAppsService" />
+
+        <receiver
+            android:name="com.sevensec.receiver.BootCompleteReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>

@@ -25,6 +25,8 @@ import com.sevensec.utils.SharedPref;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -60,6 +62,7 @@ public class SaveMyAppsService extends Service {
         TAG = getApplicationContext().getClass().getName();
         //        androidStrings = getResources().getStringArray(R.array.arrFavApps);
         lastAppPN = APP_PACKAGE_NAME;
+        Log.d(TAG, "onStartCommand: ");
 
         scheduleMethod();
         instance = this;
@@ -88,18 +91,19 @@ public class SaveMyAppsService extends Service {
     }
 
     private void scheduleMethod() {
-        ScheduledExecutorService scheduler = Executors
-                .newSingleThreadScheduledExecutor();
-        scheduler.scheduleAtFixedRate(new Runnable() {
+        Timer timer = new Timer();
+        TimerTask t = new TimerTask() {
             @Override
             public void run() {
                 checkRunningApps();
             }
-        }, 0, 500, TimeUnit.MILLISECONDS);
+        };
+        timer.scheduleAtFixedRate(t,0,500);
     }
 
     public void checkRunningApps() {
 
+        SharedPref.init(getApplicationContext());
         favAppList = SharedPref.readListString(STR_FAV_APP_LIST);
         Log.w(TAG, "TEST favAppList: " + favAppList.size());
 
@@ -175,5 +179,11 @@ public class SaveMyAppsService extends Service {
         if (instance != null) {
             instance.stopSelf();
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        stop();
     }
 }
