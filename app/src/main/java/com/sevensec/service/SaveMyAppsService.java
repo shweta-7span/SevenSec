@@ -160,7 +160,7 @@ public class SaveMyAppsService extends Service {
                     intent.putExtra(STR_LAST_WARN_APP, lastAppPN);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);
-                }, 1000);
+                }, 500);
 
             } else {
                 Log.d(TAG, "TEST Don't Show Password Activity");
