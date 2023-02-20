@@ -59,7 +59,7 @@ public class AttemptActivity extends FireStoreDataOperation {
 
 //                binding.tvContinue.setText(String.format("%s %s", getString(R.string.strContinue), appLabel));
                 binding.tvContinue.setText(getString(R.string.strContinue));
-                binding.tvNotGoWithApp.setText(getString(R.string.exit));
+                binding.tvExit.setText(getString(R.string.exit));
             }
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
@@ -68,7 +68,7 @@ public class AttemptActivity extends FireStoreDataOperation {
 
         binding.tvContinue.setOnClickListener(view -> finish());
 
-        binding.tvNotGoWithApp.setOnClickListener(view -> {
+        binding.tvExit.setOnClickListener(view -> {
             Intent homeIntent = new Intent(Intent.ACTION_MAIN);
             homeIntent.addCategory(Intent.CATEGORY_HOME);
             startActivity(homeIntent);
@@ -110,5 +110,14 @@ public class AttemptActivity extends FireStoreDataOperation {
 
         if (lastUsedTime != null)
             binding.tvLastUse.setText(String.format("Last use: %s", lastUsedTime));
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent homeIntent = new Intent(Intent.ACTION_MAIN);
+        homeIntent.addCategory(Intent.CATEGORY_HOME);
+        startActivity(homeIntent);
+        finish();
     }
 }
