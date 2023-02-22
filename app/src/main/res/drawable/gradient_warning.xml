@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--<gradient
+        android:type="linear"
+        android:angle="45"
+        android:startColor="#FF4C4646"
+        android:endColor="#8F8F8F"/>-->
+
+    <gradient
+        android:angle="90"
+        android:centerColor="@color/primary900"
+        android:centerY="0.1"
+        android:endColor="@color/primary500"
+        android:startColor="@color/primary900"
+        android:type="linear" />
+
+    <corners android:topLeftRadius="@dimen/warning_page_radius"
+        android:topRightRadius="@dimen/warning_page_radius"/>
+</shape>

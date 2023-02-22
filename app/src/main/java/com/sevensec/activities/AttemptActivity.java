@@ -1,33 +1,27 @@
 package com.sevensec.activities;
 
-import static com.sevensec.utils.Constants.DELAY_CHANGE_ATTEMPT_VIEW;
-import static com.sevensec.utils.Constants.DELAY_OPEN_GREY_PAGE;
 import static com.sevensec.utils.Constants.STR_DEVICE_ID;
 
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Movie;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.view.WindowManager;
 
 import androidx.databinding.DataBindingUtil;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
 import com.sevensec.R;
-import com.sevensec.activities.fragments.GreyFragment;
 import com.sevensec.databinding.ActivityAttemptBinding;
 import com.sevensec.repo.FireStoreDataOperation;
 import com.sevensec.utils.Constants;
 import com.sevensec.utils.SharedPref;
 
-import java.text.SimpleDateFormat;
-import java.util.TimeZone;
+import java.io.InputStream;
 
 public class AttemptActivity extends FireStoreDataOperation {
 
@@ -63,8 +57,9 @@ public class AttemptActivity extends FireStoreDataOperation {
                 binding.ivAppLogo.setImageDrawable(iconDrawable);
                 binding.tvAppLabel.setText(appLabel);
 
-                binding.tvContinue.setText(String.format("%s %s", getString(R.string.continue_with), appLabel));
-                binding.tvNotGoWithApp.setText(String.format("%s %s", getString(R.string.not_go), appLabel));
+//                binding.tvContinue.setText(String.format("%s %s", getString(R.string.strContinue), appLabel));
+                binding.tvContinue.setText(getString(R.string.strContinue));
+                binding.tvExit.setText(getString(R.string.exit));
             }
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
@@ -73,26 +68,31 @@ public class AttemptActivity extends FireStoreDataOperation {
 
         binding.tvContinue.setOnClickListener(view -> finish());
 
-        binding.tvNotGoWithApp.setOnClickListener(view -> {
+        binding.tvExit.setOnClickListener(view -> {
             Intent homeIntent = new Intent(Intent.ACTION_MAIN);
             homeIntent.addCategory(Intent.CATEGORY_HOME);
             startActivity(homeIntent);
             finish();
         });
 
+        InputStream is = getResources().openRawResource(R.raw.breathe);
+        Movie movie = Movie.decodeStream(is);
+        int duration = movie.duration();
+        Log.e(TAG, ".gif duration: " + duration);
+
         new Handler().postDelayed(() -> {
             binding.tvBreathDesc.setVisibility(View.GONE);
             binding.rlAttempt.setVisibility(View.VISIBLE);
-        }, DELAY_CHANGE_ATTEMPT_VIEW);
+        }, duration);
 
-        new Handler().postDelayed(() -> {
+        /*new Handler().postDelayed(() -> {
             FragmentManager manager = getSupportFragmentManager();
             FragmentTransaction transaction = manager.beginTransaction();
             transaction.setCustomAnimations(R.anim.slide_in_up, R.anim.nothing, R.anim.nothing, R.anim.slide_out_down);
             transaction.add(R.id.container, GreyFragment.newInstance(), "GREY");
             transaction.addToBackStack(null);
             transaction.commit();
-        }, DELAY_OPEN_GREY_PAGE);
+        }, DELAY_OPEN_GREY_PAGE);*/
 
         checkAppAddedOrNot(DEVICE_ID, appLabel, lastAppPackage);
     }
@@ -101,14 +101,23 @@ public class AttemptActivity extends FireStoreDataOperation {
     public void setAttempt(int lastAttempt, String lastUsedTime) {
         super.setAttempt(lastAttempt, lastUsedTime);
 
-        binding.tvAttempts.setText(String.valueOf(lastAttempt));
+//        binding.tvAttempts.setText(String.valueOf(lastAttempt));
         if (lastAttempt == 1) {
-            binding.tvAttemptDesc.setText(String.format("%s%s%s", getString(R.string.attempt_to_open), " " + appLabel + " ", getString(R.string.within_24_hrs)));
+            binding.tvAttempts.setText(String.format("%s%s%s%s%s", lastAttempt, " ", getString(R.string.attempt_to_open), " " + appLabel + " ", getString(R.string.within_24_hrs)));
         } else {
-            binding.tvAttemptDesc.setText(String.format("%s%s%s", getString(R.string.attempts_to_open), " " + appLabel + " ", getString(R.string.within_24_hrs)));
+            binding.tvAttempts.setText(String.format("%s%s%s%s%s", lastAttempt, " ", getString(R.string.attempts_to_open), " " + appLabel + " ", getString(R.string.within_24_hrs)));
         }
 
         if (lastUsedTime != null)
             binding.tvLastUse.setText(String.format("Last use: %s", lastUsedTime));
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent homeIntent = new Intent(Intent.ACTION_MAIN);
+        homeIntent.addCategory(Intent.CATEGORY_HOME);
+        startActivity(homeIntent);
+        finish();
     }
 }

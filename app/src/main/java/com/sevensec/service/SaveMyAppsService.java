@@ -14,7 +14,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.util.Log;
 
 import androidx.annotation.RequiresApi;
@@ -25,6 +27,8 @@ import com.sevensec.utils.SharedPref;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -60,6 +64,7 @@ public class SaveMyAppsService extends Service {
         TAG = getApplicationContext().getClass().getName();
         //        androidStrings = getResources().getStringArray(R.array.arrFavApps);
         lastAppPN = APP_PACKAGE_NAME;
+        Log.d(TAG, "onStartCommand: ");
 
         scheduleMethod();
         instance = this;
@@ -88,18 +93,19 @@ public class SaveMyAppsService extends Service {
     }
 
     private void scheduleMethod() {
-        ScheduledExecutorService scheduler = Executors
-                .newSingleThreadScheduledExecutor();
-        scheduler.scheduleAtFixedRate(new Runnable() {
+        Timer timer = new Timer();
+        TimerTask t = new TimerTask() {
             @Override
             public void run() {
                 checkRunningApps();
             }
-        }, 0, 500, TimeUnit.MILLISECONDS);
+        };
+        timer.scheduleAtFixedRate(t,0,500);
     }
 
     public void checkRunningApps() {
 
+        SharedPref.init(getApplicationContext());
         favAppList = SharedPref.readListString(STR_FAV_APP_LIST);
         Log.w(TAG, "TEST favAppList: " + favAppList.size());
 
@@ -147,12 +153,14 @@ public class SaveMyAppsService extends Service {
                 lastAppPN = activityOnTop;
                 Log.e(TAG, "TEST After lastAppPN: " + lastAppPN);
 
-                // Show Password Activity
-                Log.w(TAG, "TEST Show Password Activity");
-                Intent intent = new Intent(this, AttemptActivity.class);
-                intent.putExtra(STR_LAST_WARN_APP, lastAppPN);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    // Show Password Activity
+                    Log.w(TAG, "TEST Show Password Activity");
+                    Intent intent = new Intent(SaveMyAppsService.this, AttemptActivity.class);
+                    intent.putExtra(STR_LAST_WARN_APP, lastAppPN);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                }, 500);
 
             } else {
                 Log.d(TAG, "TEST Don't Show Password Activity");
@@ -175,5 +183,11 @@ public class SaveMyAppsService extends Service {
         if (instance != null) {
             instance.stopSelf();
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        stop();
     }
 }

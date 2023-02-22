@@ -1,69 +1,32 @@
 <resources>
 
-    <style name="Widget.Theme.SevenSec.ActionBar.Fullscreen" parent="Widget.AppCompat.ActionBar">
-        <item name="android:background">@color/black_overlay</item>
-    </style>
-
-    <style name="Widget.Theme.SevenSec.ButtonBar.Fullscreen" parent="">
-        <item name="android:background">@color/black_overlay</item>
-        <item name="android:buttonBarStyle">?android:attr/buttonBarStyle</item>
-    </style>
-
-    <style name="Theme.AppCompat.Translucent" parent="Theme.AppCompat.NoActionBar">
-        <item name="android:background">#33646464
-        </item> <!-- Or any transparency or color you need -->
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="android:colorBackgroundCacheHint">@null</item>
-        <item name="android:windowIsTranslucent">true</item>
-        <item name="android:windowAnimationStyle">@android:style/Animation</item>
-    </style>
-
-    <!--<style name="unlock_activity_style" parent="AppTheme">
-        <item name="android:windowIsTranslucent">true</item>
-        <item name="android:windowActionBar">false</item>
-        <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="android:activityOpenEnterAnimation">@null</item>
-        <item name="android:activityOpenExitAnimation">@null</item>
-        <item name="android:activityCloseEnterAnimation">@null</item>
-        <item name="android:activityCloseExitAnimation">@null</item>
-    </style>-->
-
-    <style name="attempt_activity_style" parent="AppTheme">
-        <item name="android:windowIsTranslucent">true</item>
-        <item name="android:windowActionBar">false</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowFullscreen">true</item>
-        <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="android:activityOpenEnterAnimation">@anim/slide_in_up</item>
-        <item name="android:activityOpenExitAnimation">@anim/nothing</item>
-        <item name="android:activityCloseEnterAnimation">@anim/nothing</item>
-        <item name="android:activityCloseExitAnimation">@anim/slide_out_down</item>
-    </style>
-
-    <style name="warning_activity_style" parent="AppTheme">
-        <item name="android:windowIsTranslucent">true</item>
-        <item name="android:windowActionBar">false</item>
-    </style>
-
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorPrimary">@color/primary900</item>
+        <item name="colorPrimaryDark">@color/primary900</item>
+        <item name="android:statusBarColor">@color/primary800</item>
+        <item name="colorControlHighlight">@color/primary400</item>
+        <item name="colorControlActivated">@color/primary200</item>
+    </style>
 
-        <item name="android:windowActionBar">false</item>
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-        <!--<item name="android:windowIsTranslucent">true</item>-->
-        <item name="android:windowBackground">@color/white</item>
-        <!-- Remove shadow below action bar Android < 5.0 -->
-        <item name="android:windowContentOverlay">@null</item>
-        <!-- Support library compatibility -->
-        <item name="elevation">0dp</item>
+    <style name="AppTheme.NoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/primary900</item>
+        <item name="colorPrimaryDark">@color/primary900</item>
+        <item name="android:statusBarColor">@color/primary800</item>
+        <item name="colorControlHighlight">@color/primary400</item>
+        <item name="colorControlActivated">@color/primary200</item>
+    </style>
 
-        <item name="android:actionMenuTextColor">@android:color/white</item>
+    <style name="ThemeOverlay.SevenSec.FullscreenContainer" parent="">
+        <item name="fullscreenBackgroundColor">@color/primary900</item>
+        <item name="fullscreenTextColor">@color/primary800</item>
+    </style>
 
+    <!-- Alert Dialog -->
+    <style name="MyAlertDialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">@color/primary600</item>
+        <item name="android:textColorPrimary">@color/grey600</item>
     </style>
 
 </resources>
