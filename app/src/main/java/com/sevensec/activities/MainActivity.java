@@ -5,7 +5,6 @@ import static com.sevensec.utils.Constants.STR_FAV_APP_LIST;
 import static com.sevensec.utils.Utils.isAccessGranted;
 import static com.sevensec.utils.Utils.isDrawOverlayPermissionGranted;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -17,8 +16,6 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
@@ -38,7 +35,6 @@ import com.sevensec.utils.SharedPref;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 public class MainActivity extends FireStoreDataOperation {
@@ -86,14 +82,14 @@ public class MainActivity extends FireStoreDataOperation {
             checkDeviceIsStored(DEVICE_ID);
 
             MyFirebaseAnalytics.setUser(DEVICE_ID);
-            MyFirebaseAnalytics.log("Permission", "All Permission Granted");
+            MyFirebaseAnalytics.log("Permission", "Permission_details", "All Permission Granted");
 
         } else {
             Log.w(TAG, "onActivityResult All Permissions NOT Granted: ");
             binding.llPermission.setVisibility(View.VISIBLE);
             binding.recyclerView.setVisibility(View.GONE);
 
-            MyFirebaseAnalytics.log("Permission", "Permission NOT Granted");
+            MyFirebaseAnalytics.log("Permission", "Permission_details", "Permission NOT Granted");
         }
     }
 
@@ -186,14 +182,14 @@ public class MainActivity extends FireStoreDataOperation {
         } else {
             Log.e(TAG, "askPermissions app: " + Constants.APP_PACKAGE_NAME);
             Log.e(TAG, "askPermissions isBatteryOptimized: " + pm.isIgnoringBatteryOptimizations(Constants.APP_PACKAGE_NAME));
-            MyFirebaseAnalytics.log("Permission", "Usage Access Permission Granted");
+            MyFirebaseAnalytics.log("Permission", "Permission_details", "Usage Access Permission Granted");
 
             if (!isDrawOverlayPermissionGranted(getApplicationContext())) {
                 showPermissionDialog("Overlay Permission",
                         "Find the 7Sec app in the list and allow the Overlay Permission.\n\nThen, come back.",
                         102);
             } else {
-                MyFirebaseAnalytics.log("Permission", "Overlay Permission Granted");
+                MyFirebaseAnalytics.log("Permission", "Permission_details", "Overlay Permission Granted");
 
                 if (!pm.isIgnoringBatteryOptimizations(Constants.APP_PACKAGE_NAME)) {
                     showPermissionDialog("Battery Optimization Permission",

@@ -32,11 +32,11 @@ public class MyFirebaseAnalytics {
         }
     }
 
-    public static void log(String strLogParam, String strData) {
+    public static void log(String strLogParam, String strEventName, String strData) {
         if(IS_PRODUCTION_MODE) {
             Bundle bundle = new Bundle();
             bundle.putString(strLogParam, strData);
-            mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.CAMPAIGN_DETAILS, bundle);
+            mFirebaseAnalytics.logEvent(strEventName, bundle);
         }
     }
 }
