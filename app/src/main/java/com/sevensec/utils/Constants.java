@@ -25,4 +25,6 @@ public class Constants {
     public static final long GRAY_PAGE_ANIMATION_TIMER = 3000;
 //    public static final long DELAY_CHANGE_ATTEMPT_VIEW = GRAY_PAGE_ANIMATION_TIMER + DELAY_OPEN_GREY_PAGE;
 
+    public static final long APP_SWITCH_DURATION = 1000 * 60;
+
 }

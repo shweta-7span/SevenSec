@@ -1,5 +1,7 @@
 package com.sevensec.service;
+
 import static com.sevensec.utils.Constants.APP_PACKAGE_NAME;
+import static com.sevensec.utils.Constants.APP_SWITCH_DURATION;
 import static com.sevensec.utils.Constants.STR_FAV_APP_LIST;
 import static com.sevensec.utils.Constants.STR_LAST_WARN_APP;
 
@@ -24,14 +26,13 @@ import androidx.core.app.NotificationCompat;
 
 import com.sevensec.activities.AttemptActivity;
 import com.sevensec.utils.SharedPref;
+import com.sevensec.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 public class SaveMyAppsService extends Service {
 
@@ -39,7 +40,7 @@ public class SaveMyAppsService extends Service {
     String activityOnTop = "";
     String lastAppPN = "";
     public static SaveMyAppsService instance;
-//    String[] androidStrings;
+    //    String[] androidStrings;
     List<String> favAppList = new ArrayList<>();
 
     @Override
@@ -72,7 +73,7 @@ public class SaveMyAppsService extends Service {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private void startMyOwnForeground(){
+    private void startMyOwnForeground() {
         String NOTIFICATION_CHANNEL_ID = APP_PACKAGE_NAME;
         String channelName = "Background Service";
         NotificationChannel chan = new NotificationChannel(NOTIFICATION_CHANNEL_ID, channelName, NotificationManager.IMPORTANCE_NONE);
@@ -100,7 +101,7 @@ public class SaveMyAppsService extends Service {
                 checkRunningApps();
             }
         };
-        timer.scheduleAtFixedRate(t,0,500);
+        timer.scheduleAtFixedRate(t, 0, 500);
     }
 
     public void checkRunningApps() {
@@ -138,6 +139,7 @@ public class SaveMyAppsService extends Service {
             }
         }
         Log.v(TAG, "TEST activity on Top: " + activityOnTop);
+        saveAppCloseTime(activityOnTop, lastAppPN);
 
         // Provide the packageName(s) of apps here, you want to show attempt activity
         // you can make this check even better
@@ -153,14 +155,17 @@ public class SaveMyAppsService extends Service {
                 lastAppPN = activityOnTop;
                 Log.e(TAG, "TEST After lastAppPN: " + lastAppPN);
 
-                new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                    // Show Password Activity
-                    Log.w(TAG, "TEST Show Password Activity");
-                    Intent intent = new Intent(SaveMyAppsService.this, AttemptActivity.class);
-                    intent.putExtra(STR_LAST_WARN_APP, lastAppPN);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
-                }, 500);
+                if (!isAppSwitchTimeExpire(lastAppPN)) {
+
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                        // Show Password Activity
+                        Log.w(TAG, "TEST Show Password Activity");
+                        Intent intent = new Intent(SaveMyAppsService.this, AttemptActivity.class);
+                        intent.putExtra(STR_LAST_WARN_APP, lastAppPN);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                    }, 500);
+                }
 
             } else {
                 Log.d(TAG, "TEST Don't Show Password Activity");
@@ -177,6 +182,27 @@ public class SaveMyAppsService extends Service {
                 lastAppPN = activityOnTop;
             }
         }
+    }
+
+    private void saveAppCloseTime(String activityOnTop, String lastAppPN) {
+        //Check user open the app after click on continue button of Attempt Screen OR not
+        if (SharedPref.readBoolean(Utils.getIsLastAppOpenKey(lastAppPN), false)) {
+            if (!activityOnTop.equals(lastAppPN) &&
+                    !activityOnTop.equals(APP_PACKAGE_NAME) /*&&
+                    favAppList.contains(lastAppPN)*/) {
+                Log.d(TAG, "App Switch: closed Time for " + lastAppPN + " :" + new Date().getTime());
+                SharedPref.writeLong(lastAppPN, new Date().getTime());
+            }
+        }
+    }
+
+    private boolean isAppSwitchTimeExpire(String lastAppPN) {
+        long lastUsedDifference = Math.abs(SharedPref.readLong(lastAppPN, new Date().getTime() + (APP_SWITCH_DURATION * 60)) - new Date().getTime());
+        long elapsedMinutes = lastUsedDifference / (APP_SWITCH_DURATION);
+
+        Log.v(TAG, "App Switch: " + lastAppPN + ": " + elapsedMinutes);
+
+        return elapsedMinutes < 1;
     }
 
     public static void stop() {

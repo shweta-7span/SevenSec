@@ -52,6 +52,15 @@ public class SharedPref {
         prefsEditor.putInt(key, value).apply();
     }
 
+    public static long readLong(String key, long defValue) {
+        return mSharedPref.getLong(key, defValue);
+    }
+
+    public static void writeLong(String key, long value) {
+        SharedPreferences.Editor prefsEditor = mSharedPref.edit();
+        prefsEditor.putLong(key, value).apply();
+    }
+
     public static <T> void writeList(String key, List<T> list) {
         Gson gson = new Gson();
         String json = gson.toJson(list);
