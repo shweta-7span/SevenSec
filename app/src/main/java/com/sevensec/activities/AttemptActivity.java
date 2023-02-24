@@ -50,6 +50,11 @@ public class AttemptActivity extends FireStoreDataOperation {
             Log.e(TAG, "Last App's Package: " + lastAppPackage);
         }
 
+        // When the warning page show & if user close our warning page and open
+        // the fav app from recent then he can use the app as at that time
+        // we save the app close time. So, by set the boolean 'false' we can solve it.
+        SharedPref.writeBoolean(Utils.getIsLastAppOpenKey(lastAppPackage), false);
+
         try {
             ApplicationInfo appInfo = packageManager.getApplicationInfo(lastAppPackage, PackageManager.GET_UNINSTALLED_PACKAGES);
             if (appInfo != null) {
