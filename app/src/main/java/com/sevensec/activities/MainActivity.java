@@ -2,10 +2,10 @@ package com.sevensec.activities;
 
 import static com.sevensec.utils.Constants.STR_DEVICE_ID;
 import static com.sevensec.utils.Constants.STR_FAV_APP_LIST;
+import static com.sevensec.utils.Constants.STR_FIRST_TIME_APP_LAUNCH;
 import static com.sevensec.utils.Utils.isAccessGranted;
 import static com.sevensec.utils.Utils.isDrawOverlayPermissionGranted;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
@@ -53,8 +53,8 @@ public class MainActivity extends FireStoreDataOperation {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
 
         pm = (PowerManager) getSystemService(POWER_SERVICE);
-        SharedPref.init(getApplicationContext());
 
+        SharedPref.writeBoolean(STR_FIRST_TIME_APP_LAUNCH, false);
         checkPermission();
 
         binding.btnPermission.setOnClickListener(view -> askPermissions());
