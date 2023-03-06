@@ -1,7 +1,7 @@
 package com.sevensec.service;
 
 import static com.sevensec.utils.Constants.APP_PACKAGE_NAME;
-import static com.sevensec.utils.Constants.APP_SWITCH_DURATION;
+import static com.sevensec.utils.Constants.STR_APP_SWITCH_DURATION;
 import static com.sevensec.utils.Constants.STR_FAV_APP_LIST;
 import static com.sevensec.utils.Constants.STR_LAST_WARN_APP;
 
@@ -155,7 +155,7 @@ public class SaveMyAppsService extends Service {
                 lastAppPN = activityOnTop;
                 Log.e(TAG, "TEST After lastAppPN: " + lastAppPN);
 
-                if (!isAppSwitchTimeExpire(lastAppPN)) {
+                if (isAppSwitchTimeExpire(lastAppPN)) {
 
                     new Handler(Looper.getMainLooper()).postDelayed(() -> {
                         // Show Password Activity
@@ -197,12 +197,27 @@ public class SaveMyAppsService extends Service {
     }
 
     private boolean isAppSwitchTimeExpire(String lastAppPN) {
-        long lastUsedDifference = Math.abs(SharedPref.readLong(lastAppPN, new Date().getTime() + (APP_SWITCH_DURATION * 60)) - new Date().getTime());
-        long elapsedMinutes = lastUsedDifference / (APP_SWITCH_DURATION);
+        /*long lastUsedDifference = Math.abs(SharedPref.readLong(lastAppPN, new Date().getTime() + ((1000 * 60) * 60)) - new Date().getTime());
+        long elapsedMinutes = lastUsedDifference / (1000 * 60);
 
         Log.v(TAG, "App Switch: " + lastAppPN + ": " + elapsedMinutes);
 
-        return elapsedMinutes < 1;
+        return elapsedMinutes >= 1;*/
+
+        long appSwitchDuration = SharedPref.readInteger(STR_APP_SWITCH_DURATION, 0);
+
+        if (appSwitchDuration == 0) {
+            Log.v(TAG, "App Switch: " + lastAppPN + " ,elapsedMinutes already: " + 0);
+            return true;
+
+        } else {
+            long lastUsedDifference = Math.abs(SharedPref.readLong(lastAppPN, new Date().getTime() + (appSwitchDuration * 60)) - new Date().getTime());
+            long elapsedMinutes = lastUsedDifference / appSwitchDuration;
+
+            Log.v(TAG, "App Switch: " + lastAppPN + " ,elapsedMinutes: " + elapsedMinutes);
+
+            return elapsedMinutes < 1;
+        }
     }
 
     public static void stop() {

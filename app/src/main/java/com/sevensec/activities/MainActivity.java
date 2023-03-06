@@ -1,5 +1,6 @@
 package com.sevensec.activities;
 
+import static com.sevensec.utils.Constants.STR_APP_SWITCH_DURATION;
 import static com.sevensec.utils.Constants.STR_DEVICE_ID;
 import static com.sevensec.utils.Constants.STR_FAV_APP_LIST;
 import static com.sevensec.utils.Constants.STR_FIRST_TIME_APP_LAUNCH;
@@ -16,18 +17,23 @@ import android.os.Bundle;
 import android.os.PowerManager;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.databinding.DataBindingUtil;
+import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.sevensec.R;
+import com.sevensec.activities.fragments.SingleChoiceDialogFragment;
 import com.sevensec.adapter.MyListAdapter;
 import com.sevensec.databinding.ActivityMainBinding;
 import com.sevensec.model.AppInfoModel;
@@ -41,11 +47,13 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class MainActivity extends FireStoreDataOperation {
+public class MainActivity extends FireStoreDataOperation implements SingleChoiceDialogFragment.SingleChoiceListener {
 
     String TAG = getClass().getName();
     ActivityMainBinding binding;
     PowerManager pm;
+    MenuItem itemSettings;
+    boolean isPermissionGranted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +66,29 @@ public class MainActivity extends FireStoreDataOperation {
         checkPermission();
 
         binding.btnPermission.setOnClickListener(view -> askPermissions());
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.action, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        itemSettings = menu.findItem(R.id.action_settings);
+        itemSettings.setVisible(isPermissionGranted);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_settings) {
+            openAppSwitchingPopup();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void checkPermission() {
@@ -82,11 +113,16 @@ public class MainActivity extends FireStoreDataOperation {
 
             //Store DEVICE_ID in FireStore
             checkDeviceIsStored(DEVICE_ID);
+            isPermissionGranted = true;
+            if (itemSettings != null) {
+                itemSettings.setVisible(true);
+            }
 
-        }else{
+        } else {
             Log.w(TAG, "onActivityResult All Permissions NOT Granted: ");
             binding.llPermission.setVisibility(View.VISIBLE);
             binding.recyclerView.setVisibility(View.GONE);
+            isPermissionGranted = false;
         }
     }
 
@@ -234,5 +270,27 @@ public class MainActivity extends FireStoreDataOperation {
                 .setNegativeButton("Cancel", null)
 //                .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
+    }
+
+    private void openAppSwitchingPopup() {
+        DialogFragment singleChoiceDialog = new SingleChoiceDialogFragment();
+        singleChoiceDialog.setCancelable(false);
+        singleChoiceDialog.show(getSupportFragmentManager(), "Single Choice Dialog");
+    }
+
+    @Override
+    public void onPositiveButtonClick(int position) {
+        if (position == 1) {
+            SharedPref.writeInteger(STR_APP_SWITCH_DURATION, 1000 * 30); // 30 seconds
+        } else if (position == 2) {
+            SharedPref.writeInteger(STR_APP_SWITCH_DURATION, 1000 * 60); // 1 minute
+        } else {
+            SharedPref.writeInteger(STR_APP_SWITCH_DURATION, 0); // 0 second
+        }
+    }
+
+    @Override
+    public void onNegativeButtonClick(DialogInterface dialog) {
+        dialog.dismiss();
     }
 }
