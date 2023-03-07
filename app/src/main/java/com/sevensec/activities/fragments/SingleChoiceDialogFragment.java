@@ -15,8 +15,6 @@ import androidx.fragment.app.DialogFragment;
 import com.sevensec.R;
 import com.sevensec.utils.SharedPref;
 
-import java.util.Objects;
-
 public class SingleChoiceDialogFragment extends DialogFragment {
 
     int position = 0;
@@ -43,20 +41,23 @@ public class SingleChoiceDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.MyAlertDialogTheme);
         String[] arrAppSwitchDelay = requireActivity().getResources().getStringArray(R.array.arrAppSwitchDelay);
 
-        builder.setTitle(R.string.select_app_switch_delay).setSingleChoiceItems(arrAppSwitchDelay, position, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int i) {
-                position = i;
-            }
-        }).setPositiveButton(getString(R.string.save), (dialog, i) -> {
-            mListener.onPositiveButtonClick(position);
+        long appSwitchDuration = SharedPref.readInteger(STR_APP_SWITCH_DURATION, 0);
 
-        }).setNegativeButton(getString(R.string.cancel), (dialog, which) -> {
-            mListener.onNegativeButtonClick(dialog);
-        });
+        if (appSwitchDuration == 30) {
+            position = 1;
+        } else if (appSwitchDuration == 60) {
+            position = 2;
+        } else {
+            position = 0;
+        }
+
+        builder.setTitle(R.string.select_app_switch_delay)
+                .setSingleChoiceItems(arrAppSwitchDelay, position, (dialog, i) -> position = i)
+                .setPositiveButton(getString(R.string.save), (dialog, i) -> mListener.onPositiveButtonClick(position))
+                .setNegativeButton(getString(R.string.cancel), (dialog, which) -> mListener.onNegativeButtonClick(dialog));
 
         return builder.create();
     }

@@ -207,16 +207,16 @@ public class SaveMyAppsService extends Service {
         long appSwitchDuration = SharedPref.readInteger(STR_APP_SWITCH_DURATION, 0);
 
         if (appSwitchDuration == 0) {
-            Log.v(TAG, "App Switch: " + lastAppPN + " ,elapsedMinutes already: " + 0);
+            Log.v(TAG, "App Switch: " + lastAppPN + " ,elapsedSeconds already: " + 0);
             return true;
 
         } else {
-            long lastUsedDifference = Math.abs(SharedPref.readLong(lastAppPN, new Date().getTime() + (appSwitchDuration * 60)) - new Date().getTime());
-            long elapsedMinutes = lastUsedDifference / appSwitchDuration;
+            long lastUsedDifference = Math.abs(SharedPref.readLong(lastAppPN, new Date().getTime() + (appSwitchDuration *  1000 * 60)) - new Date().getTime());
+            long elapsedSeconds = lastUsedDifference / 1000;
 
-            Log.v(TAG, "App Switch: " + lastAppPN + " ,elapsedMinutes: " + elapsedMinutes);
+            Log.v(TAG, "App Switch: " + lastAppPN + " ,elapsedSeconds: " + elapsedSeconds);
 
-            return elapsedMinutes < 1;
+            return elapsedSeconds > appSwitchDuration;
         }
     }
 

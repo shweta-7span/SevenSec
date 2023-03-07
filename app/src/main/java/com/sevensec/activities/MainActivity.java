@@ -248,26 +248,24 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
 
                 // Specifying a listener allows you to take an action before dismissing the dialog.
                 // The dialog is automatically dismissed when a dialog button is clicked.
-                .setPositiveButton("Allow", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (permissionCode == 101) {
-                            Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
-                            startActivityIntent.launch(intent);
+                .setPositiveButton("Allow", (dialog, which) -> {
+                    if (permissionCode == 101) {
+                        Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
+                        startActivityIntent.launch(intent);
 
-                        } else if (permissionCode == 102) {
-                            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + Constants.APP_PACKAGE_NAME));
-                            startActivityIntent.launch(intent); //It will call onActivityResult Function After you press Yes/No and go Back after giving permission
+                    } else if (permissionCode == 102) {
+                        Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + Constants.APP_PACKAGE_NAME));
+                        startActivityIntent.launch(intent); //It will call onActivityResult Function After you press Yes/No and go Back after giving permission
 
-                        } else if (permissionCode == 103) {
-                            Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
-                            intent.setData(Uri.parse("package:" + Constants.APP_PACKAGE_NAME));
-                            startActivityIntent.launch(intent);
-                        }
+                    } else if (permissionCode == 103) {
+                        Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+                        intent.setData(Uri.parse("package:" + Constants.APP_PACKAGE_NAME));
+                        startActivityIntent.launch(intent);
                     }
                 })
 
                 // A null listener allows the button to dismiss the dialog and take no further action.
-                .setNegativeButton("Cancel", null)
+                .setNegativeButton(getString(R.string.cancel), null)
 //                .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
     }
@@ -281,9 +279,9 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
     @Override
     public void onPositiveButtonClick(int position) {
         if (position == 1) {
-            SharedPref.writeInteger(STR_APP_SWITCH_DURATION, 1000 * 30); // 30 seconds
+            SharedPref.writeInteger(STR_APP_SWITCH_DURATION, 30); // 30 seconds
         } else if (position == 2) {
-            SharedPref.writeInteger(STR_APP_SWITCH_DURATION, 1000 * 60); // 1 minute
+            SharedPref.writeInteger(STR_APP_SWITCH_DURATION, 60); // 1 minute
         } else {
             SharedPref.writeInteger(STR_APP_SWITCH_DURATION, 0); // 0 second
         }
