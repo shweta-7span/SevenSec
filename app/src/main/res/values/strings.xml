@@ -28,6 +28,8 @@
     <string name="select_app_switch_delay">Select AppSwitch Delay</string>
     <string name="save">Save</string>
     <string name="cancel">Cancel</string>
+    <string name="app_is_running">7Sec is running</string>
+    <string name="checking_selected_apps">Checking for selected apps</string>
 
     <string-array name="arrOnBoardingTitleList">
         <item>Start Delaying \nDistracting Apps</item>

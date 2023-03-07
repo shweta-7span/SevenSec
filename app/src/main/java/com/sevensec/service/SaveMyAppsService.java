@@ -9,6 +9,7 @@ import android.app.ActivityManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.app.usage.UsageEvents;
 import android.app.usage.UsageStatsManager;
@@ -24,7 +25,9 @@ import android.util.Log;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
+import com.sevensec.R;
 import com.sevensec.activities.AttemptActivity;
+import com.sevensec.activities.MainActivity;
 import com.sevensec.utils.SharedPref;
 import com.sevensec.utils.Utils;
 
@@ -83,10 +86,16 @@ public class SaveMyAppsService extends Service {
         NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         assert manager != null;
         manager.createNotificationChannel(chan);
+        PendingIntent contentIntent = PendingIntent.getActivity(this,
+                0, new Intent(this, MainActivity.class),
+                PendingIntent.FLAG_IMMUTABLE);
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
         Notification notification = notificationBuilder.setOngoing(true)
-                .setContentTitle("App is running in background")
+                .setContentTitle(getString(R.string.app_is_running))
+                .setContentText(getString(R.string.checking_selected_apps))
+                .setContentIntent(contentIntent)
+                .setSmallIcon(R.drawable.seven_sec)
                 .setPriority(NotificationManager.IMPORTANCE_MIN)
                 .setCategory(Notification.CATEGORY_SERVICE)
                 .build();
@@ -211,7 +220,7 @@ public class SaveMyAppsService extends Service {
             return true;
 
         } else {
-            long lastUsedDifference = Math.abs(SharedPref.readLong(lastAppPN, new Date().getTime() + (appSwitchDuration *  1000 * 60)) - new Date().getTime());
+            long lastUsedDifference = Math.abs(SharedPref.readLong(lastAppPN, new Date().getTime() + (appSwitchDuration * 1000 * 60)) - new Date().getTime());
             long elapsedSeconds = lastUsedDifference / 1000;
 
             Log.v(TAG, "App Switch: " + lastAppPN + " ,elapsedSeconds: " + elapsedSeconds);
