@@ -21,8 +21,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -35,6 +33,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.sevensec.R;
 import com.sevensec.activities.fragments.SingleChoiceDialogFragment;
 import com.sevensec.adapter.MyListAdapter;
+import com.sevensec.analytics.MyFirebaseAnalytics;
 import com.sevensec.databinding.ActivityMainBinding;
 import com.sevensec.model.AppInfoModel;
 import com.sevensec.repo.FireStoreDataOperation;
@@ -44,7 +43,6 @@ import com.sevensec.utils.SharedPref;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 public class MainActivity extends FireStoreDataOperation implements SingleChoiceDialogFragment.SingleChoiceListener {
@@ -61,6 +59,8 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
 
         pm = (PowerManager) getSystemService(POWER_SERVICE);
+        MyFirebaseAnalytics.init(getApplicationContext());
+        MyFirebaseAnalytics.appOpenLog("SevenSec Open");
 
         SharedPref.writeBoolean(STR_FIRST_TIME_APP_LAUNCH, false);
         checkPermission();
@@ -118,11 +118,16 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
                 itemSettings.setVisible(true);
             }
 
+            MyFirebaseAnalytics.setUser(DEVICE_ID);
+            MyFirebaseAnalytics.log("Permission", "Permission_details", "All Permission Granted");
+
         } else {
             Log.w(TAG, "onActivityResult All Permissions NOT Granted: ");
             binding.llPermission.setVisibility(View.VISIBLE);
             binding.recyclerView.setVisibility(View.GONE);
+
             isPermissionGranted = false;
+            MyFirebaseAnalytics.log("Permission", "Permission_details", "Permission NOT Granted");
         }
     }
 
@@ -171,14 +176,11 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
         Log.w(TAG, "onCreate appInfoModelList length: " + appInfoModelList.size());
 
         //Alphabetically Sorting
-        Collections.sort(appInfoModelList, new Comparator<AppInfoModel>() {
-            @Override
-            public int compare(AppInfoModel appInfoModel, AppInfoModel t1) {
-                Log.v(TAG, "appInfoModel: " + appInfoModel.getAppName());
-                Log.i(TAG, "t1: " + t1.getAppName());
-                Log.w(TAG, "compare: " + appInfoModel.getAppName().compareToIgnoreCase(t1.getAppName()));
-                return appInfoModel.getAppName().compareToIgnoreCase(t1.getAppName());
-            }
+        Collections.sort(appInfoModelList, (appInfoModel, t1) -> {
+            Log.v(TAG, "appInfoModel: " + appInfoModel.getAppName());
+            Log.i(TAG, "t1: " + t1.getAppName());
+            Log.w(TAG, "compare: " + appInfoModel.getAppName().compareToIgnoreCase(t1.getAppName()));
+            return appInfoModel.getAppName().compareToIgnoreCase(t1.getAppName());
         });
 
         //Get Selected App list and sort the app list to show the selected apps on top
@@ -186,14 +188,11 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
 
         if (favAppList.size() > 0) {
             //Show Selected Apps on Top
-            Collections.sort(appInfoModelList, new Comparator<AppInfoModel>() {
-                @Override
-                public int compare(AppInfoModel appInfoModel, AppInfoModel t1) {
+            Collections.sort(appInfoModelList, (appInfoModel, t1) -> {
 
-                    if (favAppList.contains(t1.getPackageName())) return 1;
-                    else if (favAppList.contains(appInfoModel.getPackageName())) return -1;
-                    else return 0;
-                }
+                if (favAppList.contains(t1.getPackageName())) return 1;
+                else if (favAppList.contains(appInfoModel.getPackageName())) return -1;
+                else return 0;
             });
         }
 
@@ -206,14 +205,11 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
         binding.recyclerView.setAdapter(adapter);
     }
 
-    ActivityResultLauncher<Intent> startActivityIntent = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-        @Override
-        public void onActivityResult(ActivityResult result) {
-            // Add same code that you want to add in onActivityResult method
-            Log.d(TAG, "onActivityResult: ");
-            checkPermission();
-            askPermissions();
-        }
+    ActivityResultLauncher<Intent> startActivityIntent = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+        // Add same code that you want to add in onActivityResult method
+        Log.d(TAG, "onActivityResult: ");
+        checkPermission();
+        askPermissions();
     });
 
     private void askPermissions() {
@@ -224,12 +220,15 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
         } else {
             Log.e(TAG, "askPermissions app: " + Constants.APP_PACKAGE_NAME);
             Log.e(TAG, "askPermissions isBatteryOptimized: " + pm.isIgnoringBatteryOptimizations(Constants.APP_PACKAGE_NAME));
+            MyFirebaseAnalytics.log("Permission", "Permission_details", "Usage Access Permission Granted");
 
             if (!isDrawOverlayPermissionGranted(getApplicationContext())) {
                 showPermissionDialog("Overlay Permission",
                         "Find the 7Sec app in the list and allow the Overlay Permission.\n\nThen, come back.",
                         102);
             } else {
+                MyFirebaseAnalytics.log("Permission", "Permission_details", "Overlay Permission Granted");
+
                 if (!pm.isIgnoringBatteryOptimizations(Constants.APP_PACKAGE_NAME)) {
                     showPermissionDialog("Battery Optimization Permission",
                             "Take out the Battery Optimization for 7Sec to run in the background.",

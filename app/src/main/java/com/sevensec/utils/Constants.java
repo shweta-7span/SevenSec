@@ -28,4 +28,6 @@ public class Constants {
 //    public static final long DELAY_CHANGE_ATTEMPT_VIEW = GRAY_PAGE_ANIMATION_TIMER + DELAY_OPEN_GREY_PAGE;
 
 //    public static final long APP_SWITCH_DURATION = 1000 * 60;
+    //TODO: Check this boolean before give the .apk
+    public static final boolean IS_PRODUCTION_MODE = false;
 }
