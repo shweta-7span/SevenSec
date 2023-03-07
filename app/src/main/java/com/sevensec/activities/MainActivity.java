@@ -17,6 +17,7 @@ import android.os.Bundle;
 import android.os.PowerManager;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -44,6 +45,8 @@ import com.sevensec.utils.SharedPref;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import pl.droidsonroids.gif.GifImageView;
 
 public class MainActivity extends FireStoreDataOperation implements SingleChoiceDialogFragment.SingleChoiceListener {
 
@@ -240,10 +243,24 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
     }
 
     private void showPermissionDialog(String title, String description, int permissionCode) {
-        new AlertDialog
-                .Builder(MainActivity.this, R.style.MyAlertDialogTheme)
-                .setTitle(title)
+        AlertDialog.Builder permissionAlert = new AlertDialog
+                .Builder(MainActivity.this, R.style.MyAlertDialogTheme);
+
+        LayoutInflater factory = LayoutInflater.from(MainActivity.this);
+        final View view = factory.inflate(R.layout.permission_dialog, null);
+
+        GifImageView imageView = view.findViewById(R.id.ivPermissionGif);
+        if (permissionCode == 101) {
+            imageView.setImageResource(R.drawable.usage_access);
+        } else if (permissionCode == 102) {
+            imageView.setImageResource(R.drawable.display_over);
+        } else {
+            imageView.setVisibility(View.INVISIBLE);
+        }
+
+        permissionAlert.setTitle(title)
                 .setMessage(description)
+                .setView(view)
 
                 // Specifying a listener allows you to take an action before dismissing the dialog.
                 // The dialog is automatically dismissed when a dialog button is clicked.

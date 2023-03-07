@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tvPermissionTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Usage Access Permission"
+        android:textColor="@color/grey600"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tvPermissionDescription"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_8"
+        android:text="Find the 7Sec app in the list and allow the Usage Access Permission.\n\nThen, come back."
+        android:textColor="@color/grey600"
+        android:textSize="18sp" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginTop="@dimen/space_8"
+        android:orientation="horizontal">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:text="Cancel"
+            android:textSize="16sp"
+            android:textColor="@color/primary600"
+            android:textFontWeight="600"
+            tools:targetApi="p" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:text="Allow"
+            android:textSize="16sp"
+            android:textColor="@color/primary600"
+            android:textFontWeight="600"
+            tools:targetApi="p" />
+
+    </LinearLayout>
+
+</LinearLayout>
+-->
+
+<pl.droidsonroids.gif.GifImageView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ivPermissionGif"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/space_20"
+    android:background="#fff"
+    android:paddingStart="@dimen/space_20"
+    android:paddingEnd="@dimen/space_20" />
+
+    <!-- <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/space_20"
+            android:src="@drawable/ic_per_one" />-->
