@@ -6,13 +6,13 @@
     <string name="warning">Warning</string>
     <!--    <string name="continue_with">Continue on</string>-->
     <!--    <string name="not_go">I don\'t want to open</string>-->
+    <!--    <string name="str_breath_description">It\'s time to take a deep breath…</string>-->
     <string name="strContinue">Continue</string>
     <string name="str_attempts_description">Attempts to open Instagram within 24 hours.</string>
     <string name="title_activity_warning">WarningActivity</string>
     <string name="attempt_to_open">Attempt to open</string>
     <string name="attempts_to_open">Attempts to open</string>
     <string name="within_24_hrs">within 24 hours.</string>
-    <!--    <string name="str_breath_description">It\'s time to take a deep breath…</string>-->
     <string name="str_breath_description">Fully inhale your dream &amp; completely exhale manifestation of it.</string>
     <string name="raw_app_name">App Name</string>
     <string name="zero">0</string>
@@ -31,6 +31,7 @@
     <string name="app_is_running">7Sec is running</string>
     <string name="checking_selected_apps">Checking for selected apps</string>
     <string name="allow_permission">Allow Permission</string>
+    <string name="app_switch_delay_description">Measure the time between closing and re-opening the selected app and allowing you to re-open the app within selected time limits.</string>
 
     <string-array name="arrOnBoardingTitleList">
         <item>Start Delaying \nDistracting Apps</item>
@@ -44,13 +45,13 @@
         <item>Reclaim your time for what matters most: family, friends, work, hobbies, and self-care</item>
     </string-array>
 
-    <string-array name="arrFavApps">
+    <!--<string-array name="arrFavApps">
         <item>com.whatsapp</item>
         <item>com.instagram.android</item>
         <item>com.facebook.katana</item>
         <item>com.facebook.orca</item>
         <item>com.camerasideas.instashot</item>
-    </string-array>
+    </string-array>-->
 
     <string-array name="arrAppSwitchDelay">
         <item>0 minute</item>

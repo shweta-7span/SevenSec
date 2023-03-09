@@ -1,6 +1,5 @@
 package com.sevensec.activities.fragments;
 
-import static com.sevensec.utils.Constants.STR_APP_SWITCH_DURATION;
 import static com.sevensec.utils.Constants.STR_APP_SWITCH_POSITION;
 
 import android.app.AlertDialog;
@@ -8,6 +7,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -47,7 +47,10 @@ public class SingleChoiceDialogFragment extends DialogFragment {
 
         position = SharedPref.readInteger(STR_APP_SWITCH_POSITION, arrAppSwitchDelay.length - 1);
 
-        builder.setTitle(R.string.select_app_switch_delay)
+        View view = getLayoutInflater().inflate(R.layout.single_choice_dialog, null);
+
+//        builder.setTitle(R.string.select_app_switch_delay)
+        builder.setCustomTitle(view)
                 .setSingleChoiceItems(arrAppSwitchDelay, position, (dialog, i) -> {
                     position = i;
                     SharedPref.writeInteger(STR_APP_SWITCH_POSITION, position);
