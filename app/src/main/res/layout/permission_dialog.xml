@@ -1,8 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?><!--<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical">
 
     <TextView
@@ -50,22 +48,30 @@
             android:textFontWeight="600"
             tools:targetApi="p" />
 
-    </LinearLayout>
+    </LinearLayout>-->
 
-</LinearLayout>
--->
+<!-- <ImageView
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:paddingStart="@dimen/space_20"
+       android:src="@drawable/ic_per_one" />-->
+
+<!--<Button
+    android:id="@+id/btn_allow_permission"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/space_16"
+    android:background="@drawable/blue_btn"
+    android:text="@string/allow_permission"
+    android:textColor="@color/white"
+    android:theme="@style/Widget.AppCompat.Button.Colored" />
+
+</LinearLayout>-->
 
 <pl.droidsonroids.gif.GifImageView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/ivPermissionGif"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="@dimen/space_20"
     android:background="#fff"
     android:paddingStart="@dimen/space_20"
     android:paddingEnd="@dimen/space_20" />
-
-    <!-- <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingStart="@dimen/space_20"
-            android:src="@drawable/ic_per_one" />-->

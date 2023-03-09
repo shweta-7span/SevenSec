@@ -18,7 +18,7 @@
             android:layout_height="match_parent"
             android:divider="@color/material_blue_grey_800"
             android:dividerHeight="@dimen/divider_height"
-            android:visibility="gone"/>
+            android:visibility="gone" />
 
         <LinearLayout
             android:id="@+id/llPermission"
@@ -28,11 +28,11 @@
             android:orientation="vertical"
             android:paddingStart="@dimen/space_30"
             android:paddingEnd="@dimen/space_30"
+            android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:visibility="visible">
+            app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -50,7 +50,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_20"
+                android:layout_marginTop="@dimen/space_16"
                 android:text="@string/permission_description"
                 android:textAlignment="center"
                 android:textColor="@color/grey800"
@@ -60,11 +60,11 @@
                 android:id="@+id/btn_permission"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_40"
+                android:layout_marginTop="@dimen/space_16"
+                android:background="@drawable/blue_btn"
                 android:text="@string/grant_permission"
                 android:textColor="@color/white"
-                android:theme="@style/Widget.AppCompat.Button.Colored"
-                android:background="@drawable/blue_btn"/>
+                android:theme="@style/Widget.AppCompat.Button.Colored" />
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

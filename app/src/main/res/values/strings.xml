@@ -30,6 +30,7 @@
     <string name="cancel">Cancel</string>
     <string name="app_is_running">7Sec is running</string>
     <string name="checking_selected_apps">Checking for selected apps</string>
+    <string name="allow_permission">Allow Permission</string>
 
     <string-array name="arrOnBoardingTitleList">
         <item>Start Delaying \nDistracting Apps</item>

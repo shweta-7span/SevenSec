@@ -233,7 +233,7 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
                 MyFirebaseAnalytics.log("Permission", "Permission_details", "Overlay Permission Granted");
 
                 if (!pm.isIgnoringBatteryOptimizations(Constants.APP_PACKAGE_NAME)) {
-                    showPermissionDialog("Battery Optimization Permission",
+                    showPermissionDialog("Disable Battery Optimization",
                             "Take out the Battery Optimization for 7Sec to run in the background.",
                             103);
                 }
@@ -247,15 +247,20 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
                 .Builder(MainActivity.this, R.style.MyAlertDialogTheme);
 
         LayoutInflater factory = LayoutInflater.from(MainActivity.this);
-        final View view = factory.inflate(R.layout.permission_dialog, null);
+        View view = factory.inflate(R.layout.permission_dialog, null);
 
         GifImageView imageView = view.findViewById(R.id.ivPermissionGif);
+        String allowPermission;
+
         if (permissionCode == 101) {
             imageView.setImageResource(R.drawable.usage_access);
+            allowPermission = "Allow Usage Access";
         } else if (permissionCode == 102) {
             imageView.setImageResource(R.drawable.display_over);
+            allowPermission = "Allow Overlay";
         } else {
-            imageView.setVisibility(View.INVISIBLE);
+            view = null;
+            allowPermission = "Disable Battery Optimization";
         }
 
         permissionAlert.setTitle(title)
@@ -264,7 +269,7 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
 
                 // Specifying a listener allows you to take an action before dismissing the dialog.
                 // The dialog is automatically dismissed when a dialog button is clicked.
-                .setPositiveButton("Allow", (dialog, which) -> {
+                .setPositiveButton(allowPermission, (dialog, which) -> {
                     if (permissionCode == 101) {
                         Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
                         startActivityIntent.launch(intent);
