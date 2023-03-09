@@ -260,7 +260,7 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
             allowPermission = "Allow Overlay";
         } else {
             view = null;
-            allowPermission = "Disable Battery Optimization";
+            allowPermission = "Disable";
         }
 
         permissionAlert.setTitle(title)
