@@ -1,5 +1,6 @@
 package com.sevensec.activities;
 
+import static com.sevensec.utils.Constants.APP_PACKAGE_NAME;
 import static com.sevensec.utils.Constants.STR_APP_SWITCH_DURATION;
 import static com.sevensec.utils.Constants.STR_DEVICE_ID;
 import static com.sevensec.utils.Constants.STR_FAV_APP_LIST;
@@ -173,7 +174,9 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
                     appInfoModel.setCategory(ApplicationInfo.getCategoryTitle(getApplicationContext(), a.category).toString());
             }
 
-            appInfoModelList.add(appInfoModel);
+            if(!appInfoModel.getPackageName().equals(APP_PACKAGE_NAME)) {
+                appInfoModelList.add(appInfoModel);
+            }
         }
 
         Log.w(TAG, "onCreate appInfoModelList length: " + appInfoModelList.size());
