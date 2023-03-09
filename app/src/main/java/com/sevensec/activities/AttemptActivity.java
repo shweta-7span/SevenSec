@@ -113,7 +113,7 @@ public class AttemptActivity extends FireStoreDataOperation {
         }
 
         if (lastUsedTime != null)
-            binding.tvLastUse.setText(String.format("Last use: %s", lastUsedTime));
+            binding.tvLastUse.setText(String.format("Last attempt: %s", lastUsedTime));
     }
 
     @Override

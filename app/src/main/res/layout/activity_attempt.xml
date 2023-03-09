@@ -127,7 +127,7 @@
                     android:textColor="@color/secondary300"
                     android:textFontWeight="400"
                     android:textSize="16sp"
-                    tools:text="Last use:"
+                    tools:text="Last attempt:"
                     tools:targetApi="p" />
 
                 <LinearLayout

@@ -266,6 +266,7 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
         permissionAlert.setTitle(title)
                 .setMessage(description)
                 .setView(view)
+                .setCancelable(false)
 
                 // Specifying a listener allows you to take an action before dismissing the dialog.
                 // The dialog is automatically dismissed when a dialog button is clicked.
@@ -298,14 +299,12 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
     }
 
     @Override
-    public void onPositiveButtonClick(int position) {
-        if (position == 1) {
-            SharedPref.writeInteger(STR_APP_SWITCH_DURATION, 30); // 30 seconds
-        } else if (position == 2) {
-            SharedPref.writeInteger(STR_APP_SWITCH_DURATION, 60); // 1 minute
-        } else {
-            SharedPref.writeInteger(STR_APP_SWITCH_DURATION, 0); // 0 second
-        }
+    public void onPositiveButtonClick(int position, String selectedItem) {
+        Log.w(TAG, "onPositiveButtonClick: selectedItem: " + selectedItem);
+        Log.w(TAG, "onPositiveButtonClick: appSwitchDuration: " + Integer.parseInt(selectedItem.split(" ")[0]) * 60);
+
+        int durationInSeconds = Integer.parseInt(selectedItem.split(" ")[0]) * 60;
+        SharedPref.writeInteger(STR_APP_SWITCH_DURATION, durationInSeconds);
     }
 
     @Override
