@@ -20,6 +20,7 @@ import com.sevensec.databinding.ActivityAttemptBinding;
 import com.sevensec.repo.FireStoreDataOperation;
 import com.sevensec.utils.Constants;
 import com.sevensec.utils.SharedPref;
+import com.sevensec.utils.Utils;
 
 import java.io.InputStream;
 
@@ -49,6 +50,11 @@ public class AttemptActivity extends FireStoreDataOperation {
             Log.e(TAG, "Last App's Package: " + lastAppPackage);
         }
 
+        // When the warning page show & if user close our warning page and open
+        // the fav app from recent then he can use the app as at that time
+        // we save the app close time. So, by set the boolean 'false' we can solve it.
+        SharedPref.writeBoolean(Utils.getIsLastAppOpenKey(lastAppPackage), false);
+
         try {
             ApplicationInfo appInfo = packageManager.getApplicationInfo(lastAppPackage, PackageManager.GET_UNINSTALLED_PACKAGES);
             if (appInfo != null) {
@@ -66,14 +72,12 @@ public class AttemptActivity extends FireStoreDataOperation {
             Log.e(TAG, "getAppName Error: " + e.getMessage());
         }
 
-        binding.tvContinue.setOnClickListener(view -> finish());
-
-        binding.tvExit.setOnClickListener(view -> {
-            Intent homeIntent = new Intent(Intent.ACTION_MAIN);
-            homeIntent.addCategory(Intent.CATEGORY_HOME);
-            startActivity(homeIntent);
+        binding.tvContinue.setOnClickListener(view -> {
+            SharedPref.writeBoolean(Utils.getIsLastAppOpenKey(lastAppPackage), true);
             finish();
         });
+
+        binding.tvExit.setOnClickListener(view -> closeApp());
 
         InputStream is = getResources().openRawResource(R.raw.breathe);
         Movie movie = Movie.decodeStream(is);
@@ -115,6 +119,12 @@ public class AttemptActivity extends FireStoreDataOperation {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+        closeApp();
+    }
+
+    private void closeApp() {
+        SharedPref.writeBoolean(Utils.getIsLastAppOpenKey(lastAppPackage), false);
+
         Intent homeIntent = new Intent(Intent.ACTION_MAIN);
         homeIntent.addCategory(Intent.CATEGORY_HOME);
         startActivity(homeIntent);

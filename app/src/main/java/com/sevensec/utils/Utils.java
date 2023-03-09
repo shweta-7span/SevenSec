@@ -15,24 +15,19 @@ import java.util.Date;
 public class Utils {
 
     public static boolean isAccessGranted(Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            try {
-                PackageManager packageManager = context.getPackageManager();
-                ApplicationInfo applicationInfo = packageManager.getApplicationInfo(context.getPackageName(), 0);
-                AppOpsManager appOpsManager = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
-                int mode = appOpsManager.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS,
-                        applicationInfo.uid, applicationInfo.packageName);
-                return (mode == AppOpsManager.MODE_ALLOWED);
+        try {
+            PackageManager packageManager = context.getPackageManager();
+            ApplicationInfo applicationInfo = packageManager.getApplicationInfo(context.getPackageName(), 0);
+            AppOpsManager appOpsManager = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
+            int mode = appOpsManager.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS,
+                    applicationInfo.uid, applicationInfo.packageName);
+            return (mode == AppOpsManager.MODE_ALLOWED);
 
-            } catch (PackageManager.NameNotFoundException e) {
-                return false;
-            }
-        } else {
-            return true;
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
     public static boolean isDrawOverlayPermissionGranted(Context context) {
         Log.v("App", "Package Name: " + context.getPackageName());
 
@@ -106,5 +101,9 @@ public class Utils {
                 elapsedDays, elapsedHours, elapsedMinutes, elapsedSeconds);
 
         return String.valueOf(s);
+    }
+
+    public static String getIsLastAppOpenKey(String lastAppPackage) {
+        return "IS" + lastAppPackage;
     }
 }
