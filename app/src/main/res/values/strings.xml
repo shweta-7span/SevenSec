@@ -53,8 +53,9 @@
     </string-array>
 
     <string-array name="arrAppSwitchDelay">
-        <item>0 second</item>
-        <item>30 seconds</item>
+        <item>0 minute</item>
         <item>1 minute</item>
+        <item>3 minutes</item>
+        <item>5 minutes</item>
     </string-array>
 </resources>

@@ -151,7 +151,6 @@ public class SaveMyAppsService extends Service {
         saveAppCloseTime(activityOnTop, lastAppPN);
 
         // Provide the packageName(s) of apps here, you want to show attempt activity
-        // you can make this check even better
 //        if (Arrays.asList(androidStrings).contains(activityOnTop)/*||
         if (favAppList.contains(activityOnTop)/*||
                 activityOnTop.contains(CURRENT_PACKAGE_NAME) */) {
@@ -199,7 +198,7 @@ public class SaveMyAppsService extends Service {
             if (!activityOnTop.equals(lastAppPN) &&
                     !activityOnTop.equals(APP_PACKAGE_NAME) /*&&
                     favAppList.contains(lastAppPN)*/) {
-                Log.d(TAG, "App Switch: closed Time for " + lastAppPN + " :" + new Date().getTime());
+                Log.d(TAG, "AppSwitch: closed Time for " + lastAppPN + " :" + new Date().getTime());
                 SharedPref.writeLong(lastAppPN, new Date().getTime());
             }
         }
@@ -213,17 +212,22 @@ public class SaveMyAppsService extends Service {
 
         return elapsedMinutes >= 1;*/
 
-        long appSwitchDuration = SharedPref.readInteger(STR_APP_SWITCH_DURATION, 0);
+        //Default AppSwitchDuration when user installed the app & not change the AppSwitchDuration
+        String[] arrAppSwitchDelay = getResources().getStringArray(R.array.arrAppSwitchDelay);
+        int durationInSeconds = Integer.parseInt(arrAppSwitchDelay[arrAppSwitchDelay.length - 1].split(" ")[0]) * 60;
+
+        long appSwitchDuration = SharedPref.readInteger(STR_APP_SWITCH_DURATION, durationInSeconds);
+        Log.w(TAG, "isAppSwitchTimeExpire: appSwitchDuration: " + appSwitchDuration);
 
         if (appSwitchDuration == 0) {
-            Log.v(TAG, "App Switch: " + lastAppPN + " ,elapsedSeconds already: " + 0);
+            Log.v(TAG, "AppSwitch: " + lastAppPN + " ,elapsedSeconds already: " + 0);
             return true;
 
         } else {
             long lastUsedDifference = Math.abs(SharedPref.readLong(lastAppPN, new Date().getTime() + (appSwitchDuration * 1000 * 60)) - new Date().getTime());
             long elapsedSeconds = lastUsedDifference / 1000;
 
-            Log.v(TAG, "App Switch: " + lastAppPN + " ,elapsedSeconds: " + elapsedSeconds);
+            Log.v(TAG, "AppSwitch: " + lastAppPN + " ,elapsedSeconds: " + elapsedSeconds);
 
             return elapsedSeconds > appSwitchDuration;
         }
