@@ -1,6 +1,8 @@
 package com.sevensec.service;
 
 import static com.sevensec.utils.Constants.APP_PACKAGE_NAME;
+import static com.sevensec.utils.Constants.CHECK_TOP_APPLICATION_DELAY;
+import static com.sevensec.utils.Constants.OPEN_ATTEMPT_SCREEN_DELAY;
 import static com.sevensec.utils.Constants.STR_APP_SWITCH_DURATION;
 import static com.sevensec.utils.Constants.STR_FAV_APP_LIST;
 import static com.sevensec.utils.Constants.STR_LAST_WARN_APP;
@@ -103,14 +105,16 @@ public class SaveMyAppsService extends Service {
     }
 
     private void scheduleMethod() {
-        Timer timer = new Timer();
+        /*Timer timer = new Timer();
         TimerTask t = new TimerTask() {
             @Override
             public void run() {
                 checkRunningApps();
             }
         };
-        timer.scheduleAtFixedRate(t, 0, 500);
+        timer.scheduleAtFixedRate(t, 0, 500);*/
+
+        checkRunningApps();
     }
 
     public void checkRunningApps() {
@@ -160,19 +164,31 @@ public class SaveMyAppsService extends Service {
             if (!(activityOnTop.equals(lastAppPN) ||
                     (activityOnTop.equals(APP_PACKAGE_NAME)))) {
 
-                lastAppPN = activityOnTop;
-                Log.e(TAG, "TEST After lastAppPN: " + lastAppPN);
-
-                if (isAppSwitchTimeExpire(lastAppPN)) {
+                if (isAppSwitchTimeExpire(activityOnTop)) {
 
                     new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+                        //ISSUE:
+                        //Sometimes attempt screen was not opened for blocked apps (like 'amazon', 'instagram').
+                        //Because, earlier the 'lastAppPN = activityOnTop' will be written outside of this condition.
+                        //So, when the condition satisfy then, before open the attempt activity immediately the method
+                        //called again & condition was NOT satisfied. So, the Attempt screen was not opened.
+
+                        //SOLUTION:
+                        //Assign pkg to the 'lastAppPN' at this line, so it will wait for the delay &
+                        //till then the condition "(!(activityOnTop.equals(lastAppPN))" will be satisfied.
+                        //So, the attempt screen can open.
+                        lastAppPN = activityOnTop;
+                        Log.e(TAG, "TEST After lastAppPN: " + lastAppPN);
+
                         // Show Password Activity
                         Log.w(TAG, "TEST Show Password Activity");
                         Intent intent = new Intent(SaveMyAppsService.this, AttemptActivity.class);
                         intent.putExtra(STR_LAST_WARN_APP, lastAppPN);
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         startActivity(intent);
-                    }, 500);
+
+                    }, OPEN_ATTEMPT_SCREEN_DELAY);
                 }
 
             } else {
@@ -190,6 +206,9 @@ public class SaveMyAppsService extends Service {
                 lastAppPN = activityOnTop;
             }
         }
+
+        //call the method again after execution of the above code
+        new Handler().postDelayed(() -> checkRunningApps(), CHECK_TOP_APPLICATION_DELAY);
     }
 
     private void saveAppCloseTime(String activityOnTop, String lastAppPN) {
