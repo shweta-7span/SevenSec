@@ -1,6 +1,7 @@
 package com.sevensec.activities;
 
 import static com.sevensec.utils.Constants.APP_PACKAGE_NAME;
+import static com.sevensec.utils.Constants.PERMISSION_POPUP_DELAY;
 import static com.sevensec.utils.Constants.STR_APP_SWITCH_DURATION;
 import static com.sevensec.utils.Constants.STR_DEVICE_ID;
 import static com.sevensec.utils.Constants.STR_FAV_APP_LIST;
@@ -15,6 +16,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.PowerManager;
 import android.provider.Settings;
 import android.util.Log;
@@ -22,6 +24,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -215,7 +218,8 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
         // Add same code that you want to add in onActivityResult method
         Log.d(TAG, "onActivityResult: ");
         checkPermission();
-        askPermissions();
+
+        new Handler().postDelayed(() -> askPermissions(), PERMISSION_POPUP_DELAY);
     });
 
     private void askPermissions() {
@@ -252,14 +256,15 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
         LayoutInflater factory = LayoutInflater.from(MainActivity.this);
         View view = factory.inflate(R.layout.permission_dialog, null);
 
-        GifImageView imageView = view.findViewById(R.id.ivPermissionGif);
+//        GifImageView imageView = view.findViewById(R.id.ivPermissionGif);
+        ImageView imageView = view.findViewById(R.id.ivPermission);
         String allowPermission;
 
         if (permissionCode == 101) {
-            imageView.setImageResource(R.drawable.usage_access);
+            imageView.setImageResource(R.drawable.img_usage_access);
             allowPermission = "Allow Usage Access";
         } else if (permissionCode == 102) {
-            imageView.setImageResource(R.drawable.display_over);
+            imageView.setImageResource(R.drawable.img_display_over);
             allowPermission = "Allow Overlay";
         } else {
             view = null;
