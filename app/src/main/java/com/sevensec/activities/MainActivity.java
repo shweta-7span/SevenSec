@@ -45,6 +45,7 @@ import com.sevensec.repo.FireStoreDataOperation;
 import com.sevensec.service.SaveMyAppsService;
 import com.sevensec.utils.Constants;
 import com.sevensec.utils.SharedPref;
+import com.sevensec.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -109,6 +110,11 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
             loadInstalledApps();
             binding.llPermission.setVisibility(View.GONE);
             binding.recyclerView.setVisibility(View.VISIBLE);
+
+            new Handler().postDelayed(() -> {
+                //ask rto enable Autostart
+                Utils.startPowerSaverIntent(MainActivity.this);
+            }, PERMISSION_POPUP_DELAY);
 
             //Start service
             startService(new Intent(this, SaveMyAppsService.class));
@@ -243,6 +249,9 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
                     showPermissionDialog("Disable Battery Optimization",
                             "Take out the Battery Optimization for 7Sec to run in the background.",
                             103);
+                }else{
+                    //ask rto enable Autostart
+                    Utils.startPowerSaverIntent(MainActivity.this);
                 }
             }
 
