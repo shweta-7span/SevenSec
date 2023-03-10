@@ -2,6 +2,7 @@ package com.sevensec.service;
 
 import static com.sevensec.utils.Constants.APP_PACKAGE_NAME;
 import static com.sevensec.utils.Constants.CHECK_TOP_APPLICATION_DELAY;
+import static com.sevensec.utils.Constants.DELAY_TOP_APP_WHEN_ATTEMPT_OPEN;
 import static com.sevensec.utils.Constants.OPEN_ATTEMPT_SCREEN_DELAY;
 import static com.sevensec.utils.Constants.STR_APP_SWITCH_DURATION;
 import static com.sevensec.utils.Constants.STR_FAV_APP_LIST;
@@ -188,11 +189,16 @@ public class SaveMyAppsService extends Service {
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         startActivity(intent);
 
+                        //call the method again after execution of the above code
+                        callAgain(DELAY_TOP_APP_WHEN_ATTEMPT_OPEN);
+
                     }, OPEN_ATTEMPT_SCREEN_DELAY);
                 }
 
             } else {
                 Log.d(TAG, "TEST Don't Show Password Activity");
+                //call the method again after execution of the above code
+                callAgain(CHECK_TOP_APPLICATION_DELAY);
             }
 
         } else {
@@ -205,10 +211,14 @@ public class SaveMyAppsService extends Service {
                 Log.w(TAG, "TEST Update lastAppPN: " + activityOnTop);
                 lastAppPN = activityOnTop;
             }
-        }
 
-        //call the method again after execution of the above code
-        new Handler().postDelayed(() -> checkRunningApps(), CHECK_TOP_APPLICATION_DELAY);
+            //call the method again after execution of the above code
+            callAgain(CHECK_TOP_APPLICATION_DELAY);
+        }
+    }
+
+    private void callAgain(long delay) {
+        new Handler().postDelayed(() -> checkRunningApps(), delay);
     }
 
     private void saveAppCloseTime(String activityOnTop, String lastAppPN) {
