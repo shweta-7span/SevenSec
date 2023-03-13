@@ -1,11 +1,15 @@
 package com.sevensec.activities;
 
 import static com.sevensec.utils.Constants.APP_PACKAGE_NAME;
+import static com.sevensec.utils.Constants.BATTERY_OPTIMIZATION_REQUEST_CODE;
+import static com.sevensec.utils.Constants.IN_APP_UPDATE_REQUEST_CODE;
+import static com.sevensec.utils.Constants.OVERLAY_REQUEST_CODE;
 import static com.sevensec.utils.Constants.PERMISSION_POPUP_DELAY;
 import static com.sevensec.utils.Constants.STR_APP_SWITCH_DURATION;
 import static com.sevensec.utils.Constants.STR_DEVICE_ID;
 import static com.sevensec.utils.Constants.STR_FAV_APP_LIST;
 import static com.sevensec.utils.Constants.STR_FIRST_TIME_APP_LAUNCH;
+import static com.sevensec.utils.Constants.USAGE_ACCESS_REQUEST_CODE;
 import static com.sevensec.utils.Utils.isAccessGranted;
 import static com.sevensec.utils.Utils.isDrawOverlayPermissionGranted;
 
@@ -50,8 +54,6 @@ import com.sevensec.utils.Utils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import pl.droidsonroids.gif.GifImageView;
 
 public class MainActivity extends FireStoreDataOperation implements SingleChoiceDialogFragment.SingleChoiceListener {
 
@@ -108,8 +110,6 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
 
             //Get Installed App list & show the list after sort it
             loadInstalledApps();
-            binding.llPermission.setVisibility(View.GONE);
-            binding.recyclerView.setVisibility(View.VISIBLE);
 
             new Handler().postDelayed(() -> {
                 //ask rto enable Autostart
@@ -138,6 +138,7 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
             Log.w(TAG, "onActivityResult All Permissions NOT Granted: ");
             binding.llPermission.setVisibility(View.VISIBLE);
             binding.recyclerView.setVisibility(View.GONE);
+            binding.llNoData.setVisibility(View.GONE);
 
             isPermissionGranted = false;
             MyFirebaseAnalytics.log("Permission", "Permission_details", "Permission NOT Granted");
@@ -183,12 +184,22 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
                     appInfoModel.setCategory(ApplicationInfo.getCategoryTitle(getApplicationContext(), a.category).toString());
             }
 
-            if(!appInfoModel.getPackageName().equals(APP_PACKAGE_NAME)) {
+            if (!appInfoModel.getPackageName().equals(APP_PACKAGE_NAME)) {
                 appInfoModelList.add(appInfoModel);
             }
         }
 
         Log.w(TAG, "onCreate appInfoModelList length: " + appInfoModelList.size());
+
+        if(appInfoModelList.size()==0){
+            binding.llPermission.setVisibility(View.GONE);
+            binding.recyclerView.setVisibility(View.GONE);
+            binding.llNoData.setVisibility(View.VISIBLE);
+        }else{
+            binding.llPermission.setVisibility(View.GONE);
+            binding.recyclerView.setVisibility(View.VISIBLE);
+            binding.llNoData.setVisibility(View.GONE);
+        }
 
         //Alphabetically Sorting
         Collections.sort(appInfoModelList, (appInfoModel, t1) -> {
@@ -232,7 +243,7 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
         if (!isAccessGranted(getApplicationContext())) {
             showPermissionDialog("Usage Access Permission",
                     "Find the 7Sec app in the list and allow the Usage Access Permission.\n\nThen, come back.",
-                    101);
+                    USAGE_ACCESS_REQUEST_CODE);
         } else {
             Log.e(TAG, "askPermissions app: " + Constants.APP_PACKAGE_NAME);
             Log.e(TAG, "askPermissions isBatteryOptimized: " + pm.isIgnoringBatteryOptimizations(Constants.APP_PACKAGE_NAME));
@@ -241,15 +252,15 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
             if (!isDrawOverlayPermissionGranted(getApplicationContext())) {
                 showPermissionDialog("Overlay Permission",
                         "Find the 7Sec app in the list and allow the Overlay Permission.\n\nThen, come back.",
-                        102);
+                        OVERLAY_REQUEST_CODE);
             } else {
                 MyFirebaseAnalytics.log("Permission", "Permission_details", "Overlay Permission Granted");
 
                 if (!pm.isIgnoringBatteryOptimizations(Constants.APP_PACKAGE_NAME)) {
                     showPermissionDialog("Disable Battery Optimization",
                             "Take out the Battery Optimization for 7Sec to run in the background.",
-                            103);
-                }else{
+                            BATTERY_OPTIMIZATION_REQUEST_CODE);
+                } else {
                     //ask rto enable Autostart
                     Utils.startPowerSaverIntent(MainActivity.this);
                 }
@@ -269,10 +280,10 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
         ImageView imageView = view.findViewById(R.id.ivPermission);
         String allowPermission;
 
-        if (permissionCode == 101) {
+        if (permissionCode == USAGE_ACCESS_REQUEST_CODE) {
             imageView.setImageResource(R.drawable.img_usage_access);
             allowPermission = "Allow Usage Access";
-        } else if (permissionCode == 102) {
+        } else if (permissionCode == OVERLAY_REQUEST_CODE) {
             imageView.setImageResource(R.drawable.img_display_over);
             allowPermission = "Allow Overlay";
         } else {
@@ -288,15 +299,15 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
                 // Specifying a listener allows you to take an action before dismissing the dialog.
                 // The dialog is automatically dismissed when a dialog button is clicked.
                 .setPositiveButton(allowPermission, (dialog, which) -> {
-                    if (permissionCode == 101) {
+                    if (permissionCode == USAGE_ACCESS_REQUEST_CODE) {
                         Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
                         startActivityIntent.launch(intent);
 
-                    } else if (permissionCode == 102) {
+                    } else if (permissionCode == OVERLAY_REQUEST_CODE) {
                         Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + Constants.APP_PACKAGE_NAME));
                         startActivityIntent.launch(intent); //It will call onActivityResult Function After you press Yes/No and go Back after giving permission
 
-                    } else if (permissionCode == 103) {
+                    } else if (permissionCode == BATTERY_OPTIMIZATION_REQUEST_CODE) {
                         Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
                         intent.setData(Uri.parse("package:" + Constants.APP_PACKAGE_NAME));
                         startActivityIntent.launch(intent);
