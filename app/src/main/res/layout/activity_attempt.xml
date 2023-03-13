@@ -134,7 +134,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_alignParentBottom="true"
-                    android:layout_marginBottom="@dimen/space_40"
+                    android:layout_marginBottom="@dimen/space_50"
                     android:orientation="horizontal"
                     android:paddingStart="@dimen/space_20"
                     android:paddingEnd="@dimen/space_20"
