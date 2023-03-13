@@ -1,11 +1,14 @@
 package com.sevensec.utils;
 
+import static com.sevensec.utils.Constants.IN_APP_UPDATE_REQUEST_CODE;
 import static com.sevensec.utils.Constants.STR_SKIP_PROTECTED_APP_CHECK;
 
+import android.app.Activity;
 import android.app.AppOpsManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -15,10 +18,17 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatCheckBox;
 
+import com.google.android.gms.tasks.Task;
+import com.google.android.play.core.appupdate.AppUpdateInfo;
+import com.google.android.play.core.appupdate.AppUpdateManager;
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
+import com.google.android.play.core.install.model.AppUpdateType;
+import com.google.android.play.core.install.model.UpdateAvailability;
 import com.sevensec.R;
 import com.sevensec.activities.MainActivity;
 
@@ -27,6 +37,8 @@ import java.util.Date;
 import java.util.List;
 
 public class Utils {
+
+    private static final String TAG = "Utils";
 
     public static boolean isAccessGranted(Context context) {
         try {
@@ -183,5 +195,50 @@ public class Utils {
         List<ResolveInfo> list = context.getPackageManager().queryIntentActivities(intent,
                 PackageManager.MATCH_DEFAULT_ONLY);
         return list.size() > 0;
+    }
+
+    public static void checkForInAppUpdate(Context mContext, Activity activity) {
+        Log.d(TAG, "APP UPDATE checkForUpdate");
+
+        AppUpdateManager appUpdateManager = AppUpdateManagerFactory.create(mContext);
+
+        // Returns an intent object that you use to check for an update.
+        Task<AppUpdateInfo> appUpdateInfoTask = appUpdateManager.getAppUpdateInfo();
+
+        // Checks that the platform will allow the specified type of update.
+        appUpdateInfoTask.addOnSuccessListener(appUpdateInfo -> {
+            Log.d(TAG, "APP UPDATE checkForUpdate addOnSuccessListener");
+
+            if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
+                    // This example applies an immediate update. To apply a flexible update
+                    // instead, pass in AppUpdateType.FLEXIBLE
+                    && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)) {
+
+                // Request the update.
+                try {
+                    Log.d(TAG, "APP UPDATE checkForUpdate try");
+
+                    appUpdateManager.startUpdateFlowForResult(
+                            // Pass the intent that is returned by 'getAppUpdateInfo()'.
+                            appUpdateInfo,
+                            // Or 'AppUpdateType.FLEXIBLE' for flexible updates.
+                            AppUpdateType.IMMEDIATE,
+                            // The current activity making the update request.
+                            activity,
+                            // Include a request code to later monitor this update request.
+                            IN_APP_UPDATE_REQUEST_CODE);
+
+                    Toast.makeText(activity, "Update available", Toast.LENGTH_SHORT).show();
+
+                } catch (IntentSender.SendIntentException e) {
+                    e.printStackTrace();
+                    Log.e(TAG, "APP UPDATE checkForUpdate error: " + e);
+                    Toast.makeText(activity, "Update error: " + e, Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Log.d(TAG, "APP UPDATE checkForUpdate else");
+                Toast.makeText(activity, "Update NOT available", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

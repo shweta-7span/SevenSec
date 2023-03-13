@@ -29,10 +29,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.DialogFragment;
@@ -76,6 +78,8 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
         checkPermission();
 
         binding.btnPermission.setOnClickListener(view -> askPermissions());
+
+        Utils.checkForInAppUpdate(getApplicationContext(), this);
     }
 
     @Override
@@ -338,5 +342,23 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
     @Override
     public void onNegativeButtonClick(DialogInterface dialog) {
         dialog.dismiss();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == IN_APP_UPDATE_REQUEST_CODE) {
+            if (resultCode != RESULT_OK) {
+                Log.e(TAG, "APP UPDATE: onActivityResult: Update flow failed! Result code: " + resultCode);
+                // If the update is cancelled or fails,
+                // you can request to start the update again.
+                Toast.makeText(this, "Update Failed", Toast.LENGTH_SHORT).show();
+                Utils.checkForInAppUpdate(getApplicationContext(), this);
+            } else {
+                Log.d(TAG, "APP UPDATE: onActivityResult: Update flow done");
+                Toast.makeText(this, "Update Successfully Done", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }
