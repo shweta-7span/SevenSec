@@ -26,6 +26,7 @@ public class Constants {
     public static final String ANDROID = "Android";
 
     public static final long DELAY_OPEN_GREY_PAGE = 500;
+    public static final long SPLASH_DELAY = 1000;
     public static final long GRAY_PAGE_ANIMATION_TIMER = 3000;
     public static final long PERMISSION_POPUP_DELAY = 300;
     public static final long OPEN_ATTEMPT_SCREEN_DELAY = 500;

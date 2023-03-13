@@ -1,5 +1,6 @@
 package com.sevensec.activities;
 
+import static com.sevensec.utils.Constants.SPLASH_DELAY;
 import static com.sevensec.utils.Constants.STR_FIRST_TIME_APP_LAUNCH;
 
 import android.annotation.SuppressLint;
@@ -36,6 +37,6 @@ public class SplashActivity extends AppCompatActivity {
             }
             finish();
 
-        }, 3000);
+        }, SPLASH_DELAY);
     }
 }
