@@ -21,7 +21,6 @@ import android.widget.CheckBox;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.AppCompatCheckBox;
 
 import com.google.android.gms.tasks.Task;
 import com.google.android.play.core.appupdate.AppUpdateInfo;
@@ -30,7 +29,6 @@ import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
 import com.google.android.play.core.install.model.AppUpdateType;
 import com.google.android.play.core.install.model.UpdateAvailability;
 import com.sevensec.R;
-import com.sevensec.activities.MainActivity;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -153,10 +151,10 @@ public class Utils {
         String title;
         String message;
 
-        if(Build.MANUFACTURER.equals("Xiaomi")){
-             title = Build.MANUFACTURER + " Enable Autostart";
-             message = String.format("%s requires to be enabled 'Autostart' to function properly.%n", context.getString(R.string.app_name));
-        }else{
+        if (Build.MANUFACTURER.equals("Xiaomi")) {
+            title = Build.MANUFACTURER + " Enable Autostart";
+            message = String.format("%s requires to be enabled 'Autostart' to function properly.%n", context.getString(R.string.app_name));
+        } else {
             title = Build.MANUFACTURER + " Protected Apps";
             message = String.format("%s requires to be enabled in 'Protected Apps' to function properly.%n", context.getString(R.string.app_name));
         }
@@ -170,17 +168,23 @@ public class Utils {
                     LayoutInflater factory = LayoutInflater.from(context);
                     View view = factory.inflate(R.layout.dont_show_again_popup, null);
                     CheckBox checkBox = view.findViewById(R.id.cbNotShowAgain);
-                    checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                        SharedPref.writeBoolean(STR_SKIP_PROTECTED_APP_CHECK, isChecked);
-                    });
 
-                    new AlertDialog.Builder(context, R.style.MyAlertDialogTheme)
+                    AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.MyAlertDialogTheme)
                             .setTitle(title)
                             .setMessage(message)
                             .setView(view)
+                            .setCancelable(false)
                             .setPositiveButton(R.string.go_to_settings, (dialog, which) -> context.startActivity(intent))
-                            .setNegativeButton(R.string.cancel, null)
-                            .show();
+                            .setNegativeButton(R.string.cancel, null);
+
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+
+                    checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                        SharedPref.writeBoolean(STR_SKIP_PROTECTED_APP_CHECK, isChecked);
+                        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setEnabled(!isChecked);
+                    });
+
                     break;
                 }
             }
