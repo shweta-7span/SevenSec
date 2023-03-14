@@ -17,6 +17,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -151,22 +152,18 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
 
     private void loadInstalledApps() {
         PackageManager packageManager = getApplicationContext().getPackageManager();
-        /*Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
-        //mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-
-        List<ResolveInfo> appList = packageManager.queryIntentActivities(mainIntent, 0);
-        Collections.sort(appList, new ResolveInfo.DisplayNameComparator(packageManager));
-
-        for (int i = 0; i < appList.size(); i++) {
-            Log.w(TAG, "onCreate All installed: " + appList.get(i));
-        }*/
-
         List<AppInfoModel> appInfoModelList = new ArrayList<>();
-        List<ApplicationInfo> packs = packageManager.getInstalledApplications(PackageManager.GET_META_DATA);
+//        List<ApplicationInfo> packs = packageManager.getInstalledApplications(PackageManager.GET_META_DATA);
+
+        Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
+        mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+        List<ResolveInfo> packs = packageManager.queryIntentActivities(mainIntent, 0);
 
         for (int i = 0; i < packs.size(); i++) {
 
-            ApplicationInfo a = packs.get(i);
+//            ApplicationInfo a = packs.get(i);
+            ApplicationInfo a = packs.get(i).activityInfo.applicationInfo;
+
             // skip system apps if they shall not be included
             if ((a.flags & ApplicationInfo.FLAG_SYSTEM) == 1) {
                 continue;
@@ -195,11 +192,11 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
 
         Log.w(TAG, "onCreate appInfoModelList length: " + appInfoModelList.size());
 
-        if(appInfoModelList.size()==0){
+        if (appInfoModelList.size() == 0) {
             binding.llPermission.setVisibility(View.GONE);
             binding.recyclerView.setVisibility(View.GONE);
             binding.llNoData.setVisibility(View.VISIBLE);
-        }else{
+        } else {
             binding.llPermission.setVisibility(View.GONE);
             binding.recyclerView.setVisibility(View.VISIBLE);
             binding.llNoData.setVisibility(View.GONE);
@@ -227,6 +224,10 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
         }
 
         Log.i(TAG, "onCreate appInfoModelList length after sorting: " + appInfoModelList.size());
+
+        for (int i = 0; i < appInfoModelList.size(); i++) {
+            Log.d(TAG, "loadInstalledApps name: " + appInfoModelList.get(i).getAppName());
+        }
 
         MyListAdapter adapter = new MyListAdapter(appInfoModelList, favAppList);
         binding.recyclerView.addItemDecoration(new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL));
