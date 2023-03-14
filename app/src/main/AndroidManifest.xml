@@ -2,30 +2,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.ACTION_MANAGE_OVERLAY_PERMISSION" />
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission
         android:name="android.permission.PACKAGE_USAGE_STATS"
         tools:ignore="ProtectedPermissions" />
+    <uses-permission android:name="android.permission.ACTION_MANAGE_OVERLAY_PERMISSION" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
-    <!--
-<uses-permission
-        android:name="android.permission.GET_TASKS"
-        android:maxSdkVersion="20" />
-    -->
+
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
-    <permission android:name="android.permission.QUERY_ALL_PACKAGES" />
-    <!--
- <queries>
-        <package android:name="com.whatsapp" />
-        <package android:name="com.instagram.android" />
-        <package android:name="com.facebook.katana" />
-        <package android:name="com.facebook.orca" />
-        <package android:name="com.camerasideas.instashot" />
-    </queries>
-    -->
     <queries>
         <intent>
             <action android:name="android.intent.action.MAIN" />
