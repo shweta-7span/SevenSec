@@ -265,9 +265,6 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
                     showPermissionDialog("Disable Battery Optimization",
                             "Take out the Battery Optimization for 7Sec to run in the background.",
                             BATTERY_OPTIMIZATION_REQUEST_CODE);
-                } else {
-                    //ask rto enable Autostart
-                    Utils.startPowerSaverIntent(MainActivity.this);
                 }
             }
 
