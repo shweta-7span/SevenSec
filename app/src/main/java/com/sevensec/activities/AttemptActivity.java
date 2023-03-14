@@ -104,6 +104,8 @@ public class AttemptActivity extends FireStoreDataOperation {
     @Override
     public void setAttempt(int lastAttempt, String lastUsedTime) {
         super.setAttempt(lastAttempt, lastUsedTime);
+        Log.d(TAG, "setAttempt Attempt number: " + lastAttempt);
+        Log.d(TAG, "setAttempt lastUsedTime: " + lastUsedTime);
 
 //        binding.tvAttempts.setText(String.valueOf(lastAttempt));
         if (lastAttempt == 1) {
