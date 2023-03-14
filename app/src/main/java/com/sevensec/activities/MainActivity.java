@@ -10,7 +10,10 @@ import static com.sevensec.utils.Constants.STR_APP_SWITCH_POSITION;
 import static com.sevensec.utils.Constants.STR_DEVICE_ID;
 import static com.sevensec.utils.Constants.STR_FAV_APP_LIST;
 import static com.sevensec.utils.Constants.STR_FIRST_TIME_APP_LAUNCH;
+import static com.sevensec.utils.Constants.STR_XIAOMI;
+import static com.sevensec.utils.Constants.STR_XIAOMI_OVERLAY;
 import static com.sevensec.utils.Constants.USAGE_ACCESS_REQUEST_CODE;
+import static com.sevensec.utils.Constants.XIAOMI_OVERLAY_REQUEST_CODE;
 import static com.sevensec.utils.Utils.isAccessGranted;
 import static com.sevensec.utils.Utils.isDrawOverlayPermissionGranted;
 
@@ -262,13 +265,27 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
             } else {
                 MyFirebaseAnalytics.log("Permission", "Permission_details", "Overlay Permission Granted");
 
-                if (!pm.isIgnoringBatteryOptimizations(Constants.APP_PACKAGE_NAME)) {
-                    showPermissionDialog("Disable Battery Optimization",
-                            "Take out the Battery Optimization for 7Sec to run in the background.",
-                            BATTERY_OPTIMIZATION_REQUEST_CODE);
+                if (Build.MANUFACTURER.equals(STR_XIAOMI)) {
+                    if (!SharedPref.readBoolean(STR_XIAOMI_OVERLAY, false)) {
+                        showPermissionDialog("Xiaomi Display Popup Window",
+                                "Allow these permission for 7Sec to show the overlay screen.\n\nThen, come back.",
+                                XIAOMI_OVERLAY_REQUEST_CODE);
+                    } else {
+                        batteryOptimizationRequest();
+                    }
+                } else {
+                    batteryOptimizationRequest();
                 }
             }
 
+        }
+    }
+
+    private void batteryOptimizationRequest() {
+        if (!pm.isIgnoringBatteryOptimizations(Constants.APP_PACKAGE_NAME)) {
+            showPermissionDialog("Disable Battery Optimization",
+                    "Take out the Battery Optimization for 7Sec to run in the background.",
+                    BATTERY_OPTIMIZATION_REQUEST_CODE);
         }
     }
 
@@ -289,6 +306,9 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
         } else if (permissionCode == OVERLAY_REQUEST_CODE) {
             imageView.setImageResource(R.drawable.img_display_over);
             allowPermission = "Allow Overlay";
+        } else if (permissionCode == XIAOMI_OVERLAY_REQUEST_CODE) {
+            imageView.setImageResource(R.drawable.overlay_xiaomi);
+            allowPermission = getResources().getString(R.string.go_to_settings);
         } else {
             view = null;
             allowPermission = "Disable";
@@ -310,7 +330,16 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
                         Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + Constants.APP_PACKAGE_NAME));
                         startActivityIntent.launch(intent); //It will call onActivityResult Function After you press Yes/No and go Back after giving permission
 
-                    } else if (permissionCode == BATTERY_OPTIMIZATION_REQUEST_CODE) {
+                    } else if (permissionCode == XIAOMI_OVERLAY_REQUEST_CODE) {
+                        SharedPref.writeBoolean(STR_XIAOMI_OVERLAY, true);
+
+                        Intent intent = new Intent("miui.intent.action.APP_PERM_EDITOR");
+                        intent.setClassName("com.miui.securitycenter",
+                                "com.miui.permcenter.permissions.PermissionsEditorActivity");
+                        intent.putExtra("extra_pkgname", getPackageName());
+                        startActivityIntent.launch(intent);
+                    }
+                    else if (permissionCode == BATTERY_OPTIMIZATION_REQUEST_CODE) {
                         Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
                         intent.setData(Uri.parse("package:" + Constants.APP_PACKAGE_NAME));
                         startActivityIntent.launch(intent);

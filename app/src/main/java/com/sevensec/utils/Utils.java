@@ -2,6 +2,7 @@ package com.sevensec.utils;
 
 import static com.sevensec.utils.Constants.IN_APP_UPDATE_REQUEST_CODE;
 import static com.sevensec.utils.Constants.STR_SKIP_PROTECTED_APP_CHECK;
+import static com.sevensec.utils.Constants.STR_XIAOMI;
 
 import android.app.Activity;
 import android.app.AppOpsManager;
@@ -151,7 +152,7 @@ public class Utils {
         String title;
         String message;
 
-        if (Build.MANUFACTURER.equals("Xiaomi")) {
+        if (Build.MANUFACTURER.equals(STR_XIAOMI)) {
             title = Build.MANUFACTURER + " Enable Autostart";
             message = String.format("%s requires to be enabled 'Autostart' to function properly.%n", context.getString(R.string.app_name));
         } else {

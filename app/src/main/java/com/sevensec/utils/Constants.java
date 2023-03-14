@@ -17,12 +17,15 @@ public class Constants {
     public static final String DB_DOCUMENT_KEY_APP_PACKAGE = "Package";
     public static final String DB_DOCUMENT_KEY_APP_ATTEMPTS = "Attempts";
 
+    public static final String STR_XIAOMI = "Xiaomi";
+
     public static final String STR_FIRST_TIME_APP_LAUNCH = "STR_FIRST_TIME_APP_LAUNCH";
     public static final String STR_DEVICE_ID = "STR_DEVICE_ID";
     public static final String STR_FAV_APP_LIST = "STR_FAV_APP_LIST";
     public static final String STR_APP_SWITCH_DURATION = "STR_APP_SWITCH_DURATION";
     public static final String STR_APP_SWITCH_POSITION = "STR_APP_SWITCH_POSITION";
     public static final String STR_SKIP_PROTECTED_APP_CHECK = "STR_SKIP_PROTECTED_APP_CHECK";
+    public static final String STR_XIAOMI_OVERLAY = "STR_XIAOMI_OVERLAY";
     public static final String ANDROID = "Android";
 
     public static final long DELAY_OPEN_GREY_PAGE = 500;
@@ -36,8 +39,9 @@ public class Constants {
 
     public static final int USAGE_ACCESS_REQUEST_CODE = 101;
     public static final int OVERLAY_REQUEST_CODE = 102;
-    public static final int BATTERY_OPTIMIZATION_REQUEST_CODE = 103;
-    public static final int IN_APP_UPDATE_REQUEST_CODE = 104;
+    public static final int XIAOMI_OVERLAY_REQUEST_CODE = 103;
+    public static final int BATTERY_OPTIMIZATION_REQUEST_CODE = 104;
+    public static final int IN_APP_UPDATE_REQUEST_CODE = 105;
 
 //    public static final long APP_SWITCH_DURATION = 1000 * 60;
     //TODO: Check this boolean before give the .apk
