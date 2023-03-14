@@ -174,17 +174,16 @@ public class Utils {
                             .setMessage(message)
                             .setView(view)
                             .setCancelable(false)
-                            .setPositiveButton(R.string.go_to_settings, (dialog, which) -> context.startActivity(intent))
+                            .setPositiveButton(R.string.go_to_settings, (dialog, which) -> {
+                                SharedPref.writeBoolean(STR_SKIP_PROTECTED_APP_CHECK, checkBox.isChecked());
+                                context.startActivity(intent);
+                            })
                             .setNegativeButton(R.string.cancel, null);
 
                     AlertDialog dialog = builder.create();
                     dialog.show();
 
-                    checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                        SharedPref.writeBoolean(STR_SKIP_PROTECTED_APP_CHECK, isChecked);
-                        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setEnabled(!isChecked);
-                    });
-
+                    checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setEnabled(!isChecked));
                     break;
                 }
             }
