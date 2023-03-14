@@ -51,10 +51,7 @@ public class SingleChoiceDialogFragment extends DialogFragment {
 
 //        builder.setTitle(R.string.select_app_switch_delay)
         builder.setCustomTitle(view)
-                .setSingleChoiceItems(arrAppSwitchDelay, position, (dialog, i) -> {
-                    position = i;
-                    SharedPref.writeInteger(STR_APP_SWITCH_POSITION, position);
-                })
+                .setSingleChoiceItems(arrAppSwitchDelay, position, (dialog, i) -> position = i)
                 .setPositiveButton(getString(R.string.save), (dialog, i) -> mListener.onPositiveButtonClick(position, arrAppSwitchDelay[position]))
                 .setNegativeButton(getString(R.string.cancel), (dialog, which) -> mListener.onNegativeButtonClick(dialog));
 

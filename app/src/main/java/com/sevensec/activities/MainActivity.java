@@ -6,6 +6,7 @@ import static com.sevensec.utils.Constants.IN_APP_UPDATE_REQUEST_CODE;
 import static com.sevensec.utils.Constants.OVERLAY_REQUEST_CODE;
 import static com.sevensec.utils.Constants.PERMISSION_POPUP_DELAY;
 import static com.sevensec.utils.Constants.STR_APP_SWITCH_DURATION;
+import static com.sevensec.utils.Constants.STR_APP_SWITCH_POSITION;
 import static com.sevensec.utils.Constants.STR_DEVICE_ID;
 import static com.sevensec.utils.Constants.STR_FAV_APP_LIST;
 import static com.sevensec.utils.Constants.STR_FIRST_TIME_APP_LAUNCH;
@@ -332,6 +333,8 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
     public void onPositiveButtonClick(int position, String selectedItem) {
         Log.w(TAG, "onPositiveButtonClick: selectedItem: " + selectedItem);
         Log.w(TAG, "onPositiveButtonClick: appSwitchDuration: " + Integer.parseInt(selectedItem.split(" ")[0]) * 60);
+
+        SharedPref.writeInteger(STR_APP_SWITCH_POSITION, position);
 
         int durationInSeconds = Integer.parseInt(selectedItem.split(" ")[0]) * 60;
         SharedPref.writeInteger(STR_APP_SWITCH_DURATION, durationInSeconds);
