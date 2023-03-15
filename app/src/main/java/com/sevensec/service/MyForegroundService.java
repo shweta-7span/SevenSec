@@ -270,5 +270,14 @@ public class MyForegroundService extends Service {
     public void onDestroy() {
         super.onDestroy();
         Log.e(TAG, "MyService: onDestroy: ");
+
+        Intent broadcastIntent = new Intent("com.sevenSec.MyForegroundService.RestartSensor");
+        sendBroadcast(broadcastIntent);
+    }
+
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        super.onTaskRemoved(rootIntent);
+        Log.e(TAG, "MyService: onTaskRemoved: ");
     }
 }
