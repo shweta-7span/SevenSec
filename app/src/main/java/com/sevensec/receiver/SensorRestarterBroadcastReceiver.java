@@ -3,9 +3,9 @@ package com.sevensec.receiver;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 import com.sevensec.service.MyForegroundService;
+import com.sevensec.utils.Dlog;
 
 public class SensorRestarterBroadcastReceiver extends BroadcastReceiver {
 
@@ -13,7 +13,7 @@ public class SensorRestarterBroadcastReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.i(TAG, "MyService: onReceive: Service Stopped!");
+        Dlog.i( "MyService: onReceive: Service Stopped!");
 
         //Start service
         context.startService(new Intent(context, MyForegroundService.class));

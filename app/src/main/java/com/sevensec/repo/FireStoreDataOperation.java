@@ -10,8 +10,6 @@ import static com.sevensec.utils.Constants.DB_DOCUMENT_KEY_TYPE;
 import static com.sevensec.utils.Utils.check24Hour;
 import static com.sevensec.utils.Utils.getLastUsedTime;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -25,6 +23,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.sevensec.repo.interfaces.DataOperation;
+import com.sevensec.utils.Dlog;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -43,26 +42,26 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
 
-                Log.d("TAG", "FireStore: document Size: " + task.getResult().size());
+                Dlog.d("FireStore: document Size: " + task.getResult().size());
 
                 if (task.isSuccessful()) {
                     if (task.getResult().size() > 0) {
                         for (DocumentSnapshot document : task.getResult()) {
-                            //Log.d("TAG", "FireStore: document: " + document.get(DB_DOCUMENT_KEY_USER));
-                            Log.d("TAG", "FireStore: document: " + document.getId());
+                            //Dlog.d("FireStore: document: " + document.get(DB_DOCUMENT_KEY_USER));
+                            Dlog.d("FireStore: document: " + document.getId());
 
                             if (Objects.equals(document.getId(), deviceId)) {
-                                Log.d("TAG", "FireStore: DEVICE_ID already exists");
+                                Dlog.d("FireStore: DEVICE_ID already exists");
                             } else {
-                                Log.e("TAG", "FireStore: DEVICE_ID NOT exists");
+                                Dlog.e("FireStore: DEVICE_ID NOT exists");
                             }
                         }
                     } else {
-                        Log.e("TAG", "FireStore: Collection Not exists");
+                        Dlog.e("FireStore: Collection Not exists");
                         addUserOnFireStore(deviceId);
                     }
                 } else {
-                    Log.e("TAG", "FireStore: task NOT successful");
+                    Dlog.e("FireStore: task NOT successful");
                 }
             }
         });
@@ -80,12 +79,12 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void unused) {
-                        Log.d(TAG, "FireStore: DocumentSnapshot successfully written!");
+                        Dlog.d("FireStore: DocumentSnapshot successfully written!");
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "FireStore: Error adding document", e);
+                        Dlog.w("FireStore: Error adding document: " + e.getMessage());
                     }
                 });
     }
@@ -99,20 +98,20 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-                        Log.d(TAG, "FireStore: Document exists!");
+                        Dlog.d("FireStore: Document exists!");
                         getLastAttemptAndTime(deviceId, appLabel, lastAppPackage, document);
                     } else {
-                        Log.d(TAG, "FireStore: Document does not exist!");
+                        Dlog.d("FireStore: Document does not exist!");
                         addAppDataWithAttempt(deviceId, appLabel, lastAppPackage, 0, null);
                     }
                 } else {
-                    Log.d(TAG, "FireStore: Failed with: ", task.getException());
+                    Dlog.d("FireStore: Failed with: " + task.getException());
                 }
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Log.w(TAG, "FireStore: checkAppAddedOrNot Error: ", e);
+                Dlog.w("FireStore: checkAppAddedOrNot Error: " + e);
             }
         });
     }
@@ -123,7 +122,7 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
         int attemptCount = 0;
 
         for (Long timeStamp : timeList) {
-            Log.v(TAG, "FireStore: getLastAttemptAndTime: " + timeStamp);
+            Dlog.v("FireStore: getLastAttemptAndTime: " + timeStamp);
             if (check24Hour(timeStamp)) {
                 removeTimeFromArray(deviceId, appLabel, timeStamp);
             } else {
@@ -139,7 +138,7 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
 
     @Override
     public void addAppDataWithAttempt(String deviceId, String appLabel, String lastAppPackage, int attempt, String lastUsedTime) {
-        Log.i(TAG, "FireStore: addAppDataWithAttempt attempt: " + attempt);
+        Dlog.i("FireStore: addAppDataWithAttempt attempt: " + attempt);
         setAttempt(attempt + 1, lastUsedTime);
 
         Map<String, Object> apps = new HashMap<>();
@@ -153,17 +152,18 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void unused) {
-                        Log.d(TAG, "FireStore: Apps successfully written!");
+                        Dlog.d("FireStore: Apps successfully written!");
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "FireStore: Error adding App", e);
+                        Dlog.w("FireStore: Error adding App: "+ e);
                     }
                 });
     }
 
-    public void setAttempt(int i, String lastUsedTime) {}
+    public void setAttempt(int i, String lastUsedTime) {
+    }
 
     @Override
     public void removeTimeFromArray(String deviceId, String appLabel, long timeStamp) {
@@ -176,12 +176,12 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void unused) {
-                        Log.d(TAG, "FireStore: TimeStamp successfully removed!");
+                        Dlog.d("FireStore: TimeStamp successfully removed!");
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "FireStore: Error adding App", e);
+                        Dlog.w("FireStore: Error adding App: "+ e);
                     }
                 });
     }

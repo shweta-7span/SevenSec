@@ -54,14 +54,14 @@ public class Utils {
     }
 
     public static boolean isDrawOverlayPermissionGranted(Context context) {
-        Log.v("App", "Package Name: " + context.getPackageName());
+        Dlog.v( "Package Name: " + context.getPackageName());
 
         // Check if we already have permission to draw over other apps
         if (!Settings.canDrawOverlays(context)) {
-            Log.v("App", "Requesting Permission: " + Settings.canDrawOverlays(context));
+            Dlog.v( "Requesting Permission: " + Settings.canDrawOverlays(context));
             return false;
         } else {
-            Log.v("App", "We already have permission for it.");
+            Dlog.v( "We already have permission for it.");
             // disablePullNotificationTouch();
             // Do your stuff, we got permission captain
             return true;
@@ -72,7 +72,7 @@ public class Utils {
         long MILLIS_PER_DAY = 24 * 60 * 60 * 1000L;
 
         boolean moreThanDay = Math.abs(lastTimeStamp - (new Date().getTime())) > MILLIS_PER_DAY;
-        Log.d("App", "FireStore: check24Hour moreThanDay: " + moreThanDay);
+        Dlog.d("FireStore: check24Hour moreThanDay: " + moreThanDay);
 
         return moreThanDay;
     }
@@ -202,7 +202,7 @@ public class Utils {
     }
 
     public static void checkForInAppUpdate(Context mContext, Activity activity) {
-        Log.d(TAG, "APP UPDATE checkForUpdate");
+        Dlog.d( "APP UPDATE checkForUpdate");
 
         AppUpdateManager appUpdateManager = AppUpdateManagerFactory.create(mContext);
 
@@ -211,7 +211,7 @@ public class Utils {
 
         // Checks that the platform will allow the specified type of update.
         appUpdateInfoTask.addOnSuccessListener(appUpdateInfo -> {
-            Log.d(TAG, "APP UPDATE checkForUpdate addOnSuccessListener");
+            Dlog.d( "APP UPDATE checkForUpdate addOnSuccessListener");
 
             if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
                     // This example applies an immediate update. To apply a flexible update
@@ -220,7 +220,7 @@ public class Utils {
 
                 // Request the update.
                 try {
-                    Log.d(TAG, "APP UPDATE checkForUpdate try");
+                    Dlog.d( "APP UPDATE checkForUpdate try");
 
                     appUpdateManager.startUpdateFlowForResult(
                             // Pass the intent that is returned by 'getAppUpdateInfo()'.
@@ -236,11 +236,11 @@ public class Utils {
 
                 } catch (IntentSender.SendIntentException e) {
                     e.printStackTrace();
-                    Log.e(TAG, "APP UPDATE checkForUpdate error: " + e);
+                    Dlog.e( "APP UPDATE checkForUpdate error: " + e);
                     Toast.makeText(activity, "Update error: " + e, Toast.LENGTH_SHORT).show();
                 }
             } else {
-                Log.d(TAG, "APP UPDATE checkForUpdate else");
+                Dlog.d( "APP UPDATE checkForUpdate else");
                 Toast.makeText(activity, "Update NOT available", Toast.LENGTH_SHORT).show();
             }
         });

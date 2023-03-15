@@ -19,6 +19,7 @@ import com.sevensec.R;
 import com.sevensec.databinding.ActivityAttemptBinding;
 import com.sevensec.repo.FireStoreDataOperation;
 import com.sevensec.utils.Constants;
+import com.sevensec.utils.Dlog;
 import com.sevensec.utils.SharedPref;
 import com.sevensec.utils.Utils;
 
@@ -47,7 +48,7 @@ public class AttemptActivity extends FireStoreDataOperation {
 
         if (getIntent().getStringExtra(Constants.STR_LAST_WARN_APP) != null) {
             lastAppPackage = getIntent().getStringExtra(Constants.STR_LAST_WARN_APP);
-            Log.e(TAG, "Last App's Package: " + lastAppPackage);
+            Dlog.e("Last App's Package: " + lastAppPackage);
         }
 
         // When the warning page show & if user close our warning page and open
@@ -69,7 +70,7 @@ public class AttemptActivity extends FireStoreDataOperation {
             }
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
-            Log.e(TAG, "getAppName Error: " + e.getMessage());
+            Dlog.e( "getAppName Error: " + e.getMessage());
         }
 
         binding.tvContinue.setOnClickListener(view -> {
@@ -82,7 +83,7 @@ public class AttemptActivity extends FireStoreDataOperation {
         InputStream is = getResources().openRawResource(R.raw.breathe);
         Movie movie = Movie.decodeStream(is);
         int duration = movie.duration();
-        Log.e(TAG, ".gif duration: " + duration);
+        Dlog.e( ".gif duration: " + duration);
 
         new Handler().postDelayed(() -> {
             binding.tvBreathDesc.setVisibility(View.GONE);
@@ -104,8 +105,8 @@ public class AttemptActivity extends FireStoreDataOperation {
     @Override
     public void setAttempt(int lastAttempt, String lastUsedTime) {
         super.setAttempt(lastAttempt, lastUsedTime);
-        Log.d(TAG, "setAttempt Attempt number: " + lastAttempt);
-        Log.d(TAG, "setAttempt lastUsedTime: " + lastUsedTime);
+        Dlog.d( "setAttempt Attempt number: " + lastAttempt);
+        Dlog.d( "setAttempt lastUsedTime: " + lastUsedTime);
 
 //        binding.tvAttempts.setText(String.valueOf(lastAttempt));
         if (lastAttempt == 1) {

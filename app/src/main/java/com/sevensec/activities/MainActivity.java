@@ -55,6 +55,7 @@ import com.sevensec.model.AppInfoModel;
 import com.sevensec.repo.FireStoreDataOperation;
 import com.sevensec.service.MyForegroundService;
 import com.sevensec.utils.Constants;
+import com.sevensec.utils.Dlog;
 import com.sevensec.utils.SharedPref;
 import com.sevensec.utils.Utils;
 
@@ -115,7 +116,7 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
                 isDrawOverlayPermissionGranted(getApplicationContext()) &&
                 pm.isIgnoringBatteryOptimizations(Constants.APP_PACKAGE_NAME)) {
 
-            Log.w(TAG, "onActivityResult All Permissions Granted: ");
+            Dlog.w( "onActivityResult All Permissions Granted: ");
 
             //Get Installed App list & show the list after sort it
             loadInstalledApps();
@@ -130,7 +131,7 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
 
             //Store DEVICE_ID in Preference
             String DEVICE_ID = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
-            Log.d(TAG, "onCreate DEVICE_ID: " + DEVICE_ID);
+            Dlog.d( "onCreate DEVICE_ID: " + DEVICE_ID);
             SharedPref.writeString(STR_DEVICE_ID, DEVICE_ID);
 
             //Store DEVICE_ID in FireStore
@@ -144,7 +145,7 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
             MyFirebaseAnalytics.log("Permission", "Permission_details", "All Permission Granted");
 
         } else {
-            Log.w(TAG, "onActivityResult All Permissions NOT Granted: ");
+            Dlog.w( "onActivityResult All Permissions NOT Granted: ");
             binding.llPermission.setVisibility(View.VISIBLE);
             binding.recyclerView.setVisibility(View.GONE);
             binding.llNoData.setVisibility(View.GONE);
@@ -172,10 +173,10 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
             if ((a.flags & ApplicationInfo.FLAG_SYSTEM) == 1) {
                 continue;
             }
-            Log.v(TAG, "onCreate appName: " + packageManager.getApplicationLabel(a).toString());
-            Log.d(TAG, "onCreate installed: " + a.packageName);
+            Dlog.v( "onCreate appName: " + packageManager.getApplicationLabel(a).toString());
+            Dlog.d( "onCreate installed: " + a.packageName);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                Log.d(TAG, "onCreate info: " + ApplicationInfo.getCategoryTitle(getApplicationContext(), a.category));
+                Dlog.d( "onCreate info: " + ApplicationInfo.getCategoryTitle(getApplicationContext(), a.category));
             }
 
             AppInfoModel appInfoModel = new AppInfoModel();
@@ -194,7 +195,7 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
             }
         }
 
-        Log.w(TAG, "onCreate appInfoModelList length: " + appInfoModelList.size());
+        Dlog.w( "onCreate appInfoModelList length: " + appInfoModelList.size());
 
         if (appInfoModelList.size() == 0) {
             binding.llPermission.setVisibility(View.GONE);
@@ -208,9 +209,9 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
 
         //Alphabetically Sorting
         Collections.sort(appInfoModelList, (appInfoModel, t1) -> {
-            Log.v(TAG, "appInfoModel: " + appInfoModel.getAppName());
-            Log.i(TAG, "t1: " + t1.getAppName());
-            Log.w(TAG, "compare: " + appInfoModel.getAppName().compareToIgnoreCase(t1.getAppName()));
+            Dlog.v( "appInfoModel: " + appInfoModel.getAppName());
+            Dlog.i( "t1: " + t1.getAppName());
+            Dlog.w( "compare: " + appInfoModel.getAppName().compareToIgnoreCase(t1.getAppName()));
             return appInfoModel.getAppName().compareToIgnoreCase(t1.getAppName());
         });
 
@@ -227,10 +228,10 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
             });
         }
 
-        Log.i(TAG, "onCreate appInfoModelList length after sorting: " + appInfoModelList.size());
+        Dlog.i( "onCreate appInfoModelList length after sorting: " + appInfoModelList.size());
 
         for (int i = 0; i < appInfoModelList.size(); i++) {
-            Log.d(TAG, "loadInstalledApps name: " + appInfoModelList.get(i).getAppName());
+            Dlog.d( "loadInstalledApps name: " + appInfoModelList.get(i).getAppName());
         }
 
         MyListAdapter adapter = new MyListAdapter(appInfoModelList, favAppList);
@@ -242,7 +243,7 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
 
     ActivityResultLauncher<Intent> startActivityIntent = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
         // Add same code that you want to add in onActivityResult method
-        Log.d(TAG, "onActivityResult: ");
+        Dlog.d( "onActivityResult: ");
         checkPermission();
 
         new Handler().postDelayed(() -> askPermissions(), PERMISSION_POPUP_DELAY);
@@ -254,8 +255,8 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
                     "Find the 7Sec app in the list and allow the Usage Access Permission.\n\nThen, come back.",
                     USAGE_ACCESS_REQUEST_CODE);
         } else {
-            Log.e(TAG, "askPermissions app: " + Constants.APP_PACKAGE_NAME);
-            Log.e(TAG, "askPermissions isBatteryOptimized: " + pm.isIgnoringBatteryOptimizations(Constants.APP_PACKAGE_NAME));
+            Dlog.e( "askPermissions app: " + Constants.APP_PACKAGE_NAME);
+            Dlog.e( "askPermissions isBatteryOptimized: " + pm.isIgnoringBatteryOptimizations(Constants.APP_PACKAGE_NAME));
             MyFirebaseAnalytics.log("Permission", "Permission_details", "Usage Access Permission Granted");
 
             if (!isDrawOverlayPermissionGranted(getApplicationContext())) {
@@ -360,8 +361,8 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
 
     @Override
     public void onPositiveButtonClick(int position, String selectedItem) {
-        Log.w(TAG, "onPositiveButtonClick: selectedItem: " + selectedItem);
-        Log.w(TAG, "onPositiveButtonClick: appSwitchDuration: " + Integer.parseInt(selectedItem.split(" ")[0]) * 60);
+        Dlog.w( "onPositiveButtonClick: selectedItem: " + selectedItem);
+        Dlog.w( "onPositiveButtonClick: appSwitchDuration: " + Integer.parseInt(selectedItem.split(" ")[0]) * 60);
 
         SharedPref.writeInteger(STR_APP_SWITCH_POSITION, position);
 
@@ -380,13 +381,13 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
 
         if (requestCode == IN_APP_UPDATE_REQUEST_CODE) {
             if (resultCode != RESULT_OK) {
-                Log.e(TAG, "APP UPDATE: onActivityResult: Update flow failed! Result code: " + resultCode);
+                Dlog.e( "APP UPDATE: onActivityResult: Update flow failed! Result code: " + resultCode);
                 // If the update is cancelled or fails,
                 // you can request to start the update again.
                 Toast.makeText(this, "Update Failed", Toast.LENGTH_SHORT).show();
                 Utils.checkForInAppUpdate(getApplicationContext(), this);
             } else {
-                Log.d(TAG, "APP UPDATE: onActivityResult: Update flow done");
+                Dlog.d( "APP UPDATE: onActivityResult: Update flow done");
                 Toast.makeText(this, "Update Successfully Done", Toast.LENGTH_SHORT).show();
             }
         }

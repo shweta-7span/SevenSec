@@ -31,6 +31,7 @@ import androidx.core.app.NotificationCompat;
 import com.sevensec.R;
 import com.sevensec.activities.AttemptActivity;
 import com.sevensec.activities.MainActivity;
+import com.sevensec.utils.Dlog;
 import com.sevensec.utils.SharedPref;
 import com.sevensec.utils.Utils;
 
@@ -70,7 +71,7 @@ public class MyForegroundService extends Service {
         instance = this;
 
         //androidStrings = getResources().getStringArray(R.array.arrFavApps);
-        Log.d(TAG, "onStartCommand: " + lastAppPN);
+        Dlog.d( "onStartCommand: " + lastAppPN);
 
         //scheduleMethod();
         checkRunningApps();
@@ -120,7 +121,7 @@ public class MyForegroundService extends Service {
 
         SharedPref.init(getApplicationContext());
         favAppList = SharedPref.readListString(STR_FAV_APP_LIST);
-        Log.w(TAG, "TEST favAppList: " + favAppList.size());
+        Dlog.w( "TEST favAppList: " + favAppList.size());
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             /*------For [Build.VERSION.SDK_INT < 20]---------*/
@@ -150,7 +151,7 @@ public class MyForegroundService extends Service {
                 activityOnTop = result;
             }
         }
-        Log.v(TAG, "TEST activity on Top: " + activityOnTop);
+        Dlog.v( "TEST activity on Top: " + activityOnTop);
         saveAppCloseTime(activityOnTop, lastAppPN);
 
         // Provide the packageName(s) of apps here, you want to show attempt activity
@@ -158,7 +159,7 @@ public class MyForegroundService extends Service {
         if (favAppList.contains(activityOnTop)/*||
                 activityOnTop.contains(CURRENT_PACKAGE_NAME) */) {
 
-            Log.v(TAG, "TEST lastAppPN: " + lastAppPN);
+            Dlog.v( "TEST lastAppPN: " + lastAppPN);
 
             if (!(activityOnTop.equals(lastAppPN) ||
                     (activityOnTop.equals(APP_PACKAGE_NAME)))) {
@@ -178,10 +179,10 @@ public class MyForegroundService extends Service {
                         //till then the condition "(!(activityOnTop.equals(lastAppPN))" will be satisfied.
                         //So, the attempt screen can open.
                         lastAppPN = activityOnTop;
-                        Log.e(TAG, "TEST After lastAppPN: " + lastAppPN);
+                        Dlog.e( "TEST After lastAppPN: " + lastAppPN);
 
                         // Show Password Activity
-                        Log.w(TAG, "TEST Show Password Activity");
+                        Dlog.w( "TEST Show Password Activity");
                         Intent intent = new Intent(MyForegroundService.this, AttemptActivity.class);
                         intent.putExtra(STR_LAST_WARN_APP, lastAppPN);
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -194,19 +195,19 @@ public class MyForegroundService extends Service {
                 }
 
             } else {
-                Log.d(TAG, "TEST Don't Show Password Activity");
+                Dlog.d( "TEST Don't Show Password Activity");
                 //call the method again after execution of the above code
                 callAgain(CHECK_TOP_APPLICATION_DELAY);
             }
 
         } else {
             // DO nothing
-            Log.w(TAG, "TEST DO nothing: " + activityOnTop);
+            Dlog.w( "TEST DO nothing: " + activityOnTop);
 
             if (activityOnTop.equals(lastAppPN) || activityOnTop.equals(APP_PACKAGE_NAME)) {
-                Log.d(TAG, "TEST Don't Update");
+                Dlog.d( "TEST Don't Update");
             } else {
-                Log.w(TAG, "TEST Update lastAppPN: " + activityOnTop);
+                Dlog.w( "TEST Update lastAppPN: " + activityOnTop);
                 lastAppPN = activityOnTop;
             }
 
@@ -225,7 +226,7 @@ public class MyForegroundService extends Service {
             if (!activityOnTop.equals(lastAppPN) &&
                     !activityOnTop.equals(APP_PACKAGE_NAME) /*&&
                     favAppList.contains(lastAppPN)*/) {
-                Log.d(TAG, "AppSwitch: closed Time for " + lastAppPN + " :" + new Date().getTime());
+                Dlog.d( "AppSwitch: closed Time for " + lastAppPN + " :" + new Date().getTime());
                 SharedPref.writeLong(lastAppPN, new Date().getTime());
             }
         }
@@ -235,7 +236,7 @@ public class MyForegroundService extends Service {
         /*long lastUsedDifference = Math.abs(SharedPref.readLong(lastAppPN, new Date().getTime() + ((1000 * 60) * 60)) - new Date().getTime());
         long elapsedMinutes = lastUsedDifference / (1000 * 60);
 
-        Log.v(TAG, "App Switch: " + lastAppPN + ": " + elapsedMinutes);
+        Dlog.v( "App Switch: " + lastAppPN + ": " + elapsedMinutes);
 
         return elapsedMinutes >= 1;*/
 
@@ -244,17 +245,17 @@ public class MyForegroundService extends Service {
         int durationInSeconds = Integer.parseInt(arrAppSwitchDelay[arrAppSwitchDelay.length - 1].split(" ")[0]) * 60;
 
         long appSwitchDuration = SharedPref.readInteger(STR_APP_SWITCH_DURATION, durationInSeconds);
-        Log.w(TAG, "isAppSwitchTimeExpire: appSwitchDuration: " + appSwitchDuration);
+        Dlog.w( "isAppSwitchTimeExpire: appSwitchDuration: " + appSwitchDuration);
 
         if (appSwitchDuration == 0) {
-            Log.v(TAG, "AppSwitch: " + lastAppPN + " ,elapsedSeconds already: " + 0);
+            Dlog.v( "AppSwitch: " + lastAppPN + " ,elapsedSeconds already: " + 0);
             return true;
 
         } else {
             long lastUsedDifference = Math.abs(SharedPref.readLong(lastAppPN, new Date().getTime() + (appSwitchDuration * 1000 * 60)) - new Date().getTime());
             long elapsedSeconds = lastUsedDifference / 1000;
 
-            Log.v(TAG, "AppSwitch: " + lastAppPN + " ,elapsedSeconds: " + elapsedSeconds);
+            Dlog.v( "AppSwitch: " + lastAppPN + " ,elapsedSeconds: " + elapsedSeconds);
 
             return elapsedSeconds > appSwitchDuration;
         }
@@ -269,7 +270,7 @@ public class MyForegroundService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.e(TAG, "MyService: onDestroy: ");
+        Dlog.e( "MyService: onDestroy: ");
 
         Intent broadcastIntent = new Intent("com.sevenSec.MyForegroundService.RestartSensor");
         sendBroadcast(broadcastIntent);
@@ -278,6 +279,6 @@ public class MyForegroundService extends Service {
     @Override
     public void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
-        Log.e(TAG, "MyService: onTaskRemoved: ");
+        Dlog.e( "MyService: onTaskRemoved: ");
     }
 }
