@@ -37,15 +37,13 @@ import com.sevensec.utils.Utils;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
-public class SaveMyAppsService extends Service {
+public class MyForegroundService extends Service {
 
     String TAG;
     String activityOnTop = "";
-    String lastAppPN = "";
-    public static SaveMyAppsService instance;
+    String lastAppPN = APP_PACKAGE_NAME;
+    public static MyForegroundService instance;
     //    String[] androidStrings;
     List<String> favAppList = new ArrayList<>();
 
@@ -69,12 +67,14 @@ public class SaveMyAppsService extends Service {
         // TODO Auto-generated method stub
 
         TAG = getApplicationContext().getClass().getName();
-        //        androidStrings = getResources().getStringArray(R.array.arrFavApps);
-        lastAppPN = APP_PACKAGE_NAME;
-        Log.d(TAG, "onStartCommand: ");
-
-        scheduleMethod();
         instance = this;
+
+        //androidStrings = getResources().getStringArray(R.array.arrFavApps);
+        Log.d(TAG, "onStartCommand: " + lastAppPN);
+
+        //scheduleMethod();
+        checkRunningApps();
+
         return START_STICKY;
     }
 
@@ -105,18 +105,16 @@ public class SaveMyAppsService extends Service {
         startForeground(2, notification);
     }
 
-    private void scheduleMethod() {
-        /*Timer timer = new Timer();
+    /*private void scheduleMethod() {
+        Timer timer = new Timer();
         TimerTask t = new TimerTask() {
             @Override
             public void run() {
                 checkRunningApps();
             }
         };
-        timer.scheduleAtFixedRate(t, 0, 500);*/
-
-        checkRunningApps();
-    }
+        timer.scheduleAtFixedRate(t, 0, 500);
+    }*/
 
     public void checkRunningApps() {
 
@@ -184,7 +182,7 @@ public class SaveMyAppsService extends Service {
 
                         // Show Password Activity
                         Log.w(TAG, "TEST Show Password Activity");
-                        Intent intent = new Intent(SaveMyAppsService.this, AttemptActivity.class);
+                        Intent intent = new Intent(MyForegroundService.this, AttemptActivity.class);
                         intent.putExtra(STR_LAST_WARN_APP, lastAppPN);
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         startActivity(intent);
@@ -271,6 +269,6 @@ public class SaveMyAppsService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        stop();
+        Log.e(TAG, "MyService: onDestroy: ");
     }
 }

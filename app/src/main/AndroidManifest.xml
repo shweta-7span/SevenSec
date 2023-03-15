@@ -70,7 +70,7 @@
             android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity"/>
 
-        <service android:name="com.sevensec.service.SaveMyAppsService" />
+        <service android:name="com.sevensec.service.MyForegroundService" />
 
         <receiver
             android:name="com.sevensec.receiver.BootCompleteReceiver"

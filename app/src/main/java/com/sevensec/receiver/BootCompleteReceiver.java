@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.util.Log;
 
-import com.sevensec.service.SaveMyAppsService;
+import com.sevensec.service.MyForegroundService;
 
 public class BootCompleteReceiver extends BroadcastReceiver {
 
@@ -16,7 +16,7 @@ public class BootCompleteReceiver extends BroadcastReceiver {
 
         if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
             //Start service
-            Intent i = new Intent(context, SaveMyAppsService.class);
+            Intent i = new Intent(context, MyForegroundService.class);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 context.startForegroundService(i);
             } else {

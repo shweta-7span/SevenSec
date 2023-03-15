@@ -53,7 +53,7 @@ import com.sevensec.analytics.MyFirebaseAnalytics;
 import com.sevensec.databinding.ActivityMainBinding;
 import com.sevensec.model.AppInfoModel;
 import com.sevensec.repo.FireStoreDataOperation;
-import com.sevensec.service.SaveMyAppsService;
+import com.sevensec.service.MyForegroundService;
 import com.sevensec.utils.Constants;
 import com.sevensec.utils.SharedPref;
 import com.sevensec.utils.Utils;
@@ -126,7 +126,7 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
             }, PERMISSION_POPUP_DELAY);
 
             //Start service
-            startService(new Intent(this, SaveMyAppsService.class));
+            startService(new Intent(this, MyForegroundService.class));
 
             //Store DEVICE_ID in Preference
             String DEVICE_ID = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
