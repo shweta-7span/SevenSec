@@ -23,7 +23,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
@@ -205,7 +204,7 @@ public class MyForegroundService extends Service {
             Dlog.w( "TEST DO nothing: " + activityOnTop);
 
             if (activityOnTop.equals(lastAppPN) || activityOnTop.equals(APP_PACKAGE_NAME)) {
-                Dlog.d( "TEST Don't Update");
+                Dlog.d("TEST Don't Update: lastAppPN: "+lastAppPN);
             } else {
                 Dlog.w( "TEST Update lastAppPN: " + activityOnTop);
                 lastAppPN = activityOnTop;
@@ -214,6 +213,12 @@ public class MyForegroundService extends Service {
             //call the method again after execution of the above code
             callAgain(CHECK_TOP_APPLICATION_DELAY);
         }
+    }
+
+    public void setLastApp(String lastAppPackage) {
+        Dlog.d("TEST setLastApp before lastAppPN: " + lastAppPN);
+        lastAppPN = lastAppPackage;
+        Dlog.w("TEST setLastApp after lastAppPN: " + lastAppPN);
     }
 
     private void callAgain(long delay) {
@@ -255,7 +260,7 @@ public class MyForegroundService extends Service {
             long lastUsedDifference = Math.abs(SharedPref.readLong(lastAppPN, new Date().getTime() + (appSwitchDuration * 1000 * 60)) - new Date().getTime());
             long elapsedSeconds = lastUsedDifference / 1000;
 
-            Dlog.v( "AppSwitch: " + lastAppPN + " ,elapsedSeconds: " + elapsedSeconds);
+            Dlog.v("AppSwitch: " + lastAppPN + " ,elapsedSeconds: " + elapsedSeconds);
 
             return elapsedSeconds > appSwitchDuration;
         }

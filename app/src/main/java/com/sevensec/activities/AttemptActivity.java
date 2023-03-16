@@ -9,7 +9,6 @@ import android.graphics.Movie;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 
@@ -18,6 +17,7 @@ import androidx.databinding.DataBindingUtil;
 import com.sevensec.R;
 import com.sevensec.databinding.ActivityAttemptBinding;
 import com.sevensec.repo.FireStoreDataOperation;
+import com.sevensec.service.MyForegroundService;
 import com.sevensec.utils.Constants;
 import com.sevensec.utils.Dlog;
 import com.sevensec.utils.SharedPref;
@@ -76,6 +76,11 @@ public class AttemptActivity extends FireStoreDataOperation {
         binding.tvContinue.setOnClickListener(view -> {
             SharedPref.writeBoolean(Utils.getIsLastAppOpenKey(lastAppPackage), true);
             finish();
+
+            MyForegroundService.instance.setLastApp(lastAppPackage);
+            Intent i = getPackageManager().getLaunchIntentForPackage(lastAppPackage);
+            i.setFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
+            startActivity(i);
         });
 
         binding.tvExit.setOnClickListener(view -> closeApp());
