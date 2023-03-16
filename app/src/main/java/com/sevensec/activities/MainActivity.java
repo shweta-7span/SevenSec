@@ -269,7 +269,7 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
                 if (Build.MANUFACTURER.equals(STR_XIAOMI)) {
                     if (!SharedPref.readBoolean(STR_XIAOMI_OVERLAY, false)) {
                         showPermissionDialog("Xiaomi Display Popup Window",
-                                "Allow these permission for 7Sec to show the overlay screen.\n\nThen, come back.",
+                                "Activate the checkbox for \"Display pop up window while running in the background\" for 7Sec to inform you for the selected apps.\n\nThen, come back.",
                                 XIAOMI_OVERLAY_REQUEST_CODE);
                     } else {
                         batteryOptimizationRequest();
