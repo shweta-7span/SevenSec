@@ -42,8 +42,9 @@ public class Constants {
     public static final int XIAOMI_OVERLAY_REQUEST_CODE = 103;
     public static final int BATTERY_OPTIMIZATION_REQUEST_CODE = 104;
     public static final int IN_APP_UPDATE_REQUEST_CODE = 105;
+    public static final int NOTIFICATION_PERMISSION_REQUEST_CODE = 106;
 
-//    public static final long APP_SWITCH_DURATION = 1000 * 60;
+    //    public static final long APP_SWITCH_DURATION = 1000 * 60;
     //TODO: Check this boolean before give the .apk
     public static final boolean IS_PRODUCTION_MODE = false;
 }

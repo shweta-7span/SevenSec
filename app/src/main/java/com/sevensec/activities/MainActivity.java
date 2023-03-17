@@ -1,8 +1,10 @@
 package com.sevensec.activities;
 
+import static android.Manifest.permission.POST_NOTIFICATIONS;
 import static com.sevensec.utils.Constants.APP_PACKAGE_NAME;
 import static com.sevensec.utils.Constants.BATTERY_OPTIMIZATION_REQUEST_CODE;
 import static com.sevensec.utils.Constants.IN_APP_UPDATE_REQUEST_CODE;
+import static com.sevensec.utils.Constants.NOTIFICATION_PERMISSION_REQUEST_CODE;
 import static com.sevensec.utils.Constants.OVERLAY_REQUEST_CODE;
 import static com.sevensec.utils.Constants.PERMISSION_POPUP_DELAY;
 import static com.sevensec.utils.Constants.STR_APP_SWITCH_DURATION;
@@ -28,7 +30,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.provider.Settings;
-import android.util.Log;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -40,7 +42,10 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -65,12 +70,12 @@ import java.util.List;
 
 public class MainActivity extends FireStoreDataOperation implements SingleChoiceDialogFragment.SingleChoiceListener {
 
-    String TAG = getClass().getName();
     ActivityMainBinding binding;
     PowerManager pm;
     MenuItem itemSettings;
     boolean isPermissionGranted = false;
 
+    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,7 +86,11 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
         MyFirebaseAnalytics.appOpenLog("SevenSec Open");
 
         SharedPref.writeBoolean(STR_FIRST_TIME_APP_LAUNCH, false);
-        checkPermission();
+        if (ContextCompat.checkSelfPermission(this, POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+            checkPermission();
+        } else {
+            ActivityCompat.requestPermissions(this, new String[]{POST_NOTIFICATIONS}, NOTIFICATION_PERMISSION_REQUEST_CODE);
+        }
 
         binding.btnPermission.setOnClickListener(view -> askPermissions());
 
@@ -249,10 +258,35 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
         new Handler().postDelayed(() -> askPermissions(), PERMISSION_POPUP_DELAY);
     });
 
+    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (grantResults.length > 0) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                checkPermission();
+            } else {
+                if (shouldShowRequestPermissionRationale(POST_NOTIFICATIONS)) {
+
+                    new AlertDialog.Builder(MainActivity.this, R.style.MyAlertDialogTheme)
+                            .setMessage(Html.fromHtml(getString(R.string.post_notification_permission_msg)))
+                            .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                                new Handler().postDelayed(() -> requestPermissions(new String[]{POST_NOTIFICATIONS},
+                                        NOTIFICATION_PERMISSION_REQUEST_CODE),PERMISSION_POPUP_DELAY);
+                            })
+                            .setNegativeButton(android.R.string.cancel, null)
+                            .create()
+                            .show();
+                }
+            }
+        }
+    }
+
     private void askPermissions() {
         if (!isAccessGranted(getApplicationContext())) {
-            showPermissionDialog("Usage Access Permission",
-                    "Find the 7Sec app in the list and allow the Usage Access Permission.\n\nThen, come back.",
+            showPermissionDialog(getString(R.string.usage_access_permission),
+                    getString(R.string.usage_access_permission_msg),
                     USAGE_ACCESS_REQUEST_CODE);
         } else {
             Dlog.e( "askPermissions app: " + Constants.APP_PACKAGE_NAME);
@@ -260,16 +294,16 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
             MyFirebaseAnalytics.log("Permission", "Permission_details", "Usage Access Permission Granted");
 
             if (!isDrawOverlayPermissionGranted(getApplicationContext())) {
-                showPermissionDialog("Overlay Permission",
-                        "Find the 7Sec app in the list and allow the Overlay Permission.\n\nThen, come back.",
+                showPermissionDialog(getString(R.string.overlay_permission),
+                        getString(R.string.overlay_permission_msg),
                         OVERLAY_REQUEST_CODE);
             } else {
                 MyFirebaseAnalytics.log("Permission", "Permission_details", "Overlay Permission Granted");
 
                 if (Build.MANUFACTURER.equals(STR_XIAOMI)) {
                     if (!SharedPref.readBoolean(STR_XIAOMI_OVERLAY, false)) {
-                        showPermissionDialog("Xiaomi Display Popup Window",
-                                "Activate the checkbox for \"Display pop up window while running in the background\" for 7Sec to inform you for the selected apps.\n\nThen, come back.",
+                        showPermissionDialog(getString(R.string.xiaomi_display_popup_window),
+                                getString(R.string.xiaomi_display_popup_window_msg),
                                 XIAOMI_OVERLAY_REQUEST_CODE);
                     } else {
                         batteryOptimizationRequest();
@@ -284,8 +318,8 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
 
     private void batteryOptimizationRequest() {
         if (!pm.isIgnoringBatteryOptimizations(Constants.APP_PACKAGE_NAME)) {
-            showPermissionDialog("Disable Battery Optimization",
-                    "Take out the Battery Optimization for 7Sec to run in the background.",
+            showPermissionDialog(getString(R.string.disable_battery_optimization),
+                    getString(R.string.disable_battery_optimization_msg),
                     BATTERY_OPTIMIZATION_REQUEST_CODE);
         }
     }
@@ -303,16 +337,16 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
 
         if (permissionCode == USAGE_ACCESS_REQUEST_CODE) {
             imageView.setImageResource(R.drawable.img_usage_access);
-            allowPermission = "Allow Usage Access";
+            allowPermission = getString(R.string.allow_usage_access_btn);
         } else if (permissionCode == OVERLAY_REQUEST_CODE) {
             imageView.setImageResource(R.drawable.img_display_over);
-            allowPermission = "Allow Overlay";
+            allowPermission = getString(R.string.allow_overlay_btn);
         } else if (permissionCode == XIAOMI_OVERLAY_REQUEST_CODE) {
             imageView.setImageResource(R.drawable.overlay_xiaomi);
             allowPermission = getResources().getString(R.string.go_to_settings);
         } else {
             view = null;
-            allowPermission = "Disable";
+            allowPermission = getString(R.string.disable);
         }
 
         permissionAlert.setTitle(title)

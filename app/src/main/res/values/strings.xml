@@ -35,6 +35,18 @@
     <string name="do_not_show_again">Don\'t show again</string>
     <string name="go_to_settings">Go to settings</string>
     <string name="no_data_found">No Data Found</string>
+    <string name="post_notification_permission_msg"><![CDATA[<b>7Sec</b> need this permission to show the notifications.]]></string>
+    <string name="usage_access_permission">Usage Access Permission</string>
+    <string name="usage_access_permission_msg">Find the 7Sec app in the list and allow the Usage Access Permission.\n\nThen, come back.</string>
+    <string name="overlay_permission">Overlay Permission</string>
+    <string name="overlay_permission_msg">Find the 7Sec app in the list and allow the Overlay Permission.\n\nThen, come back.</string>
+    <string name="xiaomi_display_popup_window">Xiaomi Display Popup Window</string>
+    <string name="xiaomi_display_popup_window_msg">Activate the checkbox for \"Display pop up window while running in the background\" for 7Sec to inform you for the selected apps.\n\nThen, come back.</string>
+    <string name="disable_battery_optimization">Disable Battery Optimization</string>
+    <string name="disable_battery_optimization_msg">Take out the Battery Optimization for 7Sec to run in the background.</string>
+    <string name="allow_usage_access_btn">Allow Usage Access</string>
+    <string name="allow_overlay_btn">Allow Overlay</string>
+    <string name="disable">Disable</string>
 
     <string-array name="arrOnBoardingTitleList">
         <item>Start Delaying \nDistracting Apps</item>
