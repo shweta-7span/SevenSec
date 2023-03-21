@@ -1,6 +1,7 @@
 package com.sevensec.utils;
 
 import static com.sevensec.utils.Constants.IN_APP_UPDATE_REQUEST_CODE;
+import static com.sevensec.utils.Constants.STR_OPPO;
 import static com.sevensec.utils.Constants.STR_SKIP_PROTECTED_APP_CHECK;
 import static com.sevensec.utils.Constants.STR_XIAOMI;
 
@@ -15,7 +16,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Build;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
@@ -138,7 +138,7 @@ public class Utils {
             new Intent().setComponent(new ComponentName("com.huawei.systemmanager", "com.huawei.systemmanager.optimize.process.ProtectActivity")),
             new Intent().setComponent(new ComponentName("com.coloros.safecenter", "com.coloros.safecenter.permission.startup.StartupAppListActivity")),
             new Intent().setComponent(new ComponentName("com.coloros.safecenter", "com.coloros.safecenter.startupapp.StartupAppListActivity")),
-            new Intent().setComponent(new ComponentName("com.oppo.safe", "com.oppo.safe.permission.startup.StartupAppListActivity")),
+//            new Intent().setComponent(new ComponentName("com.oppo.safe", "com.oppo.safe.permission.startup.StartupAppListActivity")),
             new Intent().setComponent(new ComponentName("com.iqoo.secure", "com.iqoo.secure.ui.phoneoptimize.AddWhiteListActivity")),
             new Intent().setComponent(new ComponentName("com.iqoo.secure", "com.iqoo.secure.ui.phoneoptimize.BgStartUpManager")),
             new Intent().setComponent(new ComponentName("com.vivo.permissionmanager", "com.vivo.permissionmanager.activity.BgStartUpManagerActivity")),
@@ -152,9 +152,16 @@ public class Utils {
         String title;
         String message;
 
-        if (Build.MANUFACTURER.equals(STR_XIAOMI)) {
+        Dlog.d("startPowerSaverIntent MANUFACTURER: " + Build.MANUFACTURER);
+
+        if (Build.MANUFACTURER.equalsIgnoreCase(STR_XIAOMI)) {
             title = Build.MANUFACTURER + " Enable Autostart";
             message = String.format("%s requires to be enabled 'Autostart' to function properly.%n", context.getString(R.string.app_name));
+
+        } else if (Build.MANUFACTURER.equalsIgnoreCase(STR_OPPO)) {
+            title = Build.MANUFACTURER + " Enable Autostart";
+            message = "Go to \"App Management\" → \"7Sec\" → Allow \"Auto Startup\".\n\n" +
+                    "Tap \"Power Saver\" and select \"Allow Background Running\".\n";
         } else {
             title = Build.MANUFACTURER + " Protected Apps";
             message = String.format("%s requires to be enabled in 'Protected Apps' to function properly.%n", context.getString(R.string.app_name));
@@ -164,6 +171,8 @@ public class Utils {
             boolean foundCorrectIntent = false;
             for (Intent intent : POWER_MANAGER_INTENTS) {
                 if (isCallable(context, intent)) {
+                    Dlog.d("startPowerSaverIntent Intent: " + intent.getComponent());
+
                     foundCorrectIntent = true;
 
                     LayoutInflater factory = LayoutInflater.from(context);
@@ -177,7 +186,43 @@ public class Utils {
                             .setCancelable(false)
                             .setPositiveButton(R.string.go_to_settings, (dialog, which) -> {
                                 SharedPref.writeBoolean(STR_SKIP_PROTECTED_APP_CHECK, checkBox.isChecked());
-                                context.startActivity(intent);
+                                try{
+                                    if (!Build.MANUFACTURER.equalsIgnoreCase(STR_OPPO)) {
+                                        context.startActivity(intent);
+
+                                    } else {
+                                        Dlog.d("startPowerSaverIntent else Manufacture: " + Build.MANUFACTURER);
+
+                                        //For OPPO
+                                        try {
+                                            Intent intentOppo = new Intent();
+                                            intentOppo.setClassName("com.coloros.safecenter",
+                                                    "com.coloros.safecenter.permission.startup.StartupAppListActivity");
+                                            context.startActivity(intentOppo);
+                                        } catch (Exception e) {
+                                            try {
+                                                Intent intentOppo = new Intent();
+                                                intentOppo.setClassName("com.oppo.safe",
+                                                        "com.oppo.safe.permission.startup.StartupAppListActivity");
+                                                context.startActivity(intentOppo);
+
+                                            } catch (Exception ex) {
+                                                try {
+                                                    Intent intentOppo = new Intent();
+                                                    intentOppo.setClassName("com.coloros.safecenter",
+                                                            "com.coloros.safecenter.startupapp.StartupAppListActivity");
+                                                    context.startActivity(intentOppo);
+                                                } catch (Exception exx) {
+                                                    Dlog.e("startPowerSaverIntent Exception: " + exx.getMessage());
+                                                    context.startActivity(new Intent(Settings.ACTION_SETTINGS));
+                                                }
+                                            }
+                                        }
+                                    }
+                                }catch (Exception e){
+                                    dialog.dismiss();
+                                    Toast.makeText(context, "7Sec can't open the settings screen", Toast.LENGTH_LONG).show();
+                                }
                             })
                             .setNegativeButton(R.string.cancel, null);
 

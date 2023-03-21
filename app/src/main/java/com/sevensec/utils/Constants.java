@@ -18,6 +18,7 @@ public class Constants {
     public static final String DB_DOCUMENT_KEY_APP_ATTEMPTS = "Attempts";
 
     public static final String STR_XIAOMI = "Xiaomi";
+    public static final String STR_OPPO = "oppo";
 
     public static final String STR_FIRST_TIME_APP_LAUNCH = "STR_FIRST_TIME_APP_LAUNCH";
     public static final String STR_DEVICE_ID = "STR_DEVICE_ID";

@@ -300,7 +300,7 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
             } else {
                 MyFirebaseAnalytics.log("Permission", "Permission_details", "Overlay Permission Granted");
 
-                if (Build.MANUFACTURER.equals(STR_XIAOMI)) {
+                if (Build.MANUFACTURER.equalsIgnoreCase(STR_XIAOMI)) {
                     if (!SharedPref.readBoolean(STR_XIAOMI_OVERLAY, false)) {
                         showPermissionDialog(getString(R.string.xiaomi_display_popup_window),
                                 getString(R.string.xiaomi_display_popup_window_msg),
