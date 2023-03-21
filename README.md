@@ -11,5 +11,9 @@
 
 - OneSec service's restart take less time compare to 7Sec app's service's restart.
 
-## Common
+## Common Issues OR Improvements
 - "Last attempt" time should be "Last use" time of selected application like OneSec. Currently, in 7Sec we are showing "Last attempt" time of the selected application.
+- We need to add "Background settings" option in settings like OneSec to run the 7Sec smoothly in custom OS phones.
+
+## OneSec's Features
+- https://docs.google.com/document/d/1Y1Z_j73WWTwXeUYIt1bSwYN_X-uxHv3YzH3Ejd0elCk/edit?usp=sharing
