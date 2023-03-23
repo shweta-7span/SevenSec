@@ -54,7 +54,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.sevensec.R;
 import com.sevensec.activities.fragments.SingleChoiceDialogFragment;
 import com.sevensec.adapter.MyListAdapter;
-import com.sevensec.analytics.MyFirebaseAnalytics;
 import com.sevensec.databinding.ActivityMainBinding;
 import com.sevensec.model.AppInfoModel;
 import com.sevensec.repo.FireStoreDataOperation;
@@ -82,8 +81,6 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
 
         pm = (PowerManager) getSystemService(POWER_SERVICE);
-        MyFirebaseAnalytics.init(getApplicationContext());
-        MyFirebaseAnalytics.appOpenLog("SevenSec Open");
 
         SharedPref.writeBoolean(STR_FIRST_TIME_APP_LAUNCH, false);
         if (ContextCompat.checkSelfPermission(this, POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
@@ -150,9 +147,6 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
                 itemSettings.setVisible(true);
             }
 
-            MyFirebaseAnalytics.setUser(DEVICE_ID);
-            MyFirebaseAnalytics.log("Permission", "Permission_details", "All Permission Granted");
-
         } else {
             Dlog.w( "onActivityResult All Permissions NOT Granted: ");
             binding.llPermission.setVisibility(View.VISIBLE);
@@ -160,7 +154,6 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
             binding.llNoData.setVisibility(View.GONE);
 
             isPermissionGranted = false;
-            MyFirebaseAnalytics.log("Permission", "Permission_details", "Permission NOT Granted");
         }
     }
 
@@ -291,14 +284,12 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
         } else {
             Dlog.e( "askPermissions app: " + Constants.APP_PACKAGE_NAME);
             Dlog.e( "askPermissions isBatteryOptimized: " + pm.isIgnoringBatteryOptimizations(Constants.APP_PACKAGE_NAME));
-            MyFirebaseAnalytics.log("Permission", "Permission_details", "Usage Access Permission Granted");
 
             if (!isDrawOverlayPermissionGranted(getApplicationContext())) {
                 showPermissionDialog(getString(R.string.overlay_permission),
                         getString(R.string.overlay_permission_msg),
                         OVERLAY_REQUEST_CODE);
             } else {
-                MyFirebaseAnalytics.log("Permission", "Permission_details", "Overlay Permission Granted");
 
                 if (Build.MANUFACTURER.equalsIgnoreCase(STR_XIAOMI)) {
                     if (!SharedPref.readBoolean(STR_XIAOMI_OVERLAY, false)) {
