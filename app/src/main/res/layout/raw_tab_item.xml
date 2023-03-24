@@ -4,9 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:weightSum="2"
-    android:orientation="vertical">
-
+    android:orientation="vertical"
+    android:weightSum="2">
 
     <pl.droidsonroids.gif.GifImageView
         android:id="@+id/ivGif"
@@ -51,45 +50,52 @@
             android:textColor="@color/grey700"
             android:textSize="16sp" />
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_64"
-            android:orientation="horizontal"
-            android:weightSum="2">
+            android:layout_height="match_parent">
 
-            <TextView
-                android:id="@+id/tvSkip"
-                android:layout_width="0dp"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/space_8"
-                android:layout_weight="1"
-                android:background="@drawable/rounded_border_primary_400"
-                android:paddingTop="@dimen/space_11"
-                android:paddingBottom="@dimen/space_11"
-                android:text="@string/skip"
-                android:textAlignment="center"
-                android:textColor="@color/primary400"
-                android:textFontWeight="500"
-                android:textSize="20sp"
-                tools:targetApi="p" />
+                android:orientation="horizontal"
+                android:layout_marginBottom="@dimen/space_30"
+                android:layout_alignParentBottom="true"
+                android:weightSum="2"
+                tools:ignore="UselessParent">
 
-            <TextView
-                android:id="@+id/tvNext"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="@drawable/rounded_corner_primary_900"
-                android:paddingTop="@dimen/space_11"
-                android:paddingBottom="@dimen/space_11"
-                android:text="@string/next"
-                android:textAlignment="center"
-                android:textColor="@color/primary50"
-                android:textFontWeight="500"
-                android:textSize="20sp"
-                tools:targetApi="p" />
+                <TextView
+                    android:id="@+id/tvSkip"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/space_8"
+                    android:layout_weight="1"
+                    android:background="@drawable/rounded_border_primary_400"
+                    android:paddingTop="@dimen/space_11"
+                    android:paddingBottom="@dimen/space_11"
+                    android:text="@string/skip"
+                    android:textAlignment="center"
+                    android:textColor="@color/primary400"
+                    android:textFontWeight="500"
+                    android:textSize="20sp"
+                    tools:targetApi="p" />
 
-        </LinearLayout>
+                <TextView
+                    android:id="@+id/tvNext"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/rounded_corner_primary_900"
+                    android:paddingTop="@dimen/space_11"
+                    android:paddingBottom="@dimen/space_11"
+                    android:text="@string/next"
+                    android:textAlignment="center"
+                    android:textColor="@color/primary50"
+                    android:textFontWeight="500"
+                    android:textSize="20sp"
+                    tools:targetApi="p" />
+
+            </LinearLayout>
+        </RelativeLayout>
 
     </LinearLayout>
 
