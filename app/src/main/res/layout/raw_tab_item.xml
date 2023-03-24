@@ -12,17 +12,17 @@
         android:id="@+id/ivGif"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1.8"
+        android:layout_weight="1.1"
         android:background="@color/gifColor"
         android:src="@drawable/onboarding" />
 
     <LinearLayout
         android:id="@+id/llOnBoardingDetails"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_margin="@dimen/space_20"
         android:gravity="center"
-        android:layout_weight="0.2"
+        android:layout_weight="0.9"
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
