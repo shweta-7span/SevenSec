@@ -128,9 +128,9 @@ public class Utils {
         return String.valueOf(s);
     }
 
-    public static String getIsLastAppOpenKey(String lastAppPackage) {
+    /*public static String getIsLastAppOpenKey(String lastAppPackage) {
         return "IS" + lastAppPackage;
-    }
+    }*/
 
     public static List<Intent> POWER_MANAGER_INTENTS = Arrays.asList(
             new Intent().setComponent(new ComponentName("com.miui.securitycenter", "com.miui.permcenter.autostart.AutoStartManagementActivity")),

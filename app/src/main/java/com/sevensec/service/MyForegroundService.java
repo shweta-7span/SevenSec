@@ -227,14 +227,14 @@ public class MyForegroundService extends Service {
 
     private void saveAppCloseTime(String activityOnTop, String lastAppPN) {
         //Check user open the app after click on continue button of Attempt Screen OR not
-        if (SharedPref.readBoolean(Utils.getIsLastAppOpenKey(lastAppPN), false)) {
+//        if (SharedPref.readBoolean(Utils.getIsLastAppOpenKey(lastAppPN), false)) {
             if (!activityOnTop.equals(lastAppPN) &&
-                    !activityOnTop.equals(APP_PACKAGE_NAME) /*&&
-                    favAppList.contains(lastAppPN)*/) {
+                    !activityOnTop.equals(APP_PACKAGE_NAME) &&
+                    favAppList.contains(lastAppPN)) {
                 Dlog.d( "AppSwitch: closed Time for " + lastAppPN + " :" + new Date().getTime());
                 SharedPref.writeLong(lastAppPN, new Date().getTime());
             }
-        }
+//        }
     }
 
     private boolean isAppSwitchTimeExpire(String lastAppPN) {
