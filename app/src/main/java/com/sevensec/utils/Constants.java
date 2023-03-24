@@ -35,7 +35,7 @@ public class Constants {
     public static final long PERMISSION_POPUP_DELAY = 300;
     public static final long OPEN_ATTEMPT_SCREEN_DELAY = 500;
     public static final long CHECK_TOP_APPLICATION_DELAY = 750;
-    public static final long DELAY_TOP_APP_WHEN_ATTEMPT_OPEN = 200;
+    public static final long DELAY_TOP_APP_WHEN_ATTEMPT_OPEN = 1000;
 //    public static final long DELAY_CHANGE_ATTEMPT_VIEW = GRAY_PAGE_ANIMATION_TIMER + DELAY_OPEN_GREY_PAGE;
 
     public static final int USAGE_ACCESS_REQUEST_CODE = 101;
