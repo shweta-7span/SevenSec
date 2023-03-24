@@ -277,16 +277,16 @@ public class Utils {
                             // Include a request code to later monitor this update request.
                             IN_APP_UPDATE_REQUEST_CODE);
 
-                    Toast.makeText(activity, "Update available", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(activity, "Update available", Toast.LENGTH_SHORT).show();
 
                 } catch (IntentSender.SendIntentException e) {
                     e.printStackTrace();
                     Dlog.e( "APP UPDATE checkForUpdate error: " + e);
-                    Toast.makeText(activity, "Update error: " + e, Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(activity, "Update error: " + e, Toast.LENGTH_SHORT).show();
                 }
             } else {
                 Dlog.d( "APP UPDATE checkForUpdate else");
-                Toast.makeText(activity, "Update NOT available", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(activity, "Update NOT available", Toast.LENGTH_SHORT).show();
             }
         });
     }

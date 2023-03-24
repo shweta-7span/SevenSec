@@ -409,11 +409,11 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
                 Dlog.e( "APP UPDATE: onActivityResult: Update flow failed! Result code: " + resultCode);
                 // If the update is cancelled or fails,
                 // you can request to start the update again.
-                Toast.makeText(this, "Update Failed", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(this, "Update Failed", Toast.LENGTH_SHORT).show();
                 Utils.checkForInAppUpdate(getApplicationContext(), this);
             } else {
                 Dlog.d( "APP UPDATE: onActivityResult: Update flow done");
-                Toast.makeText(this, "Update Successfully Done", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(this, "Update Successfully Done", Toast.LENGTH_SHORT).show();
             }
         }
     }
