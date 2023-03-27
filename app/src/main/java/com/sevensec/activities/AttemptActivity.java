@@ -62,6 +62,7 @@ public class AttemptActivity extends FireStoreDataOperation {
                 appLabel = packageManager.getApplicationLabel(appInfo).toString();
                 binding.ivAppLogo.setImageDrawable(iconDrawable);
                 binding.tvAppLabel.setText(appLabel);
+                binding.tvActionDescription.setText(String.format(getString(R.string.do_you_want_to_still), appLabel));
 
 //                binding.tvContinue.setText(String.format("%s %s", getString(R.string.strContinue), appLabel));
                 binding.tvContinue.setText(getString(R.string.strContinue));
@@ -121,7 +122,7 @@ public class AttemptActivity extends FireStoreDataOperation {
 
         if (lastUsedTime != null) {
             if (!lastUsedTime.isEmpty())
-                binding.tvLastUse.setText(String.format("Last attempt: %s", lastUsedTime));
+                binding.tvLastUse.setText(String.format("Last attempt to open was %s", lastUsedTime));
         }
     }
 
