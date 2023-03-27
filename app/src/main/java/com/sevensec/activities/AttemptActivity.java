@@ -21,7 +21,6 @@ import com.sevensec.service.MyForegroundService;
 import com.sevensec.utils.Constants;
 import com.sevensec.utils.Dlog;
 import com.sevensec.utils.SharedPref;
-import com.sevensec.utils.Utils;
 
 import java.io.InputStream;
 
@@ -70,7 +69,7 @@ public class AttemptActivity extends FireStoreDataOperation {
             }
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
-            Dlog.e( "getAppName Error: " + e.getMessage());
+            Dlog.e("getAppName Error: " + e.getMessage());
         }
 
         binding.tvContinue.setOnClickListener(view -> {
@@ -88,7 +87,7 @@ public class AttemptActivity extends FireStoreDataOperation {
         InputStream is = getResources().openRawResource(R.raw.breathe);
         Movie movie = Movie.decodeStream(is);
         int duration = movie.duration();
-        Dlog.e( ".gif duration: " + duration);
+        Dlog.e(".gif duration: " + duration);
 
         new Handler().postDelayed(() -> {
             binding.tvBreathDesc.setVisibility(View.GONE);
@@ -110,8 +109,8 @@ public class AttemptActivity extends FireStoreDataOperation {
     @Override
     public void setAttempt(int lastAttempt, String lastUsedTime) {
         super.setAttempt(lastAttempt, lastUsedTime);
-        Dlog.d( "setAttempt Attempt number: " + lastAttempt);
-        Dlog.d( "setAttempt lastUsedTime: " + lastUsedTime);
+        Dlog.d("setAttempt Attempt number: " + lastAttempt);
+        Dlog.d("setAttempt lastUsedTime: " + lastUsedTime);
 
 //        binding.tvAttempts.setText(String.valueOf(lastAttempt));
         if (lastAttempt == 1) {
@@ -120,8 +119,10 @@ public class AttemptActivity extends FireStoreDataOperation {
             binding.tvAttempts.setText(String.format("%s%s%s%s%s", lastAttempt, " ", getString(R.string.attempts_to_open), " " + appLabel + " ", getString(R.string.within_24_hrs)));
         }
 
-        if (lastUsedTime != null)
-            binding.tvLastUse.setText(String.format("Last attempt: %s", lastUsedTime));
+        if (lastUsedTime != null) {
+            if (!lastUsedTime.isEmpty())
+                binding.tvLastUse.setText(String.format("Last attempt: %s", lastUsedTime));
+        }
     }
 
     @Override
