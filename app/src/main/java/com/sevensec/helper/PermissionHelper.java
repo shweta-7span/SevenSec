@@ -35,9 +35,9 @@ public class PermissionHelper {
             ApplicationInfo applicationInfo = packs.get(i).activityInfo.applicationInfo;
 
             // skip system apps if they shall not be included
-            if ((applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 1) {
-                continue;
-            }
+//            if ((applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 1) {
+//                continue;
+//            }
             Dlog.v( "onCreate appName: " + packageManager.getApplicationLabel(applicationInfo).toString());
             Dlog.d( "onCreate installed: " + applicationInfo.packageName);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

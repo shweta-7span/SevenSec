@@ -126,7 +126,7 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
             //Get Installed App list & show the list after sort it
             loadAllInstalledApps();
 
-            PermissionHelper.startForegroundService(getApplicationContext());
+            PermissionHelper.startForegroundService(MainActivity.this);
 
             //Store DEVICE_ID in Preference
             @SuppressLint("HardwareIds") String DEVICE_ID = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);

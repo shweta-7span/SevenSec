@@ -18,6 +18,7 @@ import android.app.usage.UsageEvents;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Handler;
@@ -130,9 +131,6 @@ public class MyForegroundService extends Service {
             activityOnTop = ar.topActivity.getPackageName();
 
         } else {
-            /*------For [Build.VERSION.SDK_INT > 20]---------*/
-            //String activityOnTop = mActivityManager.getAppTasks().get(0).getTaskInfo().topActivity.getPackageName();
-            //String activityOnTop = mActivityManager.getRunningAppProcesses().get(0).processName;
 
             UsageStatsManager sUsageStatsManager = (UsageStatsManager) this.getSystemService(Context.USAGE_STATS_SERVICE);
             long endTime = System.currentTimeMillis();
@@ -154,9 +152,7 @@ public class MyForegroundService extends Service {
         saveAppCloseTime(activityOnTop, lastAppPN);
 
         // Provide the packageName(s) of apps here, you want to show attempt activity
-//        if (Arrays.asList(androidStrings).contains(activityOnTop)/*||
-        if (favAppList.contains(activityOnTop)/*||
-                activityOnTop.contains(CURRENT_PACKAGE_NAME) */) {
+        if (favAppList.contains(activityOnTop)) {
 
             Dlog.v( "TEST lastAppPN: " + lastAppPN);
 
@@ -276,14 +272,18 @@ public class MyForegroundService extends Service {
     public void onDestroy() {
         super.onDestroy();
         Dlog.e( "MyService: onDestroy: ");
-
-        Intent broadcastIntent = new Intent("com.sevenSec.MyForegroundService.RestartSensor");
-        sendBroadcast(broadcastIntent);
+        startMyService();
     }
 
     @Override
     public void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
         Dlog.e( "MyService: onTaskRemoved: ");
+        startMyService();
+    }
+
+    void startMyService() {
+        Intent broadcastIntent = new Intent("com.sevenSec.MyForegroundService.RestartSensor");
+        sendBroadcast(broadcastIntent);
     }
 }

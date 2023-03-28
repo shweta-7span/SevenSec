@@ -34,11 +34,11 @@ import java.util.Objects;
 public abstract class FireStoreDataOperation extends AppCompatActivity implements DataOperation {
 
     String TAG = getClass().getName();
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
 
     @Override
     public void checkDeviceIsStored(String deviceId) {
-        db.collection(DB_COLLECTION_USERS).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        firebaseFirestore.collection(DB_COLLECTION_USERS).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
 
@@ -74,7 +74,7 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
         type.put(DB_DOCUMENT_KEY_TYPE, ANDROID);
 
         // Add a new document with a generated ID
-        db.collection(DB_COLLECTION_USERS).document(deviceId)
+        firebaseFirestore.collection(DB_COLLECTION_USERS).document(deviceId)
                 .set(type)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -91,8 +91,9 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
 
     @Override
     public void checkAppAddedOrNot(String deviceId, String appLabel, String lastAppPackage) {
+        Dlog.d("App Label -- "+ appLabel);
         //Check App is already Added OR Not
-        db.collection(DB_COLLECTION_USERS).document(deviceId).collection(DB_COLLECTION_APPS).document(appLabel).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        firebaseFirestore.collection(DB_COLLECTION_USERS).document(deviceId).collection(DB_COLLECTION_APPS).document(appLabel).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
@@ -121,6 +122,9 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
 
         int attemptCount = 0;
 
+        long lastUsedDifference = Math.abs(timeList.get(timeList.size() - 1) - (new Date().getTime()));
+        String lastUsedTime = getLastUsedTime(lastUsedDifference);
+
         for (Long timeStamp : timeList) {
             Dlog.v("FireStore: getLastAttemptAndTime: " + timeStamp);
             if (check24Hour(timeStamp)) {
@@ -129,10 +133,6 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
                 attemptCount++;
             }
         }
-
-        long lastUsedDifference = Math.abs(timeList.get(timeList.size() - 1) - (new Date().getTime()));
-        String lastUsedTime = getLastUsedTime(lastUsedDifference);
-
         addAppDataWithAttempt(deviceId, appLabel, lastAppPackage, attemptCount, lastUsedTime);
     }
 
@@ -147,7 +147,7 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
         apps.put(DB_DOCUMENT_KEY_APP_ATTEMPTS, FieldValue.arrayUnion(new Date().getTime()));
 
         // Add a new document with above fields
-        db.collection(DB_COLLECTION_USERS).document(deviceId).collection(DB_COLLECTION_APPS).document(appLabel)
+        firebaseFirestore.collection(DB_COLLECTION_USERS).document(deviceId).collection(DB_COLLECTION_APPS).document(lastAppPackage)
                 .set(apps, SetOptions.merge())
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -171,7 +171,7 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
         apps.put(DB_DOCUMENT_KEY_APP_ATTEMPTS, FieldValue.arrayRemove(timeStamp));
 
         // Remove timeStamp from Array
-        db.collection(DB_COLLECTION_USERS).document(deviceId).collection(DB_COLLECTION_APPS).document(appLabel)
+        firebaseFirestore.collection(DB_COLLECTION_USERS).document(deviceId).collection(DB_COLLECTION_APPS).document(appLabel)
                 .update(apps)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override

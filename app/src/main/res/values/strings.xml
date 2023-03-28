@@ -48,7 +48,7 @@
     <string name="allow_overlay_btn">Allow Overlay</string>
     <string name="disable">Disable</string>
     <string name="or">OR</string>
-    <string name="do_you_want_to_still">For %s do you want to still</string>
+    <string name="do_you_want_to_still">Do you want to still continue with %s?</string>
 
     <string-array name="arrOnBoardingTitleList">
         <item>Start Delaying \nDistracting Apps</item>

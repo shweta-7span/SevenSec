@@ -54,14 +54,14 @@ public class Utils {
     }
 
     public static boolean isDrawOverlayPermissionGranted(Context context) {
-        Dlog.v( "Package Name: " + context.getPackageName());
+        Dlog.v("Package Name: " + context.getPackageName());
 
         // Check if we already have permission to draw over other apps
         if (!Settings.canDrawOverlays(context)) {
-            Dlog.v( "Requesting Permission: " + Settings.canDrawOverlays(context));
+            Dlog.v("Requesting Permission: " + Settings.canDrawOverlays(context));
             return false;
         } else {
-            Dlog.v( "We already have permission for it.");
+            Dlog.v("We already have permission for it.");
             // disablePullNotificationTouch();
             // Do your stuff, we got permission captain
             return true;
@@ -138,10 +138,13 @@ public class Utils {
             new Intent().setComponent(new ComponentName("com.huawei.systemmanager", "com.huawei.systemmanager.optimize.process.ProtectActivity")),
             new Intent().setComponent(new ComponentName("com.coloros.safecenter", "com.coloros.safecenter.permission.startup.StartupAppListActivity")),
             new Intent().setComponent(new ComponentName("com.coloros.safecenter", "com.coloros.safecenter.startupapp.StartupAppListActivity")),
-//            new Intent().setComponent(new ComponentName("com.oppo.safe", "com.oppo.safe.permission.startup.StartupAppListActivity")),
+            new Intent().setComponent(new ComponentName("com.samsung.android.lool", "com.samsung.android.sm.battery.ui.BatteryActivity")),
+            new Intent().setComponent(new ComponentName("com.oneplus.security", "om.oneplus.security.chainlaunch.view.ChainLaunchAppListActivity")),
+            new Intent().setComponent(new ComponentName("com.evenwell.powersaving.g3", "com.evenwell.powersaving.g3.exception.PowerSaverExceptionActivity")),
             new Intent().setComponent(new ComponentName("com.iqoo.secure", "com.iqoo.secure.ui.phoneoptimize.AddWhiteListActivity")),
             new Intent().setComponent(new ComponentName("com.iqoo.secure", "com.iqoo.secure.ui.phoneoptimize.BgStartUpManager")),
             new Intent().setComponent(new ComponentName("com.vivo.permissionmanager", "com.vivo.permissionmanager.activity.BgStartUpManagerActivity")),
+            new Intent().setComponent(new ComponentName("com.asus.mobilemanager", "com.asus.mobilemanager.autostart.AutoStartActivy")),
             new Intent().setComponent(new ComponentName("com.asus.mobilemanager", "com.asus.mobilemanager.entry.FunctionActivity")).setData(android.net.Uri.parse("mobilemanager://function/entry/AutoStart"))
     );
 
@@ -186,7 +189,7 @@ public class Utils {
                             .setCancelable(false)
                             .setPositiveButton(R.string.go_to_settings, (dialog, which) -> {
                                 SharedPref.writeBoolean(STR_SKIP_PROTECTED_APP_CHECK, checkBox.isChecked());
-                                try{
+                                try {
                                     if (!Build.MANUFACTURER.equalsIgnoreCase(STR_OPPO)) {
                                         context.startActivity(intent);
 
@@ -219,7 +222,7 @@ public class Utils {
                                             }
                                         }
                                     }
-                                }catch (Exception e){
+                                } catch (Exception e) {
                                     dialog.dismiss();
                                     Toast.makeText(context, "7Sec can't open the settings screen", Toast.LENGTH_LONG).show();
                                 }
@@ -227,8 +230,9 @@ public class Utils {
                             .setNegativeButton(R.string.cancel, null);
 
                     AlertDialog dialog = builder.create();
-                    dialog.show();
-
+                    if (dialog != null) {
+                        dialog.show();
+                    }
                     checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setEnabled(!isChecked));
                     break;
                 }
@@ -247,7 +251,7 @@ public class Utils {
     }
 
     public static void checkForInAppUpdate(Context mContext, Activity activity) {
-        Dlog.d( "APP UPDATE checkForUpdate");
+        Dlog.d("APP UPDATE checkForUpdate");
 
         AppUpdateManager appUpdateManager = AppUpdateManagerFactory.create(mContext);
 
@@ -256,7 +260,7 @@ public class Utils {
 
         // Checks that the platform will allow the specified type of update.
         appUpdateInfoTask.addOnSuccessListener(appUpdateInfo -> {
-            Dlog.d( "APP UPDATE checkForUpdate addOnSuccessListener");
+            Dlog.d("APP UPDATE checkForUpdate addOnSuccessListener");
 
             if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
                     // This example applies an immediate update. To apply a flexible update
@@ -265,7 +269,7 @@ public class Utils {
 
                 // Request the update.
                 try {
-                    Dlog.d( "APP UPDATE checkForUpdate try");
+                    Dlog.d("APP UPDATE checkForUpdate try");
 
                     appUpdateManager.startUpdateFlowForResult(
                             // Pass the intent that is returned by 'getAppUpdateInfo()'.
@@ -281,11 +285,11 @@ public class Utils {
 
                 } catch (IntentSender.SendIntentException e) {
                     e.printStackTrace();
-                    Dlog.e( "APP UPDATE checkForUpdate error: " + e);
+                    Dlog.e("APP UPDATE checkForUpdate error: " + e);
 //                    Toast.makeText(activity, "Update error: " + e, Toast.LENGTH_SHORT).show();
                 }
             } else {
-                Dlog.d( "APP UPDATE checkForUpdate else");
+                Dlog.d("APP UPDATE checkForUpdate else");
 //                Toast.makeText(activity, "Update NOT available", Toast.LENGTH_SHORT).show();
             }
         });
