@@ -116,9 +116,9 @@ public class Utils {
                 s.append(elapsedMinutes).append(" mins ago");
         } else if (elapsedSeconds != 0) {
             if (elapsedSeconds == 1)
-                s.append(elapsedSeconds).append(" second ago");
+                s.append(elapsedSeconds).append(" sec ago");
             else
-                s.append(elapsedSeconds).append(" seconds ago");
+                s.append(elapsedSeconds).append(" secs ago");
         }
 
         System.out.printf(

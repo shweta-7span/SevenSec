@@ -8,10 +8,10 @@
     <!--    <string name="not_go">I don\'t want to open</string>-->
     <!--    <string name="str_breath_description">It\'s time to take a deep breath…</string>-->
     <string name="strContinue">Continue</string>
-    <string name="str_attempts_description">Attempts to open Instagram within 24 hours.</string>
+<!--    <string name="str_attempts_description">Attempts to open Instagram within 24 hours.</string>-->
     <string name="title_activity_warning">WarningActivity</string>
-    <string name="attempt_to_open">Attempt to open</string>
-    <string name="attempts_to_open">Attempts to open</string>
+    <string name="attempt_to_open">attempt have been made to open</string>
+    <string name="attempts_to_open">attempts have been made to open</string>
     <string name="within_24_hrs">within 24 hours.</string>
     <string name="str_breath_description">Fully inhale your dream &amp; completely exhale manifestation of it.</string>
     <string name="raw_app_name">App Name</string>
@@ -47,6 +47,8 @@
     <string name="allow_usage_access_btn">Allow Usage Access</string>
     <string name="allow_overlay_btn">Allow Overlay</string>
     <string name="disable">Disable</string>
+    <string name="or">OR</string>
+    <string name="do_you_want_to_still">For %s do you want to still</string>
 
     <string-array name="arrOnBoardingTitleList">
         <item>Start Delaying \nDistracting Apps</item>
