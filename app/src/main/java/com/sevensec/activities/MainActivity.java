@@ -1,7 +1,6 @@
 package com.sevensec.activities;
 
 import static android.Manifest.permission.POST_NOTIFICATIONS;
-import static com.sevensec.utils.Constants.APP_PACKAGE_NAME;
 import static com.sevensec.utils.Constants.BATTERY_OPTIMIZATION_REQUEST_CODE;
 import static com.sevensec.utils.Constants.IN_APP_UPDATE_REQUEST_CODE;
 import static com.sevensec.utils.Constants.NOTIFICATION_PERMISSION_REQUEST_CODE;
@@ -19,11 +18,10 @@ import static com.sevensec.utils.Constants.XIAOMI_OVERLAY_REQUEST_CODE;
 import static com.sevensec.utils.Utils.isAccessGranted;
 import static com.sevensec.utils.Utils.isDrawOverlayPermissionGranted;
 
+import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -31,12 +29,9 @@ import android.os.Handler;
 import android.os.PowerManager;
 import android.provider.Settings;
 import android.text.Html;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -55,24 +50,27 @@ import com.sevensec.R;
 import com.sevensec.activities.fragments.SingleChoiceDialogFragment;
 import com.sevensec.adapter.MyListAdapter;
 import com.sevensec.databinding.ActivityMainBinding;
+import com.sevensec.helper.ActionClickInterface;
+import com.sevensec.helper.PermissionDialog;
+import com.sevensec.helper.PermissionHelper;
 import com.sevensec.model.AppInfoModel;
 import com.sevensec.repo.FireStoreDataOperation;
-import com.sevensec.service.MyForegroundService;
 import com.sevensec.utils.Constants;
 import com.sevensec.utils.Dlog;
 import com.sevensec.utils.SharedPref;
 import com.sevensec.utils.Utils;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class MainActivity extends FireStoreDataOperation implements SingleChoiceDialogFragment.SingleChoiceListener {
+public class MainActivity extends FireStoreDataOperation implements SingleChoiceDialogFragment.SingleChoiceListener, ActionClickInterface {
 
     ActivityMainBinding binding;
     PowerManager pm;
     MenuItem itemSettings;
     boolean isPermissionGranted = false;
+    PermissionDialog permissionDialog;
+    int permissionCode;
 
     @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     @Override
@@ -88,6 +86,7 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
         } else {
             ActivityCompat.requestPermissions(this, new String[]{POST_NOTIFICATIONS}, NOTIFICATION_PERMISSION_REQUEST_CODE);
         }
+        permissionDialog = new PermissionDialog(MainActivity.this, MainActivity.this);
 
         binding.btnPermission.setOnClickListener(view -> askPermissions());
 
@@ -122,22 +121,16 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
                 isDrawOverlayPermissionGranted(getApplicationContext()) &&
                 pm.isIgnoringBatteryOptimizations(Constants.APP_PACKAGE_NAME)) {
 
-            Dlog.w( "onActivityResult All Permissions Granted: ");
+            Dlog.w("onActivityResult All Permissions Granted: ");
 
             //Get Installed App list & show the list after sort it
-            loadInstalledApps();
+            loadAllInstalledApps();
 
-            new Handler().postDelayed(() -> {
-                //ask rto enable Autostart
-                Utils.startPowerSaverIntent(MainActivity.this);
-            }, PERMISSION_POPUP_DELAY);
-
-            //Start service
-            startService(new Intent(this, MyForegroundService.class));
+            PermissionHelper.startForegroundService(getApplicationContext());
 
             //Store DEVICE_ID in Preference
-            String DEVICE_ID = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
-            Dlog.d( "onCreate DEVICE_ID: " + DEVICE_ID);
+            @SuppressLint("HardwareIds") String DEVICE_ID = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+            Dlog.d("onCreate DEVICE_ID: " + DEVICE_ID);
             SharedPref.writeString(STR_DEVICE_ID, DEVICE_ID);
 
             //Store DEVICE_ID in FireStore
@@ -148,7 +141,7 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
             }
 
         } else {
-            Dlog.w( "onActivityResult All Permissions NOT Granted: ");
+            Dlog.w("onActivityResult All Permissions NOT Granted: ");
             binding.llPermission.setVisibility(View.VISIBLE);
             binding.recyclerView.setVisibility(View.GONE);
             binding.llNoData.setVisibility(View.GONE);
@@ -157,47 +150,9 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
         }
     }
 
-    private void loadInstalledApps() {
-        PackageManager packageManager = getApplicationContext().getPackageManager();
-        List<AppInfoModel> appInfoModelList = new ArrayList<>();
-//        List<ApplicationInfo> packs = packageManager.getInstalledApplications(PackageManager.GET_META_DATA);
-
-        Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
-        mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-        List<ResolveInfo> packs = packageManager.queryIntentActivities(mainIntent, 0);
-
-        for (int i = 0; i < packs.size(); i++) {
-
-//            ApplicationInfo a = packs.get(i);
-            ApplicationInfo a = packs.get(i).activityInfo.applicationInfo;
-
-            // skip system apps if they shall not be included
-            if ((a.flags & ApplicationInfo.FLAG_SYSTEM) == 1) {
-                continue;
-            }
-            Dlog.v( "onCreate appName: " + packageManager.getApplicationLabel(a).toString());
-            Dlog.d( "onCreate installed: " + a.packageName);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                Dlog.d( "onCreate info: " + ApplicationInfo.getCategoryTitle(getApplicationContext(), a.category));
-            }
-
-            AppInfoModel appInfoModel = new AppInfoModel();
-            appInfoModel.setAppInfo(a);
-            appInfoModel.setAppIcon(packageManager.getApplicationIcon(a));
-            appInfoModel.setAppName(packageManager.getApplicationLabel(a).toString());
-            appInfoModel.setPackageName(a.packageName);
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                if (ApplicationInfo.getCategoryTitle(getApplicationContext(), a.category) != null)
-                    appInfoModel.setCategory(ApplicationInfo.getCategoryTitle(getApplicationContext(), a.category).toString());
-            }
-
-            if (!appInfoModel.getPackageName().equals(APP_PACKAGE_NAME)) {
-                appInfoModelList.add(appInfoModel);
-            }
-        }
-
-        Dlog.w( "onCreate appInfoModelList length: " + appInfoModelList.size());
+    private void loadAllInstalledApps() {
+        List<AppInfoModel> appInfoModelList = PermissionHelper.loadInstalledApps(getApplicationContext());
+        Dlog.w("onCreate appInfoModelList length: " + appInfoModelList.size());
 
         if (appInfoModelList.size() == 0) {
             binding.llPermission.setVisibility(View.GONE);
@@ -211,9 +166,9 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
 
         //Alphabetically Sorting
         Collections.sort(appInfoModelList, (appInfoModel, t1) -> {
-            Dlog.v( "appInfoModel: " + appInfoModel.getAppName());
-            Dlog.i( "t1: " + t1.getAppName());
-            Dlog.w( "compare: " + appInfoModel.getAppName().compareToIgnoreCase(t1.getAppName()));
+            Dlog.v("appInfoModel: " + appInfoModel.getAppName());
+            Dlog.i("t1: " + t1.getAppName());
+            Dlog.w("compare: " + appInfoModel.getAppName().compareToIgnoreCase(t1.getAppName()));
             return appInfoModel.getAppName().compareToIgnoreCase(t1.getAppName());
         });
 
@@ -230,12 +185,6 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
             });
         }
 
-        Dlog.i( "onCreate appInfoModelList length after sorting: " + appInfoModelList.size());
-
-        for (int i = 0; i < appInfoModelList.size(); i++) {
-            Dlog.d( "loadInstalledApps name: " + appInfoModelList.get(i).getAppName());
-        }
-
         MyListAdapter adapter = new MyListAdapter(appInfoModelList, favAppList);
         binding.recyclerView.addItemDecoration(new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL));
         binding.recyclerView.setHasFixedSize(true);
@@ -245,10 +194,10 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
 
     ActivityResultLauncher<Intent> startActivityIntent = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
         // Add same code that you want to add in onActivityResult method
-        Dlog.d( "onActivityResult: ");
+        Dlog.d("onActivityResult: ");
         checkPermission();
 
-        new Handler().postDelayed(() -> askPermissions(), PERMISSION_POPUP_DELAY);
+        new Handler().postDelayed(this::askPermissions, PERMISSION_POPUP_DELAY);
     });
 
     @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
@@ -264,10 +213,8 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
 
                     new AlertDialog.Builder(MainActivity.this, R.style.MyAlertDialogTheme)
                             .setMessage(Html.fromHtml(getString(R.string.post_notification_permission_msg)))
-                            .setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                                new Handler().postDelayed(() -> requestPermissions(new String[]{POST_NOTIFICATIONS},
-                                        NOTIFICATION_PERMISSION_REQUEST_CODE),PERMISSION_POPUP_DELAY);
-                            })
+                            .setPositiveButton(android.R.string.ok, (dialog, which) -> new Handler().postDelayed(() -> requestPermissions(new String[]{POST_NOTIFICATIONS},
+                                    NOTIFICATION_PERMISSION_REQUEST_CODE), PERMISSION_POPUP_DELAY))
                             .setNegativeButton(android.R.string.cancel, null)
                             .create()
                             .show();
@@ -282,8 +229,8 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
                     getString(R.string.usage_access_permission_msg),
                     USAGE_ACCESS_REQUEST_CODE);
         } else {
-            Dlog.e( "askPermissions app: " + Constants.APP_PACKAGE_NAME);
-            Dlog.e( "askPermissions isBatteryOptimized: " + pm.isIgnoringBatteryOptimizations(Constants.APP_PACKAGE_NAME));
+            Dlog.e("askPermissions app: " + Constants.APP_PACKAGE_NAME);
+            Dlog.e("askPermissions isBatteryOptimized: " + pm.isIgnoringBatteryOptimizations(Constants.APP_PACKAGE_NAME));
 
             if (!isDrawOverlayPermissionGranted(getApplicationContext())) {
                 showPermissionDialog(getString(R.string.overlay_permission),
@@ -316,66 +263,10 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
     }
 
     private void showPermissionDialog(String title, String description, int permissionCode) {
-        AlertDialog.Builder permissionAlert = new AlertDialog
-                .Builder(MainActivity.this, R.style.MyAlertDialogTheme);
-
-        LayoutInflater factory = LayoutInflater.from(MainActivity.this);
-        View view = factory.inflate(R.layout.permission_dialog, null);
-
-//        GifImageView imageView = view.findViewById(R.id.ivPermissionGif);
-        ImageView imageView = view.findViewById(R.id.ivPermission);
-        String allowPermission;
-
-        if (permissionCode == USAGE_ACCESS_REQUEST_CODE) {
-            imageView.setImageResource(R.drawable.img_usage_access);
-            allowPermission = getString(R.string.allow_usage_access_btn);
-        } else if (permissionCode == OVERLAY_REQUEST_CODE) {
-            imageView.setImageResource(R.drawable.img_display_over);
-            allowPermission = getString(R.string.allow_overlay_btn);
-        } else if (permissionCode == XIAOMI_OVERLAY_REQUEST_CODE) {
-            imageView.setImageResource(R.drawable.overlay_xiaomi);
-            allowPermission = getResources().getString(R.string.go_to_settings);
-        } else {
-            view = null;
-            allowPermission = getString(R.string.disable);
+        this.permissionCode = permissionCode;
+        if (permissionDialog != null) {
+            permissionDialog.showAlert(title, description, permissionCode);
         }
-
-        permissionAlert.setTitle(title)
-                .setMessage(description)
-                .setView(view)
-                .setCancelable(false)
-
-                // Specifying a listener allows you to take an action before dismissing the dialog.
-                // The dialog is automatically dismissed when a dialog button is clicked.
-                .setPositiveButton(allowPermission, (dialog, which) -> {
-                    if (permissionCode == USAGE_ACCESS_REQUEST_CODE) {
-                        Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
-                        startActivityIntent.launch(intent);
-
-                    } else if (permissionCode == OVERLAY_REQUEST_CODE) {
-                        Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + Constants.APP_PACKAGE_NAME));
-                        startActivityIntent.launch(intent); //It will call onActivityResult Function After you press Yes/No and go Back after giving permission
-
-                    } else if (permissionCode == XIAOMI_OVERLAY_REQUEST_CODE) {
-                        SharedPref.writeBoolean(STR_XIAOMI_OVERLAY, true);
-
-                        Intent intent = new Intent("miui.intent.action.APP_PERM_EDITOR");
-                        intent.setClassName("com.miui.securitycenter",
-                                "com.miui.permcenter.permissions.PermissionsEditorActivity");
-                        intent.putExtra("extra_pkgname", getPackageName());
-                        startActivityIntent.launch(intent);
-                    }
-                    else if (permissionCode == BATTERY_OPTIMIZATION_REQUEST_CODE) {
-                        Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
-                        intent.setData(Uri.parse("package:" + Constants.APP_PACKAGE_NAME));
-                        startActivityIntent.launch(intent);
-                    }
-                })
-
-                // A null listener allows the button to dismiss the dialog and take no further action.
-                .setNegativeButton(getString(R.string.cancel), null)
-//                .setIcon(android.R.drawable.ic_dialog_alert)
-                .show();
     }
 
     private void openAppSwitchingPopup() {
@@ -386,8 +277,8 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
 
     @Override
     public void onPositiveButtonClick(int position, String selectedItem) {
-        Dlog.w( "onPositiveButtonClick: selectedItem: " + selectedItem);
-        Dlog.w( "onPositiveButtonClick: appSwitchDuration: " + Integer.parseInt(selectedItem.split(" ")[0]) * 60);
+        Dlog.w("onPositiveButtonClick: selectedItem: " + selectedItem);
+        Dlog.w("onPositiveButtonClick: appSwitchDuration: " + Integer.parseInt(selectedItem.split(" ")[0]) * 60);
 
         SharedPref.writeInteger(STR_APP_SWITCH_POSITION, position);
 
@@ -406,15 +297,45 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
 
         if (requestCode == IN_APP_UPDATE_REQUEST_CODE) {
             if (resultCode != RESULT_OK) {
-                Dlog.e( "APP UPDATE: onActivityResult: Update flow failed! Result code: " + resultCode);
+                Dlog.e("APP UPDATE: onActivityResult: Update flow failed! Result code: " + resultCode);
                 // If the update is cancelled or fails,
                 // you can request to start the update again.
 //                Toast.makeText(this, "Update Failed", Toast.LENGTH_SHORT).show();
                 Utils.checkForInAppUpdate(getApplicationContext(), this);
             } else {
-                Dlog.d( "APP UPDATE: onActivityResult: Update flow done");
+                Dlog.d("APP UPDATE: onActivityResult: Update flow done");
 //                Toast.makeText(this, "Update Successfully Done", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    @Override
+    public void onPositiveButtonClickAI() {
+        if (permissionCode == USAGE_ACCESS_REQUEST_CODE) {
+            Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
+            startActivityIntent.launch(intent);
+
+        } else if (permissionCode == OVERLAY_REQUEST_CODE) {
+            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + Constants.APP_PACKAGE_NAME));
+            startActivityIntent.launch(intent); //It will call onActivityResult Function After you press Yes/No and go Back after giving permission
+
+        } else if (permissionCode == XIAOMI_OVERLAY_REQUEST_CODE) {
+            SharedPref.writeBoolean(STR_XIAOMI_OVERLAY, true);
+
+            Intent intent = new Intent("miui.intent.action.APP_PERM_EDITOR");
+            intent.setClassName("com.miui.securitycenter",
+                    "com.miui.permcenter.permissions.PermissionsEditorActivity");
+            intent.putExtra("extra_pkgname", getPackageName());
+            startActivityIntent.launch(intent);
+        } else if (permissionCode == BATTERY_OPTIMIZATION_REQUEST_CODE) {
+            Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+            intent.setData(Uri.parse("package:" + Constants.APP_PACKAGE_NAME));
+            startActivityIntent.launch(intent);
+        }
+    }
+
+    @Override
+    public void onNegativeButtonClickAI() {
+
     }
 }
