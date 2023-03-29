@@ -18,7 +18,6 @@ import android.app.usage.UsageEvents;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Handler;
@@ -33,7 +32,6 @@ import com.sevensec.activities.AttemptActivity;
 import com.sevensec.activities.MainActivity;
 import com.sevensec.utils.Dlog;
 import com.sevensec.utils.SharedPref;
-import com.sevensec.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -156,38 +154,35 @@ public class MyForegroundService extends Service {
 
             Dlog.v( "TEST lastAppPN: " + lastAppPN);
 
-            if (!(activityOnTop.equals(lastAppPN) ||
-                    (activityOnTop.equals(APP_PACKAGE_NAME)))) {
+            if ((!(activityOnTop.equals(lastAppPN) ||
+                    (activityOnTop.equals(APP_PACKAGE_NAME)))) && isAppSwitchTimeExpire(activityOnTop)) {
+                
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
 
-                if (isAppSwitchTimeExpire(activityOnTop)) {
+                    //ISSUE:
+                    //Sometimes attempt screen was not opened for blocked apps (like 'amazon', 'instagram').
+                    //Because, earlier the 'lastAppPN = activityOnTop' will be written outside of this condition.
+                    //So, when the condition satisfy then, before open the attempt activity immediately the method
+                    //called again & condition was NOT satisfied. So, the Attempt screen was not opened.
 
-                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    //SOLUTION:
+                    //Assign pkg to the 'lastAppPN' at this line, so it will wait for the delay &
+                    //till then the condition "(!(activityOnTop.equals(lastAppPN))" will be satisfied.
+                    //So, the attempt screen can open.
+                    lastAppPN = activityOnTop;
+                    Dlog.e("TEST After lastAppPN: " + lastAppPN);
 
-                        //ISSUE:
-                        //Sometimes attempt screen was not opened for blocked apps (like 'amazon', 'instagram').
-                        //Because, earlier the 'lastAppPN = activityOnTop' will be written outside of this condition.
-                        //So, when the condition satisfy then, before open the attempt activity immediately the method
-                        //called again & condition was NOT satisfied. So, the Attempt screen was not opened.
+                    // Show Password Activity
+                    Dlog.w("TEST Show Password Activity");
+                    Intent intent = new Intent(MyForegroundService.this, AttemptActivity.class);
+                    intent.putExtra(STR_LAST_WARN_APP, lastAppPN);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
 
-                        //SOLUTION:
-                        //Assign pkg to the 'lastAppPN' at this line, so it will wait for the delay &
-                        //till then the condition "(!(activityOnTop.equals(lastAppPN))" will be satisfied.
-                        //So, the attempt screen can open.
-                        lastAppPN = activityOnTop;
-                        Dlog.e( "TEST After lastAppPN: " + lastAppPN);
+                    //call the method again after execution of the above code
+                    callAgain(DELAY_TOP_APP_WHEN_ATTEMPT_OPEN);
 
-                        // Show Password Activity
-                        Dlog.w( "TEST Show Password Activity");
-                        Intent intent = new Intent(MyForegroundService.this, AttemptActivity.class);
-                        intent.putExtra(STR_LAST_WARN_APP, lastAppPN);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        startActivity(intent);
-
-                        //call the method again after execution of the above code
-                        callAgain(DELAY_TOP_APP_WHEN_ATTEMPT_OPEN);
-
-                    }, OPEN_ATTEMPT_SCREEN_DELAY);
-                }
+                }, OPEN_ATTEMPT_SCREEN_DELAY);
 
             } else {
                 Dlog.d( "TEST Don't Show Password Activity");
@@ -218,6 +213,7 @@ public class MyForegroundService extends Service {
     }
 
     private void callAgain(long delay) {
+        Dlog.d("callAgain");
         new Handler().postDelayed(() -> checkRunningApps(), delay);
     }
 
