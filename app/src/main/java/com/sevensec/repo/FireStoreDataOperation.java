@@ -33,7 +33,6 @@ import java.util.Objects;
 
 public abstract class FireStoreDataOperation extends AppCompatActivity implements DataOperation {
 
-    String TAG = getClass().getName();
     FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
 
     @Override
@@ -93,7 +92,7 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
     public void checkAppAddedOrNot(String deviceId, String appLabel, String lastAppPackage) {
         Dlog.d("App Label -- "+ appLabel);
         //Check App is already Added OR Not
-        firebaseFirestore.collection(DB_COLLECTION_USERS).document(deviceId).collection(DB_COLLECTION_APPS).document(appLabel).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        firebaseFirestore.collection(DB_COLLECTION_USERS).document(deviceId).collection(DB_COLLECTION_APPS).document(lastAppPackage).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
@@ -166,12 +165,12 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
     }
 
     @Override
-    public void removeTimeFromArray(String deviceId, String appLabel, long timeStamp) {
+    public void removeTimeFromArray(String deviceId, String lastAppPackage, long timeStamp) {
         Map<String, Object> apps = new HashMap<>();
         apps.put(DB_DOCUMENT_KEY_APP_ATTEMPTS, FieldValue.arrayRemove(timeStamp));
 
         // Remove timeStamp from Array
-        firebaseFirestore.collection(DB_COLLECTION_USERS).document(deviceId).collection(DB_COLLECTION_APPS).document(appLabel)
+        firebaseFirestore.collection(DB_COLLECTION_USERS).document(deviceId).collection(DB_COLLECTION_APPS).document(lastAppPackage)
                 .update(apps)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
