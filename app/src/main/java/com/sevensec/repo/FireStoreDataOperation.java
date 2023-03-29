@@ -90,7 +90,7 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
 
     @Override
     public void checkAppAddedOrNot(String deviceId, String appLabel, String lastAppPackage) {
-        Dlog.d("App Label -- "+ appLabel);
+        Dlog.d("App Label -- " + appLabel);
         //Check App is already Added OR Not
         firebaseFirestore.collection(DB_COLLECTION_USERS).document(deviceId).collection(DB_COLLECTION_APPS).document(lastAppPackage).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -120,16 +120,19 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
         List<Long> timeList = (List<Long>) document.get(DB_DOCUMENT_KEY_APP_ATTEMPTS);
 
         int attemptCount = 0;
+        String lastUsedTime = null;
 
-        long lastUsedDifference = Math.abs(timeList.get(timeList.size() - 1) - (new Date().getTime()));
-        String lastUsedTime = getLastUsedTime(lastUsedDifference);
+        if (timeList != null) {
+            long lastUsedDifference = Math.abs(timeList.get(timeList.size() - 1) - (new Date().getTime()));
+            lastUsedTime = getLastUsedTime(lastUsedDifference);
 
-        for (Long timeStamp : timeList) {
-            Dlog.v("FireStore: getLastAttemptAndTime: " + timeStamp);
-            if (check24Hour(timeStamp)) {
-                removeTimeFromArray(deviceId, appLabel, timeStamp);
-            } else {
-                attemptCount++;
+            for (Long timeStamp : timeList) {
+                Dlog.v("FireStore: getLastAttemptAndTime: " + timeStamp);
+                if (check24Hour(timeStamp)) {
+                    removeTimeFromArray(deviceId, appLabel, timeStamp);
+                } else {
+                    attemptCount++;
+                }
             }
         }
         addAppDataWithAttempt(deviceId, appLabel, lastAppPackage, attemptCount, lastUsedTime);
@@ -156,7 +159,7 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Dlog.w("FireStore: Error adding App: "+ e);
+                        Dlog.w("FireStore: Error adding App: " + e);
                     }
                 });
     }
@@ -180,7 +183,7 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Dlog.w("FireStore: Error adding App: "+ e);
+                        Dlog.w("FireStore: Error adding App: " + e);
                     }
                 });
     }
