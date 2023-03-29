@@ -1,6 +1,7 @@
 package com.sevensec.activities;
 
 import static com.sevensec.utils.Constants.STR_DEVICE_ID;
+import static com.sevensec.utils.Utils.getIsLastAppOpenKey;
 
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
@@ -53,7 +54,7 @@ public class AttemptActivity extends FireStoreDataOperation {
         // When the warning page show & if user close our warning page and open
         // the fav app from recent then he can use the app as at that time
         // we save the app close time. So, by set the boolean 'false' we can solve it.
-//        SharedPref.writeBoolean(Utils.getIsLastAppOpenKey(lastAppPackage), false);
+        SharedPref.writeBoolean(getIsLastAppOpenKey(lastAppPackage), false);
 
         try {
             ApplicationInfo appInfo = packageManager.getApplicationInfo(lastAppPackage, PackageManager.GET_UNINSTALLED_PACKAGES);
@@ -74,7 +75,7 @@ public class AttemptActivity extends FireStoreDataOperation {
         }
 
         binding.tvContinue.setOnClickListener(view -> {
-//            SharedPref.writeBoolean(Utils.getIsLastAppOpenKey(lastAppPackage), true);
+            SharedPref.writeBoolean(getIsLastAppOpenKey(lastAppPackage), true);
             finish();
 
             MyForegroundService.instance.setLastApp(lastAppPackage);
@@ -133,7 +134,7 @@ public class AttemptActivity extends FireStoreDataOperation {
     }
 
     private void closeApp() {
-//        SharedPref.writeBoolean(Utils.getIsLastAppOpenKey(lastAppPackage), false);
+        SharedPref.writeBoolean(getIsLastAppOpenKey(lastAppPackage), false);
 
         Intent homeIntent = new Intent(Intent.ACTION_MAIN);
         homeIntent.addCategory(Intent.CATEGORY_HOME);

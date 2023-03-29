@@ -7,6 +7,7 @@ import static com.sevensec.utils.Constants.OPEN_ATTEMPT_SCREEN_DELAY;
 import static com.sevensec.utils.Constants.STR_APP_SWITCH_DURATION;
 import static com.sevensec.utils.Constants.STR_FAV_APP_LIST;
 import static com.sevensec.utils.Constants.STR_LAST_WARN_APP;
+import static com.sevensec.utils.Utils.getIsLastAppOpenKey;
 
 import android.app.ActivityManager;
 import android.app.Notification;
@@ -228,14 +229,14 @@ public class MyForegroundService extends Service {
 
     private void saveAppCloseTime(String activityOnTop, String lastAppPN) {
         //Check user open the app after click on continue button of Attempt Screen OR not
-//        if (SharedPref.readBoolean(Utils.getIsLastAppOpenKey(lastAppPN), false)) {
+        if (SharedPref.readBoolean(getIsLastAppOpenKey(lastAppPN), false)) {
             if (!activityOnTop.equals(lastAppPN) &&
                     !activityOnTop.equals(APP_PACKAGE_NAME) &&
                     favAppList.contains(lastAppPN)) {
                 Dlog.d( "AppSwitch: closed Time for " + lastAppPN + " :" + new Date().getTime());
                 SharedPref.writeLong(lastAppPN, new Date().getTime());
             }
-//        }
+        }
     }
 
     private boolean isAppSwitchTimeExpire(String lastAppPN) {
