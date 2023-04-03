@@ -14,6 +14,7 @@ import android.content.IntentSender;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.net.ConnectivityManager;
 import android.os.Build;
 import android.provider.Settings;
 import android.view.LayoutInflater;
@@ -293,5 +294,11 @@ public class Utils {
 //                Toast.makeText(activity, "Update NOT available", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    public static boolean isInternetAvailable(Context mContext) {
+        ConnectivityManager cm = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        return cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo().isConnected();
     }
 }

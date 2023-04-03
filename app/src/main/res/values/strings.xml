@@ -49,6 +49,7 @@
     <string name="disable">Disable</string>
     <string name="or">OR</string>
     <string name="do_you_want_to_still">Do you want to still continue with %s?</string>
+    <string name="check_internet"><![CDATA[Check your Internet Connection & Try again.]]></string>
 
     <string-array name="arrOnBoardingTitleList">
         <item>Start Delaying \nDistracting Apps</item>

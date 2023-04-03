@@ -28,6 +28,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.sevensec.activities.MainActivity;
+import com.sevensec.helper.AuthFailureListener;
 import com.sevensec.repo.interfaces.DataOperation;
 import com.sevensec.utils.Dlog;
 
@@ -196,8 +197,7 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
                 });
     }
 
-    @Override
-    public void addUserID(Context mContext, String deviceId) {
+    public void addUserID(Context mContext, String deviceId, AuthFailureListener authFailureListener) {
 
         Map<String, Object> userID = new HashMap<>();
         userID.put(USER_ID, Objects.requireNonNull(mAuth.getCurrentUser()).getUid());
@@ -214,6 +214,7 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
             @Override
             public void onFailure(@NonNull Exception e) {
                 Dlog.w("FireStore: Error adding Anonymous UserID: " + e.getMessage());
+                authFailureListener.authFail();
             }
         });
     }
