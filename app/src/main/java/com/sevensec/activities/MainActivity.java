@@ -128,10 +128,8 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
 
             PermissionHelper.startForegroundService(MainActivity.this);
 
-            //Store DEVICE_ID in Preference
-            @SuppressLint("HardwareIds") String DEVICE_ID = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
-            Dlog.d("onCreate DEVICE_ID: " + DEVICE_ID);
-            SharedPref.writeString(STR_DEVICE_ID, DEVICE_ID);
+            String DEVICE_ID = SharedPref.readString(STR_DEVICE_ID, "");
+            Dlog.d("ManinActivity DEVICE_ID: " + DEVICE_ID);
 
             //Store DEVICE_ID in FireStore
             checkDeviceIsStored(DEVICE_ID);

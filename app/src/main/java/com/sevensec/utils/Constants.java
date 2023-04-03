@@ -10,6 +10,8 @@ public class Constants {
 
     //SharedPref Keys
     public static final String DB_COLLECTION_USERS = "Users";
+
+    public static final String USER_ID = "USER_ID";
     public static final String DB_COLLECTION_APPS = "Apps";
     public static final String DB_DOCUMENT_KEY_TYPE = "Type";
 

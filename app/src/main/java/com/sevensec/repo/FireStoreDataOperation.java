@@ -7,8 +7,12 @@ import static com.sevensec.utils.Constants.DB_DOCUMENT_KEY_APP_ATTEMPTS;
 import static com.sevensec.utils.Constants.DB_DOCUMENT_KEY_APP_NAME;
 import static com.sevensec.utils.Constants.DB_DOCUMENT_KEY_APP_PACKAGE;
 import static com.sevensec.utils.Constants.DB_DOCUMENT_KEY_TYPE;
+import static com.sevensec.utils.Constants.USER_ID;
 import static com.sevensec.utils.Utils.check24Hour;
 import static com.sevensec.utils.Utils.getLastUsedTime;
+
+import android.content.Context;
+import android.content.Intent;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,11 +21,13 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
+import com.sevensec.activities.MainActivity;
 import com.sevensec.repo.interfaces.DataOperation;
 import com.sevensec.utils.Dlog;
 
@@ -34,6 +40,8 @@ import java.util.Objects;
 public abstract class FireStoreDataOperation extends AppCompatActivity implements DataOperation {
 
     FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
+
+    FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
     @Override
     public void checkDeviceIsStored(String deviceId) {
@@ -186,5 +194,27 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
                         Dlog.w("FireStore: Error adding App: " + e);
                     }
                 });
+    }
+
+    @Override
+    public void addUserID(Context mContext, String deviceId) {
+
+        Map<String, Object> userID = new HashMap<>();
+        userID.put(USER_ID, Objects.requireNonNull(mAuth.getCurrentUser()).getUid());
+
+        firebaseFirestore.collection(DB_COLLECTION_USERS).document(deviceId).set(userID).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                Dlog.d("FireStore: Anonymous UserID successfully added!");
+
+                startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                finish();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Dlog.w("FireStore: Error adding Anonymous UserID: " + e.getMessage());
+            }
+        });
     }
 }
