@@ -138,7 +138,7 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
             for (Long timeStamp : timeList) {
                 Dlog.v("FireStore: getLastAttemptAndTime: " + timeStamp);
                 if (check24Hour(timeStamp)) {
-                    removeTimeFromArray(deviceId, appLabel, timeStamp);
+                    removeTimeFromArray(deviceId, lastAppPackage, timeStamp);
                 } else {
                     attemptCount++;
                 }
