@@ -54,7 +54,6 @@ public class SingleChoiceDialogFragment extends DialogFragment {
                 .setSingleChoiceItems(arrAppSwitchDelay, position, (dialog, i) -> position = i)
                 .setPositiveButton(getString(R.string.save), (dialog, i) -> mListener.onPositiveButtonClick(position, arrAppSwitchDelay[position]))
                 .setNegativeButton(getString(R.string.cancel), (dialog, which) -> mListener.onNegativeButtonClick(dialog));
-
         return builder.create();
     }
 }

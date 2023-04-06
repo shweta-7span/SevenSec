@@ -72,7 +72,7 @@
     </string-array>-->
 
     <string-array name="arrAppSwitchDelay">
-        <item>0 minute</item>
+        <item>7 seconds</item>
         <item>1 minute</item>
         <item>3 minutes</item>
         <item>5 minutes</item>

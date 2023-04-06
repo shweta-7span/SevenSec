@@ -276,11 +276,11 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
     @Override
     public void onPositiveButtonClick(int position, String selectedItem) {
         Dlog.w("onPositiveButtonClick: selectedItem: " + selectedItem);
-        Dlog.w("onPositiveButtonClick: appSwitchDuration: " + Integer.parseInt(selectedItem.split(" ")[0]) * 60);
+        Dlog.w("onPositiveButtonClick: appSwitchDuration: " + Integer.parseInt(selectedItem.split(" ")[0]) * ((position==0) ? 1 : 60));
 
         SharedPref.writeInteger(STR_APP_SWITCH_POSITION, position);
 
-        int durationInSeconds = Integer.parseInt(selectedItem.split(" ")[0]) * 60;
+        int durationInSeconds = Integer.parseInt(selectedItem.split(" ")[0]) * ((position==0) ? 1 : 60);
         SharedPref.writeInteger(STR_APP_SWITCH_DURATION, durationInSeconds);
     }
 
