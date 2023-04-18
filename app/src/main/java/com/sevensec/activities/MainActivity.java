@@ -47,6 +47,7 @@ import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.sevensec.R;
 import com.sevensec.activities.fragments.SingleChoiceDialogFragment;
 import com.sevensec.adapter.MyListAdapter;
@@ -84,6 +85,7 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
 
         pm = (PowerManager) getSystemService(POWER_SERVICE);
+        FirebaseAnalytics.getInstance(this).setAnalyticsCollectionEnabled(true);
 
         SharedPref.writeBoolean(STR_FIRST_TIME_APP_LAUNCH, false);
         if (ContextCompat.checkSelfPermission(this, POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
