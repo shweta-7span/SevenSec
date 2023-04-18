@@ -1,25 +1,80 @@
 <resources>
-    <string name="app_name">SevenSec</string>
+    <string name="app_name">7Sec</string>
     <string name="title_activity_splash">SplashActivity</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="warning">Warning</string>
-    <string name="continue_with">Continue on</string>
-    <string name="not_go">I don\'t want to open</string>
-    <string name="str_attempts_description">Attempts to open Instagram within 24 hours.</string>
+    <!--    <string name="continue_with">Continue on</string>-->
+    <!--    <string name="not_go">I don\'t want to open</string>-->
+    <!--    <string name="str_breath_description">It\'s time to take a deep breath…</string>-->
+    <string name="strContinue">Continue</string>
+<!--    <string name="str_attempts_description">Attempts to open Instagram within 24 hours.</string>-->
     <string name="title_activity_warning">WarningActivity</string>
-    <string name="attempt_to_open">Attempt to open</string>
-    <string name="attempts_to_open">Attempts to open</string>
+    <string name="attempt_to_open">attempt have been made to open</string>
+    <string name="attempts_to_open">attempts have been made to open</string>
     <string name="within_24_hrs">within 24 hours.</string>
-    <string name="str_breath_description">It\'s time to take a deep breath…</string>
+    <string name="str_breath_description">Fully inhale your dream &amp; completely exhale manifestation of it.</string>
     <string name="raw_app_name">App Name</string>
     <string name="zero">0</string>
+    <string name="exit">Exit</string>
+    <string name="permission_required">Permission Required</string>
+    <string name="permission_description">7Sec requires special permissions to access your app usage data and to overlay the breathing exercise screen when you open configured apps. Your data remains private, offline, on-device.</string>
+    <string name="grant_permission">Grant Permission</string>
+    <string name="skip">Skip</string>
+    <string name="next">Next</string>
+    <string name="title">title</string>
+    <string name="description">description</string>
+    <string name="settings">Settings</string>
+    <string name="select_app_switch_delay">Select AppSwitch Delay</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="app_is_running">7Sec is running</string>
+    <string name="checking_selected_apps">Checking for selected apps</string>
+    <string name="allow_permission">Allow Permission</string>
+    <string name="app_switch_delay_description">Measure the time between closing and re-opening the selected app and allowing you to re-open the app within selected time limits.</string>
+    <string name="do_not_show_again">Don\'t show again</string>
+    <string name="go_to_settings">Go to settings</string>
+    <string name="no_data_found">No Data Found</string>
+    <string name="post_notification_permission_msg"><![CDATA[<b>7Sec</b> need this permission to show the notifications.]]></string>
+    <string name="usage_access_permission">Usage Access Permission</string>
+    <string name="usage_access_permission_msg">Find the 7Sec app in the list and allow the Usage Access Permission.\n\nThen, come back.</string>
+    <string name="overlay_permission">Overlay Permission</string>
+    <string name="overlay_permission_msg">Find the 7Sec app in the list and allow the Overlay Permission.\n\nThen, come back.</string>
+    <string name="xiaomi_display_popup_window">Xiaomi Display Popup Window</string>
+    <string name="xiaomi_display_popup_window_msg">Activate the checkbox for \"Display pop up window while running in the background\" for 7Sec to inform you for the selected apps.\n\nThen, come back.</string>
+    <string name="disable_battery_optimization">Disable Battery Optimization</string>
+    <string name="disable_battery_optimization_msg">Take out the Battery Optimization for 7Sec to run in the background.</string>
+    <string name="allow_usage_access_btn">Allow Usage Access</string>
+    <string name="allow_overlay_btn">Allow Overlay</string>
+    <string name="disable">Disable</string>
+    <string name="or">OR</string>
+    <string name="do_you_want_to_still">Do you want to still continue with %s?</string>
+    <string name="check_internet"><![CDATA[Check your Internet Connection & Try again.]]></string>
 
-    <string-array name="arrFavApps">
+    <string-array name="arrOnBoardingTitleList">
+        <item>Start Delaying \nDistracting Apps</item>
+        <item>Take Control of Your \nDigital Life</item>
+        <item>Enjoy Uninterrupted \nFocus Time</item>
+    </string-array>
+
+    <string-array name="arrOnBoardingDescriptionList">
+        <item>Unlock your focus with our app! Say goodbye to mindless scrolling and hello to intentional productivity</item>
+        <item>Train your brain to resist temptation of distractions with our app that makes you think twice before opening distracting apps</item>
+        <item>Reclaim your time for what matters most: family, friends, work, hobbies, and self-care</item>
+    </string-array>
+
+    <!--<string-array name="arrFavApps">
         <item>com.whatsapp</item>
         <item>com.instagram.android</item>
         <item>com.facebook.katana</item>
         <item>com.facebook.orca</item>
         <item>com.camerasideas.instashot</item>
+    </string-array>-->
+
+    <string-array name="arrAppSwitchDelay">
+        <item>7 seconds</item>
+        <item>1 minute</item>
+        <item>3 minutes</item>
+        <item>5 minutes</item>
     </string-array>
 </resources>

@@ -1,293 +1,144 @@
 package com.sevensec.activities;
 
-import static com.sevensec.utils.Constants.DB_COLLECTION_APPS;
-import static com.sevensec.utils.Constants.DB_COLLECTION_USERS;
-import static com.sevensec.utils.Constants.DB_DOCUMENT_KEY_APP_ATTEMPTS;
-import static com.sevensec.utils.Constants.DB_DOCUMENT_KEY_APP_NAME;
-import static com.sevensec.utils.Constants.DB_DOCUMENT_KEY_APP_PACKAGE;
 import static com.sevensec.utils.Constants.STR_DEVICE_ID;
+import static com.sevensec.utils.Utils.getIsLastAppOpenKey;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Movie;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.view.WindowManager;
 
-import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.SetOptions;
 import com.sevensec.R;
-import com.sevensec.base.AppConstants;
 import com.sevensec.databinding.ActivityAttemptBinding;
+import com.sevensec.repo.FireStoreDataOperation;
+import com.sevensec.service.MyForegroundService;
+import com.sevensec.utils.Constants;
+import com.sevensec.utils.Dlog;
 import com.sevensec.utils.SharedPref;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
+import java.io.InputStream;
 
-public class AttemptActivity extends Activity {
+public class AttemptActivity extends FireStoreDataOperation {
 
-    private String TAG;
+    private final String TAG = getClass().getName();
     ActivityAttemptBinding binding;
-    private String DEVICE_ID;
 
     private String appLabel;
     private String lastAppPackage;
 
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
-    SimpleDateFormat format;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_attempt);
 
-        TAG = getApplicationContext().getClass().getName();
-        DEVICE_ID = SharedPref.readString(STR_DEVICE_ID, "");
+        String DEVICE_ID = SharedPref.readString(STR_DEVICE_ID, "");
         PackageManager packageManager = getPackageManager();
 
         binding.tvBreathDesc.setVisibility(View.VISIBLE);
         binding.rlAttempt.setVisibility(View.GONE);
 
-        format = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss a");
-        format.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-        if (getIntent().getStringExtra(AppConstants.STR_LAST_WARN_APP) != null) {
-            lastAppPackage = getIntent().getStringExtra(AppConstants.STR_LAST_WARN_APP);
-            Log.e(TAG, "Last App's Package: " + lastAppPackage);
+        if (getIntent().getStringExtra(Constants.STR_LAST_WARN_APP) != null) {
+            lastAppPackage = getIntent().getStringExtra(Constants.STR_LAST_WARN_APP);
+            Dlog.e("Last App's Package: " + lastAppPackage);
         }
 
+        // When the warning page show & if user close our warning page and open
+        // the fav app from recent then he can use the app as at that time
+        // we save the app close time. So, by set the boolean 'false' we can solve it.
+        SharedPref.writeBoolean(getIsLastAppOpenKey(lastAppPackage), false);
+
         try {
-            /*SpUtil.getInstance().getString(STR_LAST_WARN_APP)*/
             ApplicationInfo appInfo = packageManager.getApplicationInfo(lastAppPackage, PackageManager.GET_UNINSTALLED_PACKAGES);
             if (appInfo != null) {
                 Drawable iconDrawable = packageManager.getApplicationIcon(appInfo);
                 appLabel = packageManager.getApplicationLabel(appInfo).toString();
                 binding.ivAppLogo.setImageDrawable(iconDrawable);
                 binding.tvAppLabel.setText(appLabel);
+                binding.tvActionDescription.setText(String.format(getString(R.string.do_you_want_to_still), appLabel));
 
-                binding.tvContinue.setText(String.format("%s %s", getString(R.string.continue_with), appLabel));
-                binding.tvNotGoWithApp.setText(String.format("%s %s", getString(R.string.not_go), appLabel));
+//                binding.tvContinue.setText(String.format("%s %s", getString(R.string.strContinue), appLabel));
+                binding.tvContinue.setText(getString(R.string.strContinue));
+                binding.tvExit.setText(getString(R.string.exit));
             }
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
-            Log.e(TAG, "getAppName Error: " + e.getMessage());
+            Dlog.e("getAppName Error: " + e.getMessage());
         }
 
-        binding.tvContinue.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                finish();
-            }
+        binding.tvContinue.setOnClickListener(view -> {
+            SharedPref.writeBoolean(getIsLastAppOpenKey(lastAppPackage), true);
+            finish();
+
+            MyForegroundService.instance.setLastApp(lastAppPackage);
+            Intent i = getPackageManager().getLaunchIntentForPackage(lastAppPackage);
+            i.setFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
+            startActivity(i);
         });
 
-        binding.tvNotGoWithApp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent homeIntent = new Intent(Intent.ACTION_MAIN);
-                homeIntent.addCategory(Intent.CATEGORY_HOME);
-                startActivity(homeIntent);
-                finish();
-            }
-        });
+        binding.tvExit.setOnClickListener(view -> closeApp());
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                binding.tvBreathDesc.setVisibility(View.GONE);
-                binding.rlAttempt.setVisibility(View.VISIBLE);
-            }
-        }, 4000);
+        InputStream is = getResources().openRawResource(R.raw.breathe);
+        Movie movie = Movie.decodeStream(is);
+        int duration = movie.duration();
+        Dlog.e(".gif duration: " + duration);
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Intent intent = new Intent(getApplicationContext(), GreyActivity.class);
-                startActivity(intent);
-            }
-        }, 500);
+        new Handler().postDelayed(() -> {
+            binding.tvBreathDesc.setVisibility(View.GONE);
+            binding.rlAttempt.setVisibility(View.VISIBLE);
+        }, duration);
 
-        checkAppAddedOrNot();
+        /*new Handler().postDelayed(() -> {
+            FragmentManager manager = getSupportFragmentManager();
+            FragmentTransaction transaction = manager.beginTransaction();
+            transaction.setCustomAnimations(R.anim.slide_in_up, R.anim.nothing, R.anim.nothing, R.anim.slide_out_down);
+            transaction.add(R.id.container, GreyFragment.newInstance(), "GREY");
+            transaction.addToBackStack(null);
+            transaction.commit();
+        }, DELAY_OPEN_GREY_PAGE);*/
+
+        checkAppAddedOrNot(DEVICE_ID, appLabel, lastAppPackage);
     }
 
-    private void setAttempt(int lastAttempt) {
-        binding.tvAttempts.setText(String.valueOf(lastAttempt));
+    @Override
+    public void setAttempt(int lastAttempt, String lastUsedTime) {
+        super.setAttempt(lastAttempt, lastUsedTime);
+        Dlog.d("setAttempt Attempt number: " + lastAttempt);
+        Dlog.d("setAttempt lastUsedTime: " + lastUsedTime);
+
+//        binding.tvAttempts.setText(String.valueOf(lastAttempt));
         if (lastAttempt == 1) {
-            binding.tvAttemptDesc.setText(String.format("%s%s%s", getString(R.string.attempt_to_open), " " + appLabel + " ", getString(R.string.within_24_hrs)));
-        }else{
-            binding.tvAttemptDesc.setText(String.format("%s%s%s", getString(R.string.attempts_to_open), " " + appLabel + " ", getString(R.string.within_24_hrs)));
+            binding.tvAttempts.setText(String.format("%s%s%s%s%s", lastAttempt, " ", getString(R.string.attempt_to_open), " " + appLabel + " ", getString(R.string.within_24_hrs)));
+        } else {
+            binding.tvAttempts.setText(String.format("%s%s%s%s%s", lastAttempt, " ", getString(R.string.attempts_to_open), " " + appLabel + " ", getString(R.string.within_24_hrs)));
+        }
+
+        if (lastUsedTime != null) {
+            if (!lastUsedTime.isEmpty())
+                binding.tvLastUse.setText(String.format("Last attempt to open was %s", lastUsedTime));
         }
     }
 
-    private void checkAppAddedOrNot() {
-
-        //Check App is already Added OR Not
-        db.collection(DB_COLLECTION_USERS).document(DEVICE_ID).collection(DB_COLLECTION_APPS).document(appLabel).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        Log.d(TAG, "FireStore: Document exists!");
-                        getLastAttemptAndTime(document);
-                    } else {
-                        Log.d(TAG, "FireStore: Document does not exist!");
-                        addAppDataWithAttempt(0);
-                    }
-                } else {
-                    Log.d(TAG, "FireStore: Failed with: ", task.getException());
-                }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-
-            }
-        });
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        closeApp();
     }
 
-    private void getLastAttemptAndTime(DocumentSnapshot document) {
-        List<Long> timeList = (List<Long>) document.get(DB_DOCUMENT_KEY_APP_ATTEMPTS);
+    private void closeApp() {
+        SharedPref.writeBoolean(getIsLastAppOpenKey(lastAppPackage), false);
 
-        int attemptCount = 0;
-
-        for (Long timeStamp : timeList) {
-            Log.v(TAG, "FireStore: getLastAttemptAndTime: " + timeStamp);
-            if (check24Hour(timeStamp)) {
-                removeTimeFromArray(timeStamp);
-            } else {
-                attemptCount++;
-            }
-        }
-
-        long lastUsedDifference = Math.abs(timeList.get(timeList.size() - 1) - (new Date().getTime()));
-        getLastUSedTime(lastUsedDifference);
-
-        addAppDataWithAttempt(attemptCount);
-    }
-
-    private boolean check24Hour(Long lastTimeStamp) {
-        long MILLIS_PER_DAY = 24 * 60 * 60 * 1000L;
-
-        boolean moreThanDay = Math.abs(lastTimeStamp - (new Date().getTime())) > MILLIS_PER_DAY;
-        Log.d(TAG, "FireStore: check24Hour moreThanDay: " + moreThanDay);
-
-        return moreThanDay;
-    }
-
-    private void addAppDataWithAttempt(int attempt) {
-        Log.i(TAG, "FireStore: addAppDataWithAttempt attempt: " + attempt);
-        setAttempt(attempt + 1);
-
-        Map<String, Object> apps = new HashMap<>();
-        apps.put(DB_DOCUMENT_KEY_APP_NAME, appLabel);
-        apps.put(DB_DOCUMENT_KEY_APP_PACKAGE, lastAppPackage);
-        apps.put(DB_DOCUMENT_KEY_APP_ATTEMPTS, FieldValue.arrayUnion(new Date().getTime()));
-
-        // Add a new document with above fields
-        db.collection(DB_COLLECTION_USERS).document(DEVICE_ID).collection(DB_COLLECTION_APPS).document(appLabel)
-                .set(apps, SetOptions.merge())
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void unused) {
-                        Log.d(TAG, "FireStore: Apps successfully written!");
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "FireStore: Error adding App", e);
-                    }
-                });
-    }
-
-    private void removeTimeFromArray(Long timeStamp) {
-        Map<String, Object> apps = new HashMap<>();
-        apps.put(DB_DOCUMENT_KEY_APP_ATTEMPTS, FieldValue.arrayRemove(timeStamp));
-
-        // Remove timeStamp from Array
-        db.collection(DB_COLLECTION_USERS).document(DEVICE_ID).collection(DB_COLLECTION_APPS).document(appLabel)
-                .update(apps)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void unused) {
-                        Log.d(TAG, "FireStore: TimeStamp successfully removed!");
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "FireStore: Error adding App", e);
-                    }
-                });
-    }
-
-    public void getLastUSedTime(long difference) {
-
-        System.out.println("difference : " + difference);
-
-        StringBuilder s = new StringBuilder(100);
-
-        long secondsInMilli = 1000;
-        long minutesInMilli = secondsInMilli * 60;
-        long hoursInMilli = minutesInMilli * 60;
-        long daysInMilli = hoursInMilli * 24;
-
-        long elapsedDays = difference / daysInMilli;
-        difference = difference % daysInMilli;
-
-        long elapsedHours = difference / hoursInMilli;
-        difference = difference % hoursInMilli;
-
-        long elapsedMinutes = difference / minutesInMilli;
-        difference = difference % minutesInMilli;
-
-        long elapsedSeconds = difference / secondsInMilli;
-
-        if (elapsedDays != 0) {
-            if (elapsedDays == 1)
-                s.append(elapsedDays).append(" day ago");
-            else
-                s.append(elapsedDays).append(" days ago");
-        } else if (elapsedHours != 0) {
-            if (elapsedHours == 1)
-                s.append(elapsedHours).append(" hr ago");
-            else
-                s.append(elapsedHours).append(" hrs ago");
-        } else if (elapsedMinutes != 0) {
-            if (elapsedMinutes == 1)
-                s.append(elapsedMinutes).append(" min ago");
-            else
-                s.append(elapsedMinutes).append(" mins ago");
-        } else if (elapsedSeconds != 0) {
-            if (elapsedSeconds == 1)
-                s.append(elapsedSeconds).append(" second ago");
-            else
-                s.append(elapsedSeconds).append(" seconds ago");
-        }
-
-        System.out.printf(
-                "DIFFERENCE: %d days, %d hours, %d minutes, %d seconds%n",
-                elapsedDays, elapsedHours, elapsedMinutes, elapsedSeconds);
-
-        binding.tvLastUse.setText(String.format("Last use: %s", s));
+        Intent homeIntent = new Intent(Intent.ACTION_MAIN);
+        homeIntent.addCategory(Intent.CATEGORY_HOME);
+        startActivity(homeIntent);
+        finish();
     }
 }

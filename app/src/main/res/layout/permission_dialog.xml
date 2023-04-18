@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?><!--<pl.droidsonroids.gif.GifImageView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ivPermissionGif"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#fff"
+    android:paddingStart="@dimen/space_20"
+    android:paddingEnd="@dimen/space_20" />-->
+
+<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ivPermission"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:adjustViewBounds="true"
+    android:paddingTop="@dimen/space_16"
+    android:paddingBottom="@dimen/space_8"
+    android:paddingStart="@dimen/space_26"
+    android:paddingEnd="@dimen/space_20"/>

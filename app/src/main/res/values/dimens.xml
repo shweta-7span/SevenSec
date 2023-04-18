@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="space_5">5dp</dimen>
+    <dimen name="space_7">7dp</dimen>
+    <dimen name="space_8">8dp</dimen>
+    <dimen name="space_10">10dp</dimen>
+    <dimen name="space_11">11dp</dimen>
+    <dimen name="space_12">12dp</dimen>
+    <dimen name="space_16">16dp</dimen>
+    <dimen name="space_20">20dp</dimen>
+    <dimen name="space_22">22dp</dimen>
+    <dimen name="space_26">26dp</dimen>
+    <dimen name="space_30">30dp</dimen>
+    <dimen name="space_34">34dp</dimen>
+    <dimen name="space_36">36dp</dimen>
+    <dimen name="space_40">40dp</dimen>
+    <dimen name="space_50">50dp</dimen>
+    <dimen name="space_64">64dp</dimen>
+    <dimen name="space_80">80dp</dimen>
+    <dimen name="space_100">100dp</dimen>
+
+    <dimen name="app_icon_size">50dp</dimen>
+    <dimen name="app_label_height">30dp</dimen>
+    <dimen name="divider_height">1dp</dimen>
+    <dimen name="list_item_app_icon_size">38dp</dimen>
+    <dimen name="warning_page_radius">20dp</dimen>
+
+    <dimen name="btn_radius">5dp</dimen>
+    <dimen name="btn_stroke_width">1dp</dimen>
+    <dimen name="rounded_btn_radius">50dp</dimen>
+
+    <dimen name="permission_icon_size">180dp</dimen>
+
+    <dimen name="switch_track_radius">25dp</dimen>
+    <dimen name="switch_track_width">2dp</dimen>
+    <dimen name="switch_track_height">24dp</dimen>
+    <dimen name="switch_thumb_radius">100dp</dimen>
+    <dimen name="switch_thumb_width">24dp</dimen>
+    <dimen name="switch_thumb_height">25dp</dimen>
+    <dimen name="switch_thumb_stroke_width">8dp</dimen>
+</resources>
