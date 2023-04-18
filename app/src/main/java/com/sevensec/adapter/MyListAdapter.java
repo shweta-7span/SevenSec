@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.sevensec.R;
 import com.sevensec.model.AppInfoModel;
+import com.sevensec.utils.Dlog;
 import com.sevensec.utils.SharedPref;
 
 import java.util.List;
@@ -34,7 +35,7 @@ public class MyListAdapter extends RecyclerView.Adapter<MyListAdapter.ViewHolder
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        Log.w(TAG, "onBindViewHolder favAppList: " + favAppList.size());
+        Dlog.w( "onBindViewHolder favAppList: " + favAppList.size());
 
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
         View listItem = layoutInflater.inflate(R.layout.raw_list_item, parent, false);
@@ -64,19 +65,19 @@ public class MyListAdapter extends RecyclerView.Adapter<MyListAdapter.ViewHolder
 
                 if(appNameList.contains(appInfoModelList.get(position).getAppName())){
                     holder.rawSwitch.setChecked(true);
-                    Log.d(TAG, "onBindViewHolder favAppList added");
+                    Dlog.d( "onBindViewHolder favAppList added");
                 }else{
                     holder.rawSwitch.setChecked(false);
-                    Log.d(TAG, "onBindViewHolder favAppList NotAdded");
+                    Dlog.d( "onBindViewHolder favAppList NotAdded");
                 }
             }*/
 
             if (favAppList.contains(appInfoModelList.get(position).getPackageName())) {
                 holder.rawSwitch.setChecked(true);
-                Log.d(TAG, "onBindViewHolder favAppList added");
+                Dlog.d( "onBindViewHolder favAppList added");
             } else {
                 holder.rawSwitch.setChecked(false);
-                Log.d(TAG, "onBindViewHolder favAppList NotAdded");
+                Dlog.d( "onBindViewHolder favAppList NotAdded");
             }
 
         } else {
@@ -86,7 +87,7 @@ public class MyListAdapter extends RecyclerView.Adapter<MyListAdapter.ViewHolder
         holder.rawSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                Log.d(TAG, "onBindViewHolder onCheckedChanged checked: " + b);
+                Dlog.d( "onBindViewHolder onCheckedChanged checked: " + b);
 
                 if (b) {
                     favAppList.add(appInfoModelList.get(holder.getAdapterPosition()).getPackageName());
@@ -94,7 +95,7 @@ public class MyListAdapter extends RecyclerView.Adapter<MyListAdapter.ViewHolder
                     favAppList.remove(appInfoModelList.get(holder.getAdapterPosition()).getPackageName());
                 }
 
-                Log.d(TAG, "onBindViewHolder onCheckedChanged favAppList: " + favAppList.size());
+                Dlog.d( "onBindViewHolder onCheckedChanged favAppList: " + favAppList.size());
                 SharedPref.writeList(STR_FAV_APP_LIST, favAppList);
             }
         });

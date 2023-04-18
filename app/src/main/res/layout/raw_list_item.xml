@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:paddingLeft="@dimen/space_16"
     android:paddingRight="@dimen/space_16"
     android:paddingTop="@dimen/space_10"
@@ -14,7 +15,7 @@
         android:layout_height="@dimen/list_item_app_icon_size"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
-        android:src="@drawable/ic_launcher_background" />
+        android:src="@mipmap/ic_launcher" />
 
     <TextView
         android:id="@+id/tvRawAppName"
@@ -26,7 +27,8 @@
         android:layout_marginStart="@dimen/space_12"
         android:layout_toEndOf="@id/ivRawAppIcon"
         android:textSize="16sp"
-        android:textFontWeight="500"/>
+        android:textFontWeight="500"
+        tools:targetApi="p"/>
 
     <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/rawSwitch"
