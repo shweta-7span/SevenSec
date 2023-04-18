@@ -19,6 +19,7 @@ import static com.sevensec.utils.Utils.isAccessGranted;
 import static com.sevensec.utils.Utils.isDrawOverlayPermissionGranted;
 
 import android.annotation.SuppressLint;
+import android.app.SearchManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -39,8 +40,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.SearchView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.MenuItemCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -60,6 +63,7 @@ import com.sevensec.utils.Dlog;
 import com.sevensec.utils.SharedPref;
 import com.sevensec.utils.Utils;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -67,10 +71,13 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
 
     ActivityMainBinding binding;
     PowerManager pm;
-    MenuItem itemSettings;
+    MenuItem itemSettings, itemSearch;
     boolean isPermissionGranted = false;
     PermissionDialog permissionDialog;
     int permissionCode;
+
+    MyListAdapter adapter;
+    List<AppInfoModel> appInfoModelList = new ArrayList<>();
 
     @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     @Override
@@ -103,6 +110,32 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
     public boolean onPrepareOptionsMenu(Menu menu) {
         itemSettings = menu.findItem(R.id.action_settings);
         itemSettings.setVisible(isPermissionGranted);
+
+        itemSearch = menu.findItem(R.id.action_search);
+        itemSearch.setVisible(isPermissionGranted);
+
+        // Retrieve the SearchView and plug it into SearchManager
+        final SearchView searchView = (SearchView) itemSearch.getActionView();
+        SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
+
+        assert searchView != null;
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                Dlog.d("query: " + query);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                Dlog.d("newText: " + newText);
+                filter(newText);
+                return true;
+            }
+        });
+
         return true;
     }
 
@@ -137,6 +170,9 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
             if (itemSettings != null) {
                 itemSettings.setVisible(true);
             }
+            if (itemSearch != null) {
+                itemSearch.setVisible(true);
+            }
 
         } else {
             Dlog.w("onActivityResult All Permissions NOT Granted: ");
@@ -149,7 +185,7 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
     }
 
     private void loadAllInstalledApps() {
-        List<AppInfoModel> appInfoModelList = PermissionHelper.loadInstalledApps(getApplicationContext());
+        appInfoModelList = PermissionHelper.loadInstalledApps(getApplicationContext());
         Dlog.w("onCreate appInfoModelList length: " + appInfoModelList.size());
 
         if (appInfoModelList.size() == 0) {
@@ -183,11 +219,23 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
             });
         }
 
-        MyListAdapter adapter = new MyListAdapter(appInfoModelList, favAppList);
+        adapter = new MyListAdapter(appInfoModelList, favAppList);
         binding.recyclerView.addItemDecoration(new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL));
         binding.recyclerView.setHasFixedSize(true);
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
         binding.recyclerView.setAdapter(adapter);
+    }
+
+    void filter(String text) {
+        List<AppInfoModel> searchAppList = new ArrayList<>();
+        for (AppInfoModel appInfoModel : appInfoModelList) {
+            //or use .equal(text) with you want equal match
+            //use .toLowerCase() for better matches
+            if (appInfoModel.getAppName().toLowerCase().contains(text.toLowerCase())) {
+                searchAppList.add(appInfoModel);
+            }
+        }
+        adapter.updateList(searchAppList);
     }
 
     ActivityResultLauncher<Intent> startActivityIntent = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
@@ -276,11 +324,11 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
     @Override
     public void onPositiveButtonClick(int position, String selectedItem) {
         Dlog.w("onPositiveButtonClick: selectedItem: " + selectedItem);
-        Dlog.w("onPositiveButtonClick: appSwitchDuration: " + Integer.parseInt(selectedItem.split(" ")[0]) * ((position==0) ? 1 : 60));
+        Dlog.w("onPositiveButtonClick: appSwitchDuration: " + Integer.parseInt(selectedItem.split(" ")[0]) * ((position == 0) ? 1 : 60));
 
         SharedPref.writeInteger(STR_APP_SWITCH_POSITION, position);
 
-        int durationInSeconds = Integer.parseInt(selectedItem.split(" ")[0]) * ((position==0) ? 1 : 60);
+        int durationInSeconds = Integer.parseInt(selectedItem.split(" ")[0]) * ((position == 0) ? 1 : 60);
         SharedPref.writeInteger(STR_APP_SWITCH_DURATION, durationInSeconds);
     }
 

@@ -2,7 +2,7 @@ package com.sevensec.adapter;
 
 import static com.sevensec.utils.Constants.STR_FAV_APP_LIST;
 
-import android.util.Log;
+import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +23,6 @@ import java.util.List;
 
 public class MyListAdapter extends RecyclerView.Adapter<MyListAdapter.ViewHolder> {
 
-    String TAG = getClass().getName();
     List<AppInfoModel> appInfoModelList;
     List<String> favAppList /*= new ArrayList<>()*/;
 
@@ -42,6 +41,12 @@ public class MyListAdapter extends RecyclerView.Adapter<MyListAdapter.ViewHolder
         ViewHolder viewHolder = new ViewHolder(listItem);
 
         return viewHolder;
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    public void updateList(List<AppInfoModel> searchList){
+        appInfoModelList = searchList;
+        notifyDataSetChanged();
     }
 
     @Override
@@ -118,9 +123,9 @@ public class MyListAdapter extends RecyclerView.Adapter<MyListAdapter.ViewHolder
 
         public ViewHolder(View itemView) {
             super(itemView);
-            this.ivRawAppIcon = (ImageView) itemView.findViewById(R.id.ivRawAppIcon);
-            this.tvRawAppName = (TextView) itemView.findViewById(R.id.tvRawAppName);
-            this.rawSwitch = (SwitchCompat) itemView.findViewById(R.id.rawSwitch);
+            this.ivRawAppIcon = itemView.findViewById(R.id.ivRawAppIcon);
+            this.tvRawAppName = itemView.findViewById(R.id.tvRawAppName);
+            this.rawSwitch = itemView.findViewById(R.id.rawSwitch);
         }
     }
 }
