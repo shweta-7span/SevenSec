@@ -18,7 +18,6 @@ import static com.sevensec.utils.Constants.XIAOMI_OVERLAY_REQUEST_CODE;
 import static com.sevensec.utils.Utils.isAccessGranted;
 import static com.sevensec.utils.Utils.isDrawOverlayPermissionGranted;
 
-import android.annotation.SuppressLint;
 import android.app.SearchManager;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -43,7 +42,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.view.MenuItemCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -125,7 +123,7 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
             @Override
             public boolean onQueryTextSubmit(String query) {
                 Dlog.d("query: " + query);
-                return true;
+                return false; // close the keyboard
             }
 
             @Override
