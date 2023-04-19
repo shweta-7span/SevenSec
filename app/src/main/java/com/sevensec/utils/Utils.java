@@ -80,7 +80,7 @@ public class Utils {
         return moreThanDay;
     }
 
-    public static String getLastUsedTime(long difference) {
+    public static String getTimeInFormat(long difference) {
 
         System.out.println("difference : " + difference);
 
@@ -104,24 +104,24 @@ public class Utils {
 
         if (elapsedDays != 0) {
             if (elapsedDays == 1)
-                s.append(elapsedDays).append(" day ago");
+                s.append(elapsedDays).append(" day");
             else
-                s.append(elapsedDays).append(" days ago");
+                s.append(elapsedDays).append(" days");
         } else if (elapsedHours != 0) {
             if (elapsedHours == 1)
-                s.append(elapsedHours).append(" hr ago");
+                s.append(elapsedHours).append(" hr");
             else
-                s.append(elapsedHours).append(" hrs ago");
+                s.append(elapsedHours).append(" hrs");
         } else if (elapsedMinutes != 0) {
             if (elapsedMinutes == 1)
-                s.append(elapsedMinutes).append(" min ago");
+                s.append(elapsedMinutes).append(" min");
             else
-                s.append(elapsedMinutes).append(" mins ago");
+                s.append(elapsedMinutes).append(" mins");
         } else if (elapsedSeconds != 0) {
             if (elapsedSeconds == 1)
-                s.append(elapsedSeconds).append(" sec ago");
+                s.append(elapsedSeconds).append(" sec");
             else
-                s.append(elapsedSeconds).append(" secs ago");
+                s.append(elapsedSeconds).append(" secs");
         }
 
         System.out.printf(
@@ -132,7 +132,15 @@ public class Utils {
     }
 
     public static String getIsLastAppOpenKey(String lastAppPackage) {
-        return "IS" + lastAppPackage;
+        return "IS_" + lastAppPackage;
+    }
+
+    public static String getAppUsageKey(String appPackage) {
+        return appPackage + "_USAGE";
+    }
+
+    public static String getAppCloseTimeKey(String appPackage) {
+        return appPackage + "_CLOSE_TIME";
     }
 
     public static List<Intent> POWER_MANAGER_INTENTS = Arrays.asList(

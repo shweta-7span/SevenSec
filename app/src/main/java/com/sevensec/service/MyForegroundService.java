@@ -4,6 +4,7 @@ import static com.sevensec.utils.Constants.APP_PACKAGE_NAME;
 import static com.sevensec.utils.Constants.CHECK_TOP_APPLICATION_DELAY;
 import static com.sevensec.utils.Constants.DELAY_TOP_APP_WHEN_ATTEMPT_OPEN;
 import static com.sevensec.utils.Constants.OPEN_ATTEMPT_SCREEN_DELAY;
+import static com.sevensec.utils.Constants.STR_APP_START_TIME;
 import static com.sevensec.utils.Constants.STR_APP_SWITCH_DURATION;
 import static com.sevensec.utils.Constants.STR_FAV_APP_LIST;
 import static com.sevensec.utils.Constants.STR_LAST_WARN_APP;
@@ -33,6 +34,7 @@ import com.sevensec.activities.AttemptActivity;
 import com.sevensec.activities.MainActivity;
 import com.sevensec.utils.Dlog;
 import com.sevensec.utils.SharedPref;
+import com.sevensec.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -233,10 +235,26 @@ public class MyForegroundService extends Service {
             if (!activityOnTop.equals(lastAppPN) &&
                     !activityOnTop.equals(APP_PACKAGE_NAME) &&
                     favAppList.contains(lastAppPN)) {
-                Dlog.d( "AppSwitch: closed Time for " + lastAppPN + " :" + new Date().getTime());
-                SharedPref.writeLong(lastAppPN, new Date().getTime());
+
+                getAppUsage(lastAppPN, System.currentTimeMillis());
             }
         }
+    }
+
+    private void getAppUsage(String appPackage, long appCloseTime) {
+        Dlog.d( "AppSwitch: closed Time for " + appPackage + " :" + appCloseTime);
+        SharedPref.writeLong(Utils.getAppCloseTimeKey(appPackage), appCloseTime);
+
+        long previousAppUsage = SharedPref.readLong(Utils.getAppUsageKey(appPackage), 0);
+        long appStartTime = SharedPref.readLong(STR_APP_START_TIME, appCloseTime);
+
+        long appUsageTimeMillis = System.currentTimeMillis() - appStartTime;
+        Dlog.v("appUsageTimeMillis: "+ Utils.getTimeInFormat(appUsageTimeMillis));
+
+        long totalAppUsageTimeMillis = previousAppUsage + appUsageTimeMillis;
+        Dlog.i("totalAppUsageTimeMillis: "+ Utils.getTimeInFormat(totalAppUsageTimeMillis));
+
+        SharedPref.writeLong(Utils.getAppUsageKey(appPackage), totalAppUsageTimeMillis);
     }
 
     private boolean isAppSwitchTimeExpire(String lastAppPN) {
@@ -259,7 +277,7 @@ public class MyForegroundService extends Service {
             return true;
 
         } else {
-            long lastUsedDifference = Math.abs(SharedPref.readLong(lastAppPN, new Date().getTime() + (appSwitchDuration * 1000 * 60)) - new Date().getTime());
+            long lastUsedDifference = Math.abs(SharedPref.readLong(Utils.getAppCloseTimeKey(lastAppPN), new Date().getTime() + (appSwitchDuration * 1000 * 60)) - new Date().getTime());
             long elapsedSeconds = lastUsedDifference / 1000;
 
             Dlog.v("AppSwitch: " + lastAppPN + " ,elapsedSeconds: " + elapsedSeconds);

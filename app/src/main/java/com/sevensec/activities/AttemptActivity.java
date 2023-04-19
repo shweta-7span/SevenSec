@@ -1,5 +1,6 @@
 package com.sevensec.activities;
 
+import static com.sevensec.utils.Constants.STR_APP_START_TIME;
 import static com.sevensec.utils.Constants.STR_DEVICE_ID;
 import static com.sevensec.utils.Utils.getIsLastAppOpenKey;
 
@@ -27,7 +28,6 @@ import java.io.InputStream;
 
 public class AttemptActivity extends FireStoreDataOperation {
 
-    private final String TAG = getClass().getName();
     ActivityAttemptBinding binding;
 
     private String appLabel;
@@ -76,6 +76,7 @@ public class AttemptActivity extends FireStoreDataOperation {
 
         binding.tvContinue.setOnClickListener(view -> {
             SharedPref.writeBoolean(getIsLastAppOpenKey(lastAppPackage), true);
+            SharedPref.writeLong(STR_APP_START_TIME, System.currentTimeMillis());
             finish();
 
             MyForegroundService.instance.setLastApp(lastAppPackage);
@@ -123,7 +124,7 @@ public class AttemptActivity extends FireStoreDataOperation {
 
         if (lastUsedTime != null) {
             if (!lastUsedTime.isEmpty())
-                binding.tvLastUse.setText(String.format("Last attempt to open was %s", lastUsedTime));
+                binding.tvLastUse.setText(String.format("Last attempt to open was %s ago", lastUsedTime));
         }
     }
 

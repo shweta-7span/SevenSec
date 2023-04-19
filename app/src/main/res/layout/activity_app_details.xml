@@ -6,10 +6,21 @@
 
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:gravity="center"
         tools:context=".activities.AppDetailsActivity">
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        <TextView
+            android:id="@+id/tvAppUsageTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_12"
+            android:textColor="@color/grey900"
+            android:textFontWeight="500"
+            android:textSize="16sp"
+            tools:targetApi="p" />
+
+    </LinearLayout>
 </layout>

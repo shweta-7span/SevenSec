@@ -9,7 +9,7 @@ import static com.sevensec.utils.Constants.DB_DOCUMENT_KEY_APP_PACKAGE;
 import static com.sevensec.utils.Constants.DB_DOCUMENT_KEY_TYPE;
 import static com.sevensec.utils.Constants.USER_ID;
 import static com.sevensec.utils.Utils.check24Hour;
-import static com.sevensec.utils.Utils.getLastUsedTime;
+import static com.sevensec.utils.Utils.getTimeInFormat;
 
 import android.content.Context;
 import android.content.Intent;
@@ -133,7 +133,7 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
 
         if (timeList != null) {
             long lastUsedDifference = Math.abs(timeList.get(timeList.size() - 1) - (new Date().getTime()));
-            lastUsedTime = getLastUsedTime(lastUsedDifference);
+            lastUsedTime = getTimeInFormat(lastUsedDifference);
 
             for (Long timeStamp : timeList) {
                 Dlog.v("FireStore: getLastAttemptAndTime: " + timeStamp);

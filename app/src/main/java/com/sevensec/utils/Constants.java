@@ -29,8 +29,10 @@ public class Constants {
     public static final String STR_APP_SWITCH_POSITION = "STR_APP_SWITCH_POSITION";
     public static final String STR_SKIP_PROTECTED_APP_CHECK = "STR_SKIP_PROTECTED_APP_CHECK";
     public static final String STR_XIAOMI_OVERLAY = "STR_XIAOMI_OVERLAY";
+    public static final String STR_APP_START_TIME = "STR_APP_START_TIME";
     public static final String ANDROID = "Android";
 
+    //Send Model in Detail Activity
     public static final String STR_APP_INFO = "STR_APP_INFO";
 
     public static final long DELAY_OPEN_GREY_PAGE = 500;
@@ -50,6 +52,7 @@ public class Constants {
     public static final int NOTIFICATION_PERMISSION_REQUEST_CODE = 106;
 
     //    public static final long APP_SWITCH_DURATION = 1000 * 60;
+
     //TODO: Check this boolean before give the .apk
     public static final boolean IS_PRODUCTION_MODE = false;
 }
