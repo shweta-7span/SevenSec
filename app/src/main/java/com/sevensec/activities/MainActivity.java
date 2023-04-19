@@ -219,7 +219,7 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
             });
         }
 
-        adapter = new MyListAdapter(appInfoModelList, favAppList);
+        adapter = new MyListAdapter(getApplicationContext(), appInfoModelList, favAppList);
         binding.recyclerView.addItemDecoration(new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL));
         binding.recyclerView.setHasFixedSize(true);
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));

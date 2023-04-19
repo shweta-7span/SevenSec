@@ -14,6 +14,10 @@ import android.content.IntentSender;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.os.Build;
 import android.provider.Settings;
@@ -37,8 +41,6 @@ import java.util.Date;
 import java.util.List;
 
 public class Utils {
-
-    private static final String TAG = "Utils";
 
     public static boolean isAccessGranted(Context context) {
         try {
@@ -300,5 +302,23 @@ public class Utils {
         ConnectivityManager cm = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
 
         return cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo().isConnected();
+    }
+
+    public static Bitmap getBitmapFromDrawable(Drawable drawable) {
+        Bitmap bitmap;
+        if (drawable instanceof BitmapDrawable) {
+            bitmap = ((BitmapDrawable) drawable).getBitmap();
+        } else {
+            bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(bitmap);
+            drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+            drawable.draw(canvas);
+        }
+        return bitmap;
+    }
+
+    public static Drawable getDrawableFromBitmap(Context context, Bitmap bitmap) {
+        return new BitmapDrawable(context.getResources(), bitmap);
+//        return new BitmapDrawable(bitmap);
     }
 }

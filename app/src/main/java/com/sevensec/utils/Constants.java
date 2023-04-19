@@ -31,6 +31,8 @@ public class Constants {
     public static final String STR_XIAOMI_OVERLAY = "STR_XIAOMI_OVERLAY";
     public static final String ANDROID = "Android";
 
+    public static final String STR_APP_INFO = "STR_APP_INFO";
+
     public static final long DELAY_OPEN_GREY_PAGE = 500;
     public static final long SPLASH_DELAY = 1000;
     public static final long GRAY_PAGE_ANIMATION_TIMER = 3000;

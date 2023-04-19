@@ -1,14 +1,19 @@
 package com.sevensec.model;
 
 import android.content.pm.ApplicationInfo;
-import android.graphics.drawable.Drawable;
+import android.graphics.Bitmap;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-public class AppInfoModel {
+public class AppInfoModel implements Parcelable {
     private ApplicationInfo appInfo;
-    private Drawable appIcon;
+    private Bitmap appIconBitmap;
     private String appName;
     private String packageName;
     private String category;
+
+    public AppInfoModel() {
+    }
 
     public ApplicationInfo getAppInfo() {
         return appInfo;
@@ -18,12 +23,12 @@ public class AppInfoModel {
         this.appInfo = appInfo;
     }
 
-    public Drawable getAppIcon() {
-        return appIcon;
+    public Bitmap getAppIconBitmap() {
+        return appIconBitmap;
     }
 
-    public void setAppIcon(Drawable appIcon) {
-        this.appIcon = appIcon;
+    public void setAppIconBitmap(Bitmap appIconBitmap) {
+        this.appIconBitmap = appIconBitmap;
     }
 
     public String getAppName() {
@@ -48,5 +53,39 @@ public class AppInfoModel {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<AppInfoModel> CREATOR = new Creator<AppInfoModel>() {
+        @Override
+        public AppInfoModel createFromParcel(Parcel in) {
+            return new AppInfoModel(in);
+        }
+
+        @Override
+        public AppInfoModel[] newArray(int size) {
+            return new AppInfoModel[size];
+        }
+    };
+
+    private AppInfoModel(Parcel in) {
+        appInfo = in.readParcelable(ApplicationInfo.class.getClassLoader());
+        appIconBitmap = in.readParcelable(getClass().getClassLoader());
+        appName = in.readString();
+        packageName = in.readString();
+        category = in.readString();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeParcelable(appInfo, flags);
+        dest.writeParcelable(appIconBitmap, flags);
+        dest.writeString(appName);
+        dest.writeString(packageName);
+        dest.writeString(category);
     }
 }

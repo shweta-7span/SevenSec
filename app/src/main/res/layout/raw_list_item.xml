@@ -9,26 +9,32 @@
     android:paddingTop="@dimen/space_10"
     android:paddingBottom="@dimen/space_10">
 
-    <ImageView
-        android:id="@+id/ivRawAppIcon"
-        android:layout_width="@dimen/list_item_app_icon_size"
-        android:layout_height="@dimen/list_item_app_icon_size"
-        android:layout_alignParentStart="true"
-        android:layout_centerVertical="true"
-        android:src="@mipmap/ic_launcher" />
-
-    <TextView
-        android:id="@+id/tvRawAppName"
+    <LinearLayout
+        android:id="@+id/llAppInfo"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:text="@string/raw_app_name"
-        android:textColor="@color/grey900"
-        android:layout_marginStart="@dimen/space_12"
-        android:layout_toEndOf="@id/ivRawAppIcon"
-        android:textSize="16sp"
-        android:textFontWeight="500"
-        tools:targetApi="p"/>
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true"
+        android:layout_toStartOf="@+id/rawSwitch"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:id="@+id/ivRawAppIcon"
+            android:layout_width="@dimen/list_item_app_icon_size"
+            android:layout_height="@dimen/list_item_app_icon_size"
+            android:src="@mipmap/ic_launcher" />
+
+        <TextView
+            android:id="@+id/tvRawAppName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_12"
+            android:text="@string/raw_app_name"
+            android:textColor="@color/grey900"
+            android:textFontWeight="500"
+            android:textSize="16sp"
+            tools:targetApi="p" />
+
+    </LinearLayout>
 
     <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/rawSwitch"
@@ -38,6 +44,5 @@
         android:layout_centerVertical="true"
         android:thumb="@drawable/thumb_selector"
         app:track="@drawable/track_selector"/>
-
 
 </RelativeLayout>

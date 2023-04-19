@@ -65,6 +65,10 @@
                 android:value="" />
         </activity>
         <activity
+            android:name=".activities.AppDetailsActivity"
+            android:exported="false"
+            android:theme="@style/AppTheme" />
+        <activity
             android:name=".activities.AttemptActivity"
             android:excludeFromRecents="true"
             android:exported="true"
@@ -74,20 +78,19 @@
             tools:ignore="LockedOrientationActivity" />
 
         <service
-            android:name="com.sevensec.service.MyForegroundService"
-            android:stopWithTask="false"/>
+            android:name=".service.MyForegroundService"
+            android:stopWithTask="false" />
 
         <receiver
-            android:name="com.sevensec.receiver.BootCompleteReceiver"
+            android:name=".receiver.BootCompleteReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
-
         <receiver
-            android:name="com.sevensec.receiver.SensorRestarterBroadcastReceiver"
+            android:name=".receiver.SensorRestarterBroadcastReceiver"
             android:enabled="true"
             android:exported="true"
             android:label="RestartServiceWhenStopped">
@@ -95,7 +98,6 @@
                 <action android:name="com.sevenSec.MyForegroundService.RestartSensor" />
             </intent-filter>
         </receiver>
-
     </application>
 
 </manifest>
