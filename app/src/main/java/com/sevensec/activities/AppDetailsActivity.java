@@ -1,6 +1,7 @@
 package com.sevensec.activities;
 
-import static com.sevensec.utils.Constants.STR_APP_INFO;
+import static com.sevensec.utils.Constants.STR_PASS_APP_INFO;
+import static com.sevensec.utils.Constants.getAppUsageKey;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
@@ -23,13 +24,13 @@ public class AppDetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_app_details);
 
-        AppInfoModel appInfoModel = getIntent().getParcelableExtra(STR_APP_INFO);
+        AppInfoModel appInfoModel = getIntent().getParcelableExtra(STR_PASS_APP_INFO);
 
         assert appInfoModel != null;
         Dlog.d("AppName: " + appInfoModel.getAppName());
         Dlog.d("PackageName: " + appInfoModel.getPackageName());
 
-        long totalAppUsageTime = SharedPref.readLong(Utils.getAppUsageKey(appInfoModel.getPackageName()), 0);
+        long totalAppUsageTime = SharedPref.readLong(getAppUsageKey(appInfoModel.getPackageName()), 0);
         binding.tvAppUsageTime.setText(Utils.getTimeInFormat(totalAppUsageTime));
     }
 }

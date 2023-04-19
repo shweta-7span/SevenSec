@@ -2,13 +2,15 @@ package com.sevensec.service;
 
 import static com.sevensec.utils.Constants.APP_PACKAGE_NAME;
 import static com.sevensec.utils.Constants.CHECK_TOP_APPLICATION_DELAY;
-import static com.sevensec.utils.Constants.DELAY_TOP_APP_WHEN_ATTEMPT_OPEN;
+import static com.sevensec.utils.Constants.CHECK_TOP_APPLICATION_WHEN_ATTEMPT_OPEN_DELAY;
 import static com.sevensec.utils.Constants.OPEN_ATTEMPT_SCREEN_DELAY;
-import static com.sevensec.utils.Constants.STR_APP_START_TIME;
-import static com.sevensec.utils.Constants.STR_APP_SWITCH_DURATION;
-import static com.sevensec.utils.Constants.STR_FAV_APP_LIST;
+import static com.sevensec.utils.Constants.PREF_APP_START_TIME;
+import static com.sevensec.utils.Constants.PREF_APP_SWITCH_DURATION;
+import static com.sevensec.utils.Constants.PREF_FAV_APP_LIST;
 import static com.sevensec.utils.Constants.STR_LAST_WARN_APP;
-import static com.sevensec.utils.Utils.getIsLastAppOpenKey;
+import static com.sevensec.utils.Constants.getAppCloseTimeKey;
+import static com.sevensec.utils.Constants.getAppUsageKey;
+import static com.sevensec.utils.Constants.getIsLastAppOpenKey;
 
 import android.app.ActivityManager;
 import android.app.Notification;
@@ -121,7 +123,7 @@ public class MyForegroundService extends Service {
     public void checkRunningApps() {
 
         SharedPref.init(getApplicationContext());
-        favAppList = SharedPref.readListString(STR_FAV_APP_LIST);
+        favAppList = SharedPref.readListString(PREF_FAV_APP_LIST);
         Dlog.w( "TEST favAppList: " + favAppList.size());
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
@@ -185,7 +187,7 @@ public class MyForegroundService extends Service {
                         startActivity(intent);
 
                         //call the method again after execution of the above code
-                        callAgain(DELAY_TOP_APP_WHEN_ATTEMPT_OPEN);
+                        callAgain(CHECK_TOP_APPLICATION_WHEN_ATTEMPT_OPEN_DELAY);
 
                     }, OPEN_ATTEMPT_SCREEN_DELAY);
 
@@ -243,10 +245,10 @@ public class MyForegroundService extends Service {
 
     private void getAppUsage(String appPackage, long appCloseTime) {
         Dlog.d( "AppSwitch: closed Time for " + appPackage + " :" + appCloseTime);
-        SharedPref.writeLong(Utils.getAppCloseTimeKey(appPackage), appCloseTime);
+        SharedPref.writeLong(getAppCloseTimeKey(appPackage), appCloseTime);
 
-        long previousAppUsage = SharedPref.readLong(Utils.getAppUsageKey(appPackage), 0);
-        long appStartTime = SharedPref.readLong(STR_APP_START_TIME, appCloseTime);
+        long previousAppUsage = SharedPref.readLong(getAppUsageKey(appPackage), 0);
+        long appStartTime = SharedPref.readLong(PREF_APP_START_TIME, appCloseTime);
 
         long appUsageTimeMillis = System.currentTimeMillis() - appStartTime;
         Dlog.v("appUsageTimeMillis: "+ Utils.getTimeInFormat(appUsageTimeMillis));
@@ -254,7 +256,7 @@ public class MyForegroundService extends Service {
         long totalAppUsageTimeMillis = previousAppUsage + appUsageTimeMillis;
         Dlog.i("totalAppUsageTimeMillis: "+ Utils.getTimeInFormat(totalAppUsageTimeMillis));
 
-        SharedPref.writeLong(Utils.getAppUsageKey(appPackage), totalAppUsageTimeMillis);
+        SharedPref.writeLong(getAppUsageKey(appPackage), totalAppUsageTimeMillis);
     }
 
     private boolean isAppSwitchTimeExpire(String lastAppPN) {
@@ -269,7 +271,7 @@ public class MyForegroundService extends Service {
         String[] arrAppSwitchDelay = getResources().getStringArray(R.array.arrAppSwitchDelay);
         int durationInSeconds = Integer.parseInt(arrAppSwitchDelay[arrAppSwitchDelay.length - 1].split(" ")[0]) * 60;
 
-        long appSwitchDuration = SharedPref.readInteger(STR_APP_SWITCH_DURATION, durationInSeconds);
+        long appSwitchDuration = SharedPref.readInteger(PREF_APP_SWITCH_DURATION, durationInSeconds);
         Dlog.w( "isAppSwitchTimeExpire: appSwitchDuration: " + appSwitchDuration);
 
         if (appSwitchDuration == 0) {
@@ -277,7 +279,7 @@ public class MyForegroundService extends Service {
             return true;
 
         } else {
-            long lastUsedDifference = Math.abs(SharedPref.readLong(Utils.getAppCloseTimeKey(lastAppPN), new Date().getTime() + (appSwitchDuration * 1000 * 60)) - new Date().getTime());
+            long lastUsedDifference = Math.abs(SharedPref.readLong(getAppCloseTimeKey(lastAppPN), new Date().getTime() + (appSwitchDuration * 1000 * 60)) - new Date().getTime());
             long elapsedSeconds = lastUsedDifference / 1000;
 
             Dlog.v("AppSwitch: " + lastAppPN + " ,elapsedSeconds: " + elapsedSeconds);

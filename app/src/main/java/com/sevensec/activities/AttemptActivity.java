@@ -1,8 +1,8 @@
 package com.sevensec.activities;
 
-import static com.sevensec.utils.Constants.STR_APP_START_TIME;
-import static com.sevensec.utils.Constants.STR_DEVICE_ID;
-import static com.sevensec.utils.Utils.getIsLastAppOpenKey;
+import static com.sevensec.utils.Constants.PREF_APP_START_TIME;
+import static com.sevensec.utils.Constants.PREF_DEVICE_ID;
+import static com.sevensec.utils.Constants.getIsLastAppOpenKey;
 
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
@@ -40,7 +40,7 @@ public class AttemptActivity extends FireStoreDataOperation {
                 WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_attempt);
 
-        String DEVICE_ID = SharedPref.readString(STR_DEVICE_ID, "");
+        String DEVICE_ID = SharedPref.readString(PREF_DEVICE_ID, "");
         PackageManager packageManager = getPackageManager();
 
         binding.tvBreathDesc.setVisibility(View.VISIBLE);
@@ -76,7 +76,7 @@ public class AttemptActivity extends FireStoreDataOperation {
 
         binding.tvContinue.setOnClickListener(view -> {
             SharedPref.writeBoolean(getIsLastAppOpenKey(lastAppPackage), true);
-            SharedPref.writeLong(STR_APP_START_TIME, System.currentTimeMillis());
+            SharedPref.writeLong(PREF_APP_START_TIME, System.currentTimeMillis());
             finish();
 
             MyForegroundService.instance.setLastApp(lastAppPackage);

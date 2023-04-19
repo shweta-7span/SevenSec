@@ -1,13 +1,13 @@
 package com.sevensec.repo;
 
-import static com.sevensec.utils.Constants.ANDROID;
+import static com.sevensec.utils.Constants.DB_ANDROID;
 import static com.sevensec.utils.Constants.DB_COLLECTION_APPS;
 import static com.sevensec.utils.Constants.DB_COLLECTION_USERS;
 import static com.sevensec.utils.Constants.DB_DOCUMENT_KEY_APP_ATTEMPTS;
 import static com.sevensec.utils.Constants.DB_DOCUMENT_KEY_APP_NAME;
 import static com.sevensec.utils.Constants.DB_DOCUMENT_KEY_APP_PACKAGE;
 import static com.sevensec.utils.Constants.DB_DOCUMENT_KEY_TYPE;
-import static com.sevensec.utils.Constants.USER_ID;
+import static com.sevensec.utils.Constants.DB_USER_ID;
 import static com.sevensec.utils.Utils.check24Hour;
 import static com.sevensec.utils.Utils.getTimeInFormat;
 
@@ -79,7 +79,7 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
     public void addUserOnFireStore(String deviceId) {
         // Create a new user with a first and last name
         Map<String, Object> type = new HashMap<>();
-        type.put(DB_DOCUMENT_KEY_TYPE, ANDROID);
+        type.put(DB_DOCUMENT_KEY_TYPE, DB_ANDROID);
 
         // Add a new document with a generated ID
         firebaseFirestore.collection(DB_COLLECTION_USERS).document(deviceId)
@@ -200,7 +200,7 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
     public void addUserID(Context mContext, String deviceId, AuthFailureListener authFailureListener) {
 
         Map<String, Object> userID = new HashMap<>();
-        userID.put(USER_ID, Objects.requireNonNull(mAuth.getCurrentUser()).getUid());
+        userID.put(DB_USER_ID, Objects.requireNonNull(mAuth.getCurrentUser()).getUid());
 
         firebaseFirestore.collection(DB_COLLECTION_USERS).document(deviceId).set(userID).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override

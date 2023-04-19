@@ -1,7 +1,7 @@
 package com.sevensec.adapter;
 
-import static com.sevensec.utils.Constants.STR_APP_INFO;
-import static com.sevensec.utils.Constants.STR_FAV_APP_LIST;
+import static com.sevensec.utils.Constants.STR_PASS_APP_INFO;
+import static com.sevensec.utils.Constants.PREF_FAV_APP_LIST;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -109,13 +109,13 @@ public class MyListAdapter extends RecyclerView.Adapter<MyListAdapter.ViewHolder
                 }
 
                 Dlog.d("onBindViewHolder onCheckedChanged favAppList: " + favAppList.size());
-                SharedPref.writeList(STR_FAV_APP_LIST, favAppList);
+                SharedPref.writeList(PREF_FAV_APP_LIST, favAppList);
             }
         });
 
         holder.llAppInfo.setOnClickListener(v -> {
             Intent intent = new Intent(v.getContext(), AppDetailsActivity.class);
-            intent.putExtra(STR_APP_INFO, appInfoModelList.get(holder.getAdapterPosition()));
+            intent.putExtra(STR_PASS_APP_INFO, appInfoModelList.get(holder.getAdapterPosition()));
             v.getContext().startActivity(intent);
         });
     }

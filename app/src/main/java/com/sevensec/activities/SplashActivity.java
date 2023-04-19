@@ -1,7 +1,7 @@
 package com.sevensec.activities;
 
 import static com.sevensec.utils.Constants.SPLASH_DELAY;
-import static com.sevensec.utils.Constants.STR_FIRST_TIME_APP_LAUNCH;
+import static com.sevensec.utils.Constants.PREF_IS_APP_LAUNCH_FIRST_TIME;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -30,7 +30,7 @@ public class SplashActivity extends AppCompatActivity {
         SharedPref.init(getApplicationContext());
 
         new Handler().postDelayed(() -> {
-            if (SharedPref.readBoolean(STR_FIRST_TIME_APP_LAUNCH, true)) {
+            if (SharedPref.readBoolean(PREF_IS_APP_LAUNCH_FIRST_TIME, true)) {
                 startActivity(new Intent(getApplicationContext(), OnBoardingActivity.class));
             }else{
                 startActivity(new Intent(getApplicationContext(), MainActivity.class));

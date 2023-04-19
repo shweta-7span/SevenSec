@@ -1,6 +1,6 @@
 package com.sevensec.activities;
 
-import static com.sevensec.utils.Constants.STR_DEVICE_ID;
+import static com.sevensec.utils.Constants.PREF_DEVICE_ID;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
@@ -38,7 +38,7 @@ public class OnBoardingActivity extends FireBaseAuthOperation implements AuthFai
         //Store DEVICE_ID in Preference
         @SuppressLint("HardwareIds") String DEVICE_ID = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
         Dlog.d("OnBoardingActivity onCreate DEVICE_ID: " + DEVICE_ID);
-        SharedPref.writeString(STR_DEVICE_ID, DEVICE_ID);
+        SharedPref.writeString(PREF_DEVICE_ID, DEVICE_ID);
 
         binding.llOnBoarding.setVisibility(View.VISIBLE);
         binding.progressBar.setVisibility(View.GONE);

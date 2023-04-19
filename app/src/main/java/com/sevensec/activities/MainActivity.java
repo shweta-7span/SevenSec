@@ -6,13 +6,13 @@ import static com.sevensec.utils.Constants.IN_APP_UPDATE_REQUEST_CODE;
 import static com.sevensec.utils.Constants.NOTIFICATION_PERMISSION_REQUEST_CODE;
 import static com.sevensec.utils.Constants.OVERLAY_REQUEST_CODE;
 import static com.sevensec.utils.Constants.PERMISSION_POPUP_DELAY;
-import static com.sevensec.utils.Constants.STR_APP_SWITCH_DURATION;
-import static com.sevensec.utils.Constants.STR_APP_SWITCH_POSITION;
-import static com.sevensec.utils.Constants.STR_DEVICE_ID;
-import static com.sevensec.utils.Constants.STR_FAV_APP_LIST;
-import static com.sevensec.utils.Constants.STR_FIRST_TIME_APP_LAUNCH;
+import static com.sevensec.utils.Constants.PREF_APP_SWITCH_DURATION;
+import static com.sevensec.utils.Constants.PREF_APP_SWITCH_POSITION;
+import static com.sevensec.utils.Constants.PREF_DEVICE_ID;
+import static com.sevensec.utils.Constants.PREF_FAV_APP_LIST;
+import static com.sevensec.utils.Constants.PREF_IS_APP_LAUNCH_FIRST_TIME;
 import static com.sevensec.utils.Constants.STR_XIAOMI;
-import static com.sevensec.utils.Constants.STR_XIAOMI_OVERLAY;
+import static com.sevensec.utils.Constants.PREF_IS_XIAOMI_OVERLAY_DONE;
 import static com.sevensec.utils.Constants.USAGE_ACCESS_REQUEST_CODE;
 import static com.sevensec.utils.Constants.XIAOMI_OVERLAY_REQUEST_CODE;
 import static com.sevensec.utils.Utils.isAccessGranted;
@@ -87,7 +87,7 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
         pm = (PowerManager) getSystemService(POWER_SERVICE);
         FirebaseAnalytics.getInstance(this).setAnalyticsCollectionEnabled(true);
 
-        SharedPref.writeBoolean(STR_FIRST_TIME_APP_LAUNCH, false);
+        SharedPref.writeBoolean(PREF_IS_APP_LAUNCH_FIRST_TIME, false);
         if (ContextCompat.checkSelfPermission(this, POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
             checkPermission();
         } else {
@@ -161,7 +161,7 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
 
             PermissionHelper.startForegroundService(MainActivity.this);
 
-            String DEVICE_ID = SharedPref.readString(STR_DEVICE_ID, "");
+            String DEVICE_ID = SharedPref.readString(PREF_DEVICE_ID, "");
             Dlog.d("ManinActivity DEVICE_ID: " + DEVICE_ID);
 
             //Store DEVICE_ID in FireStore
@@ -207,7 +207,7 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
         });
 
         //Get Selected App list and sort the app list to show the selected apps on top
-        List<String> favAppList = SharedPref.readListString(STR_FAV_APP_LIST);
+        List<String> favAppList = SharedPref.readListString(PREF_FAV_APP_LIST);
 
         if (favAppList.size() > 0) {
             //Show Selected Apps on Top
@@ -285,7 +285,7 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
             } else {
 
                 if (Build.MANUFACTURER.equalsIgnoreCase(STR_XIAOMI)) {
-                    if (!SharedPref.readBoolean(STR_XIAOMI_OVERLAY, false)) {
+                    if (!SharedPref.readBoolean(PREF_IS_XIAOMI_OVERLAY_DONE, false)) {
                         showPermissionDialog(getString(R.string.xiaomi_display_popup_window),
                                 getString(R.string.xiaomi_display_popup_window_msg),
                                 XIAOMI_OVERLAY_REQUEST_CODE);
@@ -326,10 +326,10 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
         Dlog.w("onPositiveButtonClick: selectedItem: " + selectedItem);
         Dlog.w("onPositiveButtonClick: appSwitchDuration: " + Integer.parseInt(selectedItem.split(" ")[0]) * ((position == 0) ? 1 : 60));
 
-        SharedPref.writeInteger(STR_APP_SWITCH_POSITION, position);
+        SharedPref.writeInteger(PREF_APP_SWITCH_POSITION, position);
 
         int durationInSeconds = Integer.parseInt(selectedItem.split(" ")[0]) * ((position == 0) ? 1 : 60);
-        SharedPref.writeInteger(STR_APP_SWITCH_DURATION, durationInSeconds);
+        SharedPref.writeInteger(PREF_APP_SWITCH_DURATION, durationInSeconds);
     }
 
     @Override
@@ -366,7 +366,7 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
             startActivityIntent.launch(intent); //It will call onActivityResult Function After you press Yes/No and go Back after giving permission
 
         } else if (permissionCode == XIAOMI_OVERLAY_REQUEST_CODE) {
-            SharedPref.writeBoolean(STR_XIAOMI_OVERLAY, true);
+            SharedPref.writeBoolean(PREF_IS_XIAOMI_OVERLAY_DONE, true);
 
             Intent intent = new Intent("miui.intent.action.APP_PERM_EDITOR");
             intent.setClassName("com.miui.securitycenter",

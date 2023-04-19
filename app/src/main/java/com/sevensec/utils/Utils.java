@@ -2,7 +2,7 @@ package com.sevensec.utils;
 
 import static com.sevensec.utils.Constants.IN_APP_UPDATE_REQUEST_CODE;
 import static com.sevensec.utils.Constants.STR_OPPO;
-import static com.sevensec.utils.Constants.STR_SKIP_PROTECTED_APP_CHECK;
+import static com.sevensec.utils.Constants.PREF_IS_SKIP_PROTECTED_APP_CHECKED;
 import static com.sevensec.utils.Constants.STR_XIAOMI;
 
 import android.app.Activity;
@@ -131,18 +131,6 @@ public class Utils {
         return String.valueOf(s);
     }
 
-    public static String getIsLastAppOpenKey(String lastAppPackage) {
-        return "IS_" + lastAppPackage;
-    }
-
-    public static String getAppUsageKey(String appPackage) {
-        return appPackage + "_USAGE";
-    }
-
-    public static String getAppCloseTimeKey(String appPackage) {
-        return appPackage + "_CLOSE_TIME";
-    }
-
     public static List<Intent> POWER_MANAGER_INTENTS = Arrays.asList(
             new Intent().setComponent(new ComponentName("com.miui.securitycenter", "com.miui.permcenter.autostart.AutoStartManagementActivity")),
             new Intent().setComponent(new ComponentName("com.letv.android.letvsafe", "com.letv.android.letvsafe.AutobootManageActivity")),
@@ -161,7 +149,7 @@ public class Utils {
 
 
     public static void startPowerSaverIntent(Context context) {
-        boolean skipMessage = SharedPref.readBoolean(STR_SKIP_PROTECTED_APP_CHECK, false);
+        boolean skipMessage = SharedPref.readBoolean(PREF_IS_SKIP_PROTECTED_APP_CHECKED, false);
 
         String title;
         String message;
@@ -199,7 +187,7 @@ public class Utils {
                             .setView(view)
                             .setCancelable(false)
                             .setPositiveButton(R.string.go_to_settings, (dialog, which) -> {
-                                SharedPref.writeBoolean(STR_SKIP_PROTECTED_APP_CHECK, checkBox.isChecked());
+                                SharedPref.writeBoolean(PREF_IS_SKIP_PROTECTED_APP_CHECKED, checkBox.isChecked());
                                 try {
                                     if (!Build.MANUFACTURER.equalsIgnoreCase(STR_OPPO)) {
                                         context.startActivity(intent);
@@ -249,7 +237,7 @@ public class Utils {
                 }
             }
             if (!foundCorrectIntent) {
-                SharedPref.writeBoolean(STR_SKIP_PROTECTED_APP_CHECK, true);
+                SharedPref.writeBoolean(PREF_IS_SKIP_PROTECTED_APP_CHECKED, true);
             }
         }
     }
