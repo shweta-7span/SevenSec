@@ -11,6 +11,7 @@ import static com.sevensec.utils.Constants.PREF_APP_SWITCH_POSITION;
 import static com.sevensec.utils.Constants.PREF_DEVICE_ID;
 import static com.sevensec.utils.Constants.PREF_FAV_APP_LIST;
 import static com.sevensec.utils.Constants.PREF_IS_APP_LAUNCH_FIRST_TIME;
+import static com.sevensec.utils.Constants.STR_PASS_APP_INFO;
 import static com.sevensec.utils.Constants.STR_XIAOMI;
 import static com.sevensec.utils.Constants.PREF_IS_XIAOMI_OVERLAY_DONE;
 import static com.sevensec.utils.Constants.USAGE_ACCESS_REQUEST_CODE;
@@ -219,7 +220,11 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
             });
         }
 
-        adapter = new MyListAdapter(getApplicationContext(), appInfoModelList, favAppList);
+        adapter = new MyListAdapter(getApplicationContext(), appInfoModelList, favAppList, appInfoModel -> {
+            Intent intent = new Intent(getApplicationContext(), AppDetailsActivity.class);
+            intent.putExtra(STR_PASS_APP_INFO, appInfoModel);
+            startActivity(intent);
+        });
         binding.recyclerView.addItemDecoration(new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL));
         binding.recyclerView.setHasFixedSize(true);
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));

@@ -2,6 +2,7 @@ package com.sevensec.helper;
 
 import static com.sevensec.utils.Constants.APP_PACKAGE_NAME;
 import static com.sevensec.utils.Constants.PERMISSION_POPUP_DELAY;
+import static com.sevensec.utils.Constants.PREF_FAV_APP_LIST;
 
 import android.content.Context;
 import android.content.Intent;
@@ -14,6 +15,7 @@ import android.os.Handler;
 import com.sevensec.model.AppInfoModel;
 import com.sevensec.service.MyForegroundService;
 import com.sevensec.utils.Dlog;
+import com.sevensec.utils.SharedPref;
 import com.sevensec.utils.Utils;
 
 import java.util.ArrayList;
@@ -49,6 +51,11 @@ public class PermissionHelper {
             appInfoModel.setAppIconBitmap(Utils.getBitmapFromDrawable(packageManager.getApplicationIcon(applicationInfo)));
             appInfoModel.setAppName(packageManager.getApplicationLabel(applicationInfo).toString());
             appInfoModel.setPackageName(applicationInfo.packageName);
+
+            List<String> favAppList = SharedPref.readListString(PREF_FAV_APP_LIST);
+            if(favAppList.contains(applicationInfo.packageName)){
+                appInfoModel.setFavorite(true);
+            }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 if (ApplicationInfo.getCategoryTitle(context, applicationInfo.category) != null)

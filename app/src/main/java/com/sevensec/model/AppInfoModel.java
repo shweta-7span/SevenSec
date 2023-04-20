@@ -11,8 +11,9 @@ public class AppInfoModel implements Parcelable {
     private String appName;
     private String packageName;
     private String category;
+    private boolean isFavorite;
 
-    public AppInfoModel() {
+    public AppInfoModel(){
     }
 
     public ApplicationInfo getAppInfo() {
@@ -53,6 +54,14 @@ public class AppInfoModel implements Parcelable {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public boolean isFavorite() {
+        return isFavorite;
+    }
+
+    public void setFavorite(boolean favorite) {
+        isFavorite = favorite;
     }
 
     @Override

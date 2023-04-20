@@ -1,11 +1,9 @@
 package com.sevensec.adapter;
 
-import static com.sevensec.utils.Constants.STR_PASS_APP_INFO;
 import static com.sevensec.utils.Constants.PREF_FAV_APP_LIST;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +17,7 @@ import androidx.appcompat.widget.SwitchCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.sevensec.R;
-import com.sevensec.activities.AppDetailsActivity;
+import com.sevensec.helper.OnItemClickListener;
 import com.sevensec.model.AppInfoModel;
 import com.sevensec.utils.Dlog;
 import com.sevensec.utils.SharedPref;
@@ -31,19 +29,20 @@ public class MyListAdapter extends RecyclerView.Adapter<MyListAdapter.ViewHolder
 
     List<AppInfoModel> appInfoModelList;
     List<String> favAppList /*= new ArrayList<>()*/;
-
     private final Context mContext;
+    OnItemClickListener onItemClickListener;
 
-    public MyListAdapter(Context context, List<AppInfoModel> appInfoModelList, List<String> favAppList) {
+    public MyListAdapter(Context context, List<AppInfoModel> appInfoModelList, List<String> favAppList,OnItemClickListener onItemClickListener) {
         this.mContext = context;
         this.appInfoModelList = appInfoModelList;
         this.favAppList = favAppList;
+        this.onItemClickListener= onItemClickListener;
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        Dlog.w("onBindViewHolder favAppList: " + favAppList.size());
+        Dlog.w("onCreateViewHolder favAppList: " + favAppList.size());
 
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
         View listItem = layoutInflater.inflate(R.layout.raw_list_item, parent, false);
@@ -60,64 +59,10 @@ public class MyListAdapter extends RecyclerView.Adapter<MyListAdapter.ViewHolder
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 
-        holder.ivRawAppIcon.setImageDrawable(Utils.getDrawableFromBitmap(mContext, appInfoModelList.get(position).getAppIconBitmap()));
-        holder.tvRawAppName.setText(appInfoModelList.get(position).getAppName());
+        AppInfoModel appInfoModel = appInfoModelList.get(position);
+        holder.llAppInfo.setOnClickListener(v -> onItemClickListener.onClick(appInfoModel));
 
-        if (favAppList.size() > 0) {
-
-            /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                favAppList.stream().filter(o -> o.getAppName().equals(appInfoModelList.get(position).getAppName())).forEach(o -> {
-                    holder.rawSwitch.setChecked(true);
-                });
-            }else{
-                List<String> appNameList = new ArrayList<>();
-
-                for (AppInfoModel appInfoModel: favAppList) {
-                    appNameList.add(appInfoModel.getAppName());
-                }
-
-                if(appNameList.contains(appInfoModelList.get(position).getAppName())){
-                    holder.rawSwitch.setChecked(true);
-                    Dlog.d( "onBindViewHolder favAppList added");
-                }else{
-                    holder.rawSwitch.setChecked(false);
-                    Dlog.d( "onBindViewHolder favAppList NotAdded");
-                }
-            }*/
-
-            if (favAppList.contains(appInfoModelList.get(position).getPackageName())) {
-                holder.rawSwitch.setChecked(true);
-                Dlog.d("onBindViewHolder favAppList added");
-            } else {
-                holder.rawSwitch.setChecked(false);
-                Dlog.d("onBindViewHolder favAppList NotAdded");
-            }
-
-        } else {
-            holder.rawSwitch.setChecked(false);
-        }
-
-        holder.rawSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                Dlog.d("onBindViewHolder onCheckedChanged checked: " + b);
-
-                if (b) {
-                    favAppList.add(appInfoModelList.get(holder.getAdapterPosition()).getPackageName());
-                } else {
-                    favAppList.remove(appInfoModelList.get(holder.getAdapterPosition()).getPackageName());
-                }
-
-                Dlog.d("onBindViewHolder onCheckedChanged favAppList: " + favAppList.size());
-                SharedPref.writeList(PREF_FAV_APP_LIST, favAppList);
-            }
-        });
-
-        holder.llAppInfo.setOnClickListener(v -> {
-            Intent intent = new Intent(v.getContext(), AppDetailsActivity.class);
-            intent.putExtra(STR_PASS_APP_INFO, appInfoModelList.get(holder.getAdapterPosition()));
-            v.getContext().startActivity(intent);
-        });
+        holder.bind(mContext, appInfoModel, favAppList); // Pass the favorite list to the ViewHolder
     }
 
     @Override
@@ -142,6 +87,33 @@ public class MyListAdapter extends RecyclerView.Adapter<MyListAdapter.ViewHolder
             this.tvRawAppName = itemView.findViewById(R.id.tvRawAppName);
             this.rawSwitch = itemView.findViewById(R.id.rawSwitch);
             this.llAppInfo = itemView.findViewById(R.id.llAppInfo);
+        }
+
+        public void bind(Context mContext, AppInfoModel appInfoModel, List<String> favAppList) {
+            ivRawAppIcon.setImageDrawable(Utils.getDrawableFromBitmap(mContext, appInfoModel.getAppIconBitmap()));
+            tvRawAppName.setText(appInfoModel.getAppName());
+
+            rawSwitch.setTag(appInfoModel);
+            rawSwitch.setOnCheckedChangeListener(null);
+            rawSwitch.setChecked(appInfoModel.isFavorite());
+
+            rawSwitch.setOnCheckedChangeListener((compoundButton, isChecked) -> {
+                Dlog.d("onBindViewHolder onCheckedChanged checked: " + isChecked);
+                Dlog.i("onBindViewHolder onCheckedChanged favAppList.size: " + favAppList.size());
+
+                AppInfoModel appInfoModel1 = (AppInfoModel) compoundButton.getTag();
+
+                if (isChecked) {
+                    favAppList.add(appInfoModel1.getPackageName());
+                    Dlog.d("Check favAppList.add: " + appInfoModel1.getPackageName());
+                } else {
+                    favAppList.remove(appInfoModel1.getPackageName());
+                    Dlog.d("Check favAppList.remove: " + appInfoModel1.getPackageName());
+                }
+
+                Dlog.v("onBindViewHolder onCheckedChanged favAppList.size: " + favAppList.size());
+                SharedPref.writeList(PREF_FAV_APP_LIST, favAppList);
+            });
         }
     }
 }
