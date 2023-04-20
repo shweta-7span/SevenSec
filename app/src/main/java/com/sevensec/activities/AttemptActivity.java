@@ -17,6 +17,9 @@ import android.view.WindowManager;
 import androidx.databinding.DataBindingUtil;
 
 import com.sevensec.R;
+import com.sevensec.database.AppUsageDao;
+import com.sevensec.database.DatabaseHelper;
+import com.sevensec.database.table.AppUsage;
 import com.sevensec.databinding.ActivityAttemptBinding;
 import com.sevensec.repo.FireStoreDataOperation;
 import com.sevensec.service.MyForegroundService;
@@ -25,13 +28,16 @@ import com.sevensec.utils.Dlog;
 import com.sevensec.utils.SharedPref;
 
 import java.io.InputStream;
+import java.util.Date;
 
 public class AttemptActivity extends FireStoreDataOperation {
 
     ActivityAttemptBinding binding;
 
     private String appLabel;
-    private String lastAppPackage;
+    private String appPackageName;
+
+    private AppUsageDao appUsageDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,21 +49,23 @@ public class AttemptActivity extends FireStoreDataOperation {
         String DEVICE_ID = SharedPref.readString(PREF_DEVICE_ID, "");
         PackageManager packageManager = getPackageManager();
 
+        appUsageDao = DatabaseHelper.getDatabase(this).appUsageDao();
+
         binding.tvBreathDesc.setVisibility(View.VISIBLE);
         binding.rlAttempt.setVisibility(View.GONE);
 
         if (getIntent().getStringExtra(Constants.STR_LAST_WARN_APP) != null) {
-            lastAppPackage = getIntent().getStringExtra(Constants.STR_LAST_WARN_APP);
-            Dlog.e("Last App's Package: " + lastAppPackage);
+            appPackageName = getIntent().getStringExtra(Constants.STR_LAST_WARN_APP);
+            Dlog.e("Last App's Package: " + appPackageName);
         }
 
         // When the warning page show & if user close our warning page and open
         // the fav app from recent then he can use the app as at that time
         // we save the app close time. So, by set the boolean 'false' we can solve it.
-        SharedPref.writeBoolean(getIsLastAppOpenKey(lastAppPackage), false);
+        SharedPref.writeBoolean(getIsLastAppOpenKey(appPackageName), false);
 
         try {
-            ApplicationInfo appInfo = packageManager.getApplicationInfo(lastAppPackage, PackageManager.GET_UNINSTALLED_PACKAGES);
+            ApplicationInfo appInfo = packageManager.getApplicationInfo(appPackageName, PackageManager.GET_UNINSTALLED_PACKAGES);
             if (appInfo != null) {
                 Drawable iconDrawable = packageManager.getApplicationIcon(appInfo);
                 appLabel = packageManager.getApplicationLabel(appInfo).toString();
@@ -75,12 +83,14 @@ public class AttemptActivity extends FireStoreDataOperation {
         }
 
         binding.tvContinue.setOnClickListener(view -> {
-            SharedPref.writeBoolean(getIsLastAppOpenKey(lastAppPackage), true);
-            SharedPref.writeLong(PREF_APP_START_TIME, System.currentTimeMillis());
+            SharedPref.writeBoolean(getIsLastAppOpenKey(appPackageName), true);
+//            SharedPref.writeLong(PREF_APP_START_TIME, System.currentTimeMillis());
+            appUsageDao.addAppData(new AppUsage(appLabel, appPackageName, new Date(), System.currentTimeMillis()));
             finish();
 
-            MyForegroundService.instance.setLastApp(lastAppPackage);
-            Intent i = getPackageManager().getLaunchIntentForPackage(lastAppPackage);
+            MyForegroundService.instance.setLastApp(appPackageName);
+
+            Intent i = getPackageManager().getLaunchIntentForPackage(appPackageName);
             i.setFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
             startActivity(i);
         });
@@ -106,7 +116,7 @@ public class AttemptActivity extends FireStoreDataOperation {
             transaction.commit();
         }, DELAY_OPEN_GREY_PAGE);*/
 
-        checkAppAddedOrNot(DEVICE_ID, appLabel, lastAppPackage);
+        checkAppAddedOrNot(DEVICE_ID, appLabel, appPackageName);
     }
 
     @Override
@@ -135,7 +145,7 @@ public class AttemptActivity extends FireStoreDataOperation {
     }
 
     private void closeApp() {
-        SharedPref.writeBoolean(getIsLastAppOpenKey(lastAppPackage), false);
+        SharedPref.writeBoolean(getIsLastAppOpenKey(appPackageName), false);
 
         Intent homeIntent = new Intent(Intent.ACTION_MAIN);
         homeIntent.addCategory(Intent.CATEGORY_HOME);
