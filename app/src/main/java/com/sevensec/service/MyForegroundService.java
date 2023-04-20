@@ -6,7 +6,6 @@ import static com.sevensec.utils.Constants.CHECK_TOP_APPLICATION_WHEN_ATTEMPT_OP
 import static com.sevensec.utils.Constants.OPEN_ATTEMPT_SCREEN_DELAY;
 import static com.sevensec.utils.Constants.PREF_APP_START_TIME;
 import static com.sevensec.utils.Constants.PREF_APP_SWITCH_DURATION;
-import static com.sevensec.utils.Constants.PREF_FAV_APP_LIST;
 import static com.sevensec.utils.Constants.STR_LAST_WARN_APP;
 import static com.sevensec.utils.Constants.getAppCloseTimeKey;
 import static com.sevensec.utils.Constants.getAppUsageKey;
@@ -123,7 +122,7 @@ public class MyForegroundService extends Service {
     public void checkRunningApps() {
 
         SharedPref.init(getApplicationContext());
-        favAppList = SharedPref.readListString(PREF_FAV_APP_LIST);
+        favAppList = Utils.getFavAppList();
         Dlog.w( "TEST favAppList: " + favAppList.size());
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {

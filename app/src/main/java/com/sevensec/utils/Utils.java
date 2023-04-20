@@ -1,6 +1,7 @@
 package com.sevensec.utils;
 
 import static com.sevensec.utils.Constants.IN_APP_UPDATE_REQUEST_CODE;
+import static com.sevensec.utils.Constants.PREF_FAV_APP_LIST;
 import static com.sevensec.utils.Constants.STR_OPPO;
 import static com.sevensec.utils.Constants.PREF_IS_SKIP_PROTECTED_APP_CHECKED;
 import static com.sevensec.utils.Constants.STR_XIAOMI;
@@ -316,5 +317,9 @@ public class Utils {
     public static Drawable getDrawableFromBitmap(Context context, Bitmap bitmap) {
         return new BitmapDrawable(context.getResources(), bitmap);
 //        return new BitmapDrawable(bitmap);
+    }
+
+    public static List<String> getFavAppList(){
+        return SharedPref.readListString(PREF_FAV_APP_LIST);
     }
 }

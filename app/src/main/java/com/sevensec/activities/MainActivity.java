@@ -9,7 +9,6 @@ import static com.sevensec.utils.Constants.PERMISSION_POPUP_DELAY;
 import static com.sevensec.utils.Constants.PREF_APP_SWITCH_DURATION;
 import static com.sevensec.utils.Constants.PREF_APP_SWITCH_POSITION;
 import static com.sevensec.utils.Constants.PREF_DEVICE_ID;
-import static com.sevensec.utils.Constants.PREF_FAV_APP_LIST;
 import static com.sevensec.utils.Constants.PREF_IS_APP_LAUNCH_FIRST_TIME;
 import static com.sevensec.utils.Constants.STR_PASS_APP_INFO;
 import static com.sevensec.utils.Constants.STR_XIAOMI;
@@ -208,7 +207,7 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
         });
 
         //Get Selected App list and sort the app list to show the selected apps on top
-        List<String> favAppList = SharedPref.readListString(PREF_FAV_APP_LIST);
+        List<String> favAppList = Utils.getFavAppList();
 
         if (favAppList.size() > 0) {
             //Show Selected Apps on Top
