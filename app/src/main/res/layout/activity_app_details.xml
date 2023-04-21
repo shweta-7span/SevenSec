@@ -10,17 +10,55 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
+        android:orientation="vertical"
         tools:context=".activities.AppDetailsActivity">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/ibPrev"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:padding="@dimen/space_7"
+                android:src="@drawable/ic_previous" />
+
+            <TextView
+                android:id="@+id/tvDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/space_20"
+                android:layout_marginEnd="@dimen/space_20"
+                android:textColor="@color/grey900"
+                android:textFontWeight="600"
+                android:textSize="20sp"
+                tools:targetApi="p"
+                tools:text="date" />
+
+            <ImageButton
+                android:id="@+id/ibNext"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:padding="@dimen/space_7"
+                android:src="@drawable/ic_next" />
+
+        </LinearLayout>
 
         <TextView
             android:id="@+id/tvAppUsageTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/space_12"
+            android:layout_marginTop="@dimen/space_12"
             android:textColor="@color/grey900"
             android:textFontWeight="500"
             android:textSize="16sp"
-            tools:targetApi="p" />
+            tools:targetApi="p"
+            tools:text="appUsage" />
 
     </LinearLayout>
 </layout>
