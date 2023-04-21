@@ -28,6 +28,6 @@ public interface AppUsageDao {
     @Query("SELECT * FROM " + TABLE_NAME + " WHERE " + COLUMN_APP_OPEN_TIME + "=:open_time AND " + COLUMN_PACKAGE_NAME + "=:package_name")
     List<AppUsage> getAppUsageByPackageNameAndOpenTime(String package_name, long open_time);
 
-    @Query("select SUM(" + COLUMN_APP_USAGE_TIME + ") from " + TABLE_NAME + " WHERE " + COLUMN_DATE + " = :Date")
-    long getTotalAppUsageTimeForDay(Date Date);
+    @Query("select SUM(" + COLUMN_APP_USAGE_TIME + ") from " + TABLE_NAME + " WHERE " + COLUMN_PACKAGE_NAME + " =:package_name AND " + COLUMN_DATE + "=:Date")
+    long getTotalAppUsageTimeForDay(String package_name, Date Date);
 }

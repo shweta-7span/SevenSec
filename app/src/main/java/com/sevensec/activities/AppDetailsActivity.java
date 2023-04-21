@@ -34,7 +34,7 @@ public class AppDetailsActivity extends AppCompatActivity {
         Dlog.d("AppName: " + appInfoModel.getAppName());
         Dlog.d("PackageName: " + appInfoModel.getPackageName());
 
-        long totalAppUsageTime = appUsageDao.getTotalAppUsageTimeForDay(new Date());
+        long totalAppUsageTime = appUsageDao.getTotalAppUsageTimeForDay(appInfoModel.getPackageName(), new Date());
         binding.tvAppUsageTime.setText(Utils.getTimeInFormat(totalAppUsageTime));
     }
 }
