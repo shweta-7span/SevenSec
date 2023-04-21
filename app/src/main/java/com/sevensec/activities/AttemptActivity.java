@@ -116,7 +116,7 @@ public class AttemptActivity extends FireStoreDataOperation {
 
     private void addAppOpenTimeInDB(String appLabel, String appPackageName, Date currentDate, long appUsageStartTime) {
         SharedPref.writeBoolean(getIsUserOpenBlockAppKey(appPackageName), true);
-        SharedPref.writeLong(PREF_BLOCK_APP_OPEN_TIME, System.currentTimeMillis());
+        SharedPref.writeLong(PREF_BLOCK_APP_OPEN_TIME, appUsageStartTime);
         appUsageDao.addAppData(new AppUsage(appLabel, appPackageName, currentDate, appUsageStartTime));
     }
 
