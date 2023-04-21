@@ -1,8 +1,8 @@
 package com.sevensec.activities;
 
-import static com.sevensec.utils.Constants.PREF_APP_START_TIME;
+import static com.sevensec.utils.Constants.PREF_BLOCK_APP_OPEN_TIME;
 import static com.sevensec.utils.Constants.PREF_DEVICE_ID;
-import static com.sevensec.utils.Constants.getIsLastAppOpenKey;
+import static com.sevensec.utils.Constants.getIsUserOpenBlockAppKey;
 
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
@@ -36,7 +36,6 @@ public class AttemptActivity extends FireStoreDataOperation {
 
     private String appLabel;
     private String appPackageName;
-
     private AppUsageDao appUsageDao;
 
     @Override
@@ -62,7 +61,7 @@ public class AttemptActivity extends FireStoreDataOperation {
         // When the warning page show & if user close our warning page and open
         // the fav app from recent then he can use the app as at that time
         // we save the app close time. So, by set the boolean 'false' we can solve it.
-        SharedPref.writeBoolean(getIsLastAppOpenKey(appPackageName), false);
+        SharedPref.writeBoolean(getIsUserOpenBlockAppKey(appPackageName), false);
 
         try {
             ApplicationInfo appInfo = packageManager.getApplicationInfo(appPackageName, PackageManager.GET_UNINSTALLED_PACKAGES);
@@ -83,16 +82,12 @@ public class AttemptActivity extends FireStoreDataOperation {
         }
 
         binding.tvContinue.setOnClickListener(view -> {
-            SharedPref.writeBoolean(getIsLastAppOpenKey(appPackageName), true);
-//            SharedPref.writeLong(PREF_APP_START_TIME, System.currentTimeMillis());
-            appUsageDao.addAppData(new AppUsage(appLabel, appPackageName, new Date(), System.currentTimeMillis()));
+            addAppOpenTimeInDB(appLabel, appPackageName, new Date(), System.currentTimeMillis());
             finish();
 
+            //Store LastOpenedBlockApp in Service's variable
             MyForegroundService.instance.setLastApp(appPackageName);
-
-            Intent i = getPackageManager().getLaunchIntentForPackage(appPackageName);
-            i.setFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
-            startActivity(i);
+            openBlockApp(appPackageName);
         });
 
         binding.tvExit.setOnClickListener(view -> closeApp());
@@ -117,6 +112,18 @@ public class AttemptActivity extends FireStoreDataOperation {
         }, DELAY_OPEN_GREY_PAGE);*/
 
         checkAppAddedOrNot(DEVICE_ID, appLabel, appPackageName);
+    }
+
+    private void addAppOpenTimeInDB(String appLabel, String appPackageName, Date currentDate, long appUsageStartTime) {
+        SharedPref.writeBoolean(getIsUserOpenBlockAppKey(appPackageName), true);
+        SharedPref.writeLong(PREF_BLOCK_APP_OPEN_TIME, System.currentTimeMillis());
+        appUsageDao.addAppData(new AppUsage(appLabel, appPackageName, currentDate, appUsageStartTime));
+    }
+
+    private void openBlockApp(String appPackageName) {
+        Intent i = getPackageManager().getLaunchIntentForPackage(appPackageName);
+        i.setFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
+        startActivity(i);
     }
 
     @Override
@@ -145,7 +152,7 @@ public class AttemptActivity extends FireStoreDataOperation {
     }
 
     private void closeApp() {
-        SharedPref.writeBoolean(getIsLastAppOpenKey(appPackageName), false);
+        SharedPref.writeBoolean(getIsUserOpenBlockAppKey(appPackageName), false);
 
         Intent homeIntent = new Intent(Intent.ACTION_MAIN);
         homeIntent.addCategory(Intent.CATEGORY_HOME);

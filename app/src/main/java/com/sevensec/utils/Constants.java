@@ -28,16 +28,22 @@ public class Constants {
     public static final String PREF_FAV_APP_LIST = "FAV_APP_LIST";
     public static final String PREF_APP_SWITCH_DURATION = "APP_SWITCH_DURATION";
     public static final String PREF_APP_SWITCH_POSITION = "APP_SWITCH_POSITION";
-    public static final String PREF_APP_START_TIME = "APP_START_TIME";
+    public static final String PREF_BLOCK_APP_OPEN_TIME = "BLOCK_APP_OPEN_TIME";
     public static final String PREF_IS_SKIP_PROTECTED_APP_CHECKED = "IS_SKIP_PROTECTED_APP_CHECKED";
     public static final String PREF_IS_XIAOMI_OVERLAY_DONE = "IS_XIAOMI_OVERLAY_DONE";
 
-    public static String getIsLastAppOpenKey(String lastAppPackage) {
-        return "IS_" + lastAppPackage;
-    }
+    //ROOM DB STRINGS
+    public static final String ROOM_DB_NAME = "7SecDB";
+    public static final String TABLE_NAME = "app_usage";
+    public static final String COLUMN_APP_NAME = "app_name";
+    public static final String COLUMN_PACKAGE_NAME = "package_name";
+    public static final String COLUMN_DATE = "date";
+    public static final String COLUMN_APP_OPEN_TIME = "app_open_time";
+    public static final String COLUMN_APP_CLOSE_TIME = "app_close_time";
+    public static final String COLUMN_APP_USAGE_TIME = "app_usage_time";
 
-    public static String getAppUsageKey(String appPackage) {
-        return appPackage + "_USAGE";
+    public static String getIsUserOpenBlockAppKey(String lastAppPackage) {
+        return "IS_" + lastAppPackage;
     }
 
     public static String getAppCloseTimeKey(String appPackage) {

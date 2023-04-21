@@ -1,34 +1,41 @@
 package com.sevensec.database.table;
 
+import static com.sevensec.utils.Constants.COLUMN_APP_CLOSE_TIME;
+import static com.sevensec.utils.Constants.COLUMN_APP_NAME;
+import static com.sevensec.utils.Constants.COLUMN_APP_OPEN_TIME;
+import static com.sevensec.utils.Constants.COLUMN_APP_USAGE_TIME;
+import static com.sevensec.utils.Constants.COLUMN_DATE;
+import static com.sevensec.utils.Constants.COLUMN_PACKAGE_NAME;
+import static com.sevensec.utils.Constants.TABLE_NAME;
+
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
-import androidx.room.TypeConverter;
 
 import java.util.Date;
 
-@Entity(tableName = "app_usage")
+@Entity(tableName = TABLE_NAME)
 public class AppUsage {
     @PrimaryKey(autoGenerate = true)
     private int id;
 
-    @ColumnInfo(name = "app_name")
+    @ColumnInfo(name = COLUMN_APP_NAME)
     private String appName;
 
-    @ColumnInfo(name = "package_name")
+    @ColumnInfo(name = COLUMN_PACKAGE_NAME)
     private String packageName;
 
-    @ColumnInfo(name = "date")
+    @ColumnInfo(name = COLUMN_DATE)
     private Date date;
 
-    @ColumnInfo(name = "app_open_time")
+    @ColumnInfo(name = COLUMN_APP_OPEN_TIME)
     private long appOpenTime;
 
-    @ColumnInfo(name = "app_close_time")
+    @ColumnInfo(name = COLUMN_APP_CLOSE_TIME)
     private long appCloseTime;
 
-    @ColumnInfo(name = "app_usage_time")
+    @ColumnInfo(name = COLUMN_APP_USAGE_TIME)
     private long appUsageTime;
 
     public AppUsage(int id, String appName, String packageName, Date date, long appOpenTime, long appCloseTime, long appUsageTime) {
