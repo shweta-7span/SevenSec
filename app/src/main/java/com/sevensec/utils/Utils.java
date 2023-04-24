@@ -104,30 +104,65 @@ public class Utils {
         long elapsedSeconds = difference / secondsInMilli;
 
         if (elapsedDays != 0) {
-            if (elapsedDays == 1)
-                s.append(elapsedDays).append(" day");
-            else
-                s.append(elapsedDays).append(" days");
+            s.append(elapsedDays).append(elapsedDays == 1 ? " day" : " days");
+
         } else if (elapsedHours != 0) {
-            if (elapsedHours == 1)
-                s.append(elapsedHours).append(" hr");
-            else
-                s.append(elapsedHours).append(" hrs");
+            s.append(elapsedHours).append(elapsedHours == 1 ? " hr" : " hrs");
+
         } else if (elapsedMinutes != 0) {
-            if (elapsedMinutes == 1)
-                s.append(elapsedMinutes).append(" min");
-            else
-                s.append(elapsedMinutes).append(" mins");
+            s.append(elapsedMinutes).append(elapsedMinutes == 1 ? " min" : " mins");
+
         } else if (elapsedSeconds != 0) {
-            if (elapsedSeconds == 1)
-                s.append(elapsedSeconds).append(" sec");
-            else
-                s.append(elapsedSeconds).append(" secs");
+            s.append(elapsedSeconds).append(elapsedSeconds == 1 ? " sec" : " secs");
         }
 
         System.out.printf(
                 "DIFFERENCE: %d days, %d hours, %d minutes, %d seconds%n",
                 elapsedDays, elapsedHours, elapsedMinutes, elapsedSeconds);
+
+        return String.valueOf(s);
+    }
+
+    public static String getAppUsageTimeInFormat(long difference) {
+
+        System.out.println("difference : " + difference);
+
+        StringBuilder s = new StringBuilder(100);
+
+        long secondsInMilli = 1000;
+        long minutesInMilli = secondsInMilli * 60;
+        long hoursInMilli = minutesInMilli * 60;
+        long daysInMilli = hoursInMilli * 24;
+
+        long elapsedDays = difference / daysInMilli;
+        difference = difference % daysInMilli;
+
+        long elapsedHours = difference / hoursInMilli;
+        difference = difference % hoursInMilli;
+
+        long elapsedMinutes = difference / minutesInMilli;
+        difference = difference % minutesInMilli;
+
+        long elapsedSeconds = difference / secondsInMilli;
+
+        if (elapsedDays != 0) {
+            s.append(elapsedDays).append(elapsedDays == 1 ? " day" : " days");
+            if (elapsedHours != 0)
+                s.append(" ").append(elapsedHours).append(elapsedHours == 1 ? " hr" : " hrs");
+
+        } else if (elapsedHours != 0) {
+            s.append(elapsedHours).append(elapsedHours == 1 ? " hr" : " hrs");
+            if (elapsedMinutes != 0)
+                s.append(" ").append(elapsedMinutes).append(elapsedMinutes == 1 ? " min" : " mins");
+
+        } else if (elapsedMinutes != 0) {
+            s.append(elapsedMinutes).append(elapsedMinutes == 1 ? " min" : " mins");
+            if (elapsedSeconds != 0)
+                s.append(" ").append(elapsedSeconds).append(elapsedSeconds == 1 ? " sec" : " secs");
+
+        } else if (elapsedSeconds != 0) {
+            s.append(elapsedSeconds).append(elapsedSeconds == 1 ? " sec" : " secs");
+        }
 
         return String.valueOf(s);
     }
@@ -319,7 +354,7 @@ public class Utils {
 //        return new BitmapDrawable(bitmap);
     }
 
-    public static List<String> getFavAppList(){
+    public static List<String> getFavAppList() {
         return SharedPref.readListString(PREF_FAV_APP_LIST);
     }
 }

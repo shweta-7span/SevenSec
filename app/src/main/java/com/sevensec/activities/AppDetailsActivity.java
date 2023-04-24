@@ -85,6 +85,6 @@ public class AppDetailsActivity extends AppCompatActivity {
 
     private void showTotalUsage(Date date) {
         long totalAppUsageTime = appUsageDao.getTotalAppUsageTimeForDay(appInfoModel.getPackageName(), date);
-        binding.tvAppUsageTime.setText(Utils.getTimeInFormat(totalAppUsageTime));
+        binding.tvAppUsageTime.setText(Utils.getAppUsageTimeInFormat(totalAppUsageTime));
     }
 }
