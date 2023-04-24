@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 
 import android.annotation.SuppressLint;
+import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.view.View;
 
@@ -49,41 +50,45 @@ public class AppDetailsActivity extends AppCompatActivity {
         Dlog.d("AppName: " + appName);
         Dlog.d("PackageName: " + packageName);
 
-
         dbFirstDate = appUsageDao.getFirstDate(packageName);
         Dlog.d("getFirstDate: " + dateFormat.format(dbFirstDate));
 
-        showAppUsageForCurrentDate();
+        DatePickerDialog.OnDateSetListener date = (view, year, month, dayOfMonth) -> {
+            cal.set(Calendar.YEAR, year);
+            cal.set(Calendar.MONTH, month);
+            cal.set(Calendar.DAY_OF_MONTH, dayOfMonth);
 
-        if (dateFormat.format(dbFirstDate).equals(dateFormat.format(new Date())))
-            binding.ibPrev.setVisibility(View.INVISIBLE);
-        binding.ibPrev.setOnClickListener(v -> changeDate(-1));
+            showAppUsageForSelectedDate(cal.getTime());
+        };
 
-        binding.ibNext.setVisibility(View.INVISIBLE);
-        binding.ibNext.setOnClickListener(v -> changeDate(1));
+        binding.tvDate.setOnClickListener(v -> new DatePickerDialog(AppDetailsActivity.this, date, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH)).show());
+
+        binding.ibPrev.setOnClickListener(v -> {
+            cal.add(Calendar.DATE, -1);
+            showAppUsageForSelectedDate(cal.getTime());
+        });
+        binding.ibNext.setOnClickListener(v -> {
+            cal.add(Calendar.DATE, 1);
+            showAppUsageForSelectedDate(cal.getTime());
+        });
+
+        showAppUsageForSelectedDate(new Date());
     }
 
-    private void showAppUsageForCurrentDate() {
-        binding.tvDate.setText(dateFormat.format(new Date()));
-        showTotalUsage(new Date());
-    }
+    private void showAppUsageForSelectedDate(Date selectedDate) {
+        binding.tvDate.setText(dateFormat.format(selectedDate));
+        showTotalUsage(selectedDate);
 
-    private void changeDate(int count) {
-        cal.add(Calendar.DATE, count);
-        binding.tvDate.setText(dateFormat.format(cal.getTime()));
+        Dlog.d("current Date: " + dateFormat.format(new Date()));
+        Dlog.d("selected Date: " + dateFormat.format(selectedDate));
 
-        showTotalUsage(cal.getTime());
-
-        Dlog.d("new Date: " + dateFormat.format(new Date()));
-        Dlog.d("cal Date: " + dateFormat.format(cal.getTime()));
-
-        if (dateFormat.format(new Date()).equals(dateFormat.format(cal.getTime()))) {
+        if (dateFormat.format(selectedDate).equals(dateFormat.format(new Date()))) {
             binding.ibNext.setVisibility(View.INVISIBLE);
         } else {
             binding.ibNext.setVisibility(View.VISIBLE);
         }
 
-        if (dateFormat.format(dbFirstDate).equals(dateFormat.format(cal.getTime()))) {
+        if (dateFormat.format(selectedDate).equals(dateFormat.format(dbFirstDate))) {
             binding.ibPrev.setVisibility(View.INVISIBLE);
         } else {
             binding.ibPrev.setVisibility(View.VISIBLE);
