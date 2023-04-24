@@ -31,6 +31,8 @@ public class AppDetailsActivity extends AppCompatActivity {
     Calendar cal;
     Date dbFirstDate;
 
+    String appName, packageName;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,19 +42,24 @@ public class AppDetailsActivity extends AppCompatActivity {
         cal = Calendar.getInstance();
 
         appInfoModel = getIntent().getParcelableExtra(STR_PASS_APP_INFO);
+
         assert appInfoModel != null;
-        Dlog.d("AppName: " + appInfoModel.getAppName());
-        Dlog.d("PackageName: " + appInfoModel.getPackageName());
+        appName = appInfoModel.getAppName();
+        packageName = appInfoModel.getPackageName();
+        Dlog.d("AppName: " + appName);
+        Dlog.d("PackageName: " + packageName);
 
 
-        dbFirstDate = appUsageDao.getFirstDate(1);
+        dbFirstDate = appUsageDao.getFirstDate(packageName);
         Dlog.d("getFirstDate: " + dateFormat.format(dbFirstDate));
 
         showAppUsageForCurrentDate();
 
+        if (dateFormat.format(dbFirstDate).equals(dateFormat.format(new Date())))
+            binding.ibPrev.setVisibility(View.INVISIBLE);
         binding.ibPrev.setOnClickListener(v -> changeDate(-1));
 
-        binding.ibNext.setVisibility(View.GONE);
+        binding.ibNext.setVisibility(View.INVISIBLE);
         binding.ibNext.setOnClickListener(v -> changeDate(1));
     }
 
@@ -71,20 +78,20 @@ public class AppDetailsActivity extends AppCompatActivity {
         Dlog.d("cal Date: " + dateFormat.format(cal.getTime()));
 
         if (dateFormat.format(new Date()).equals(dateFormat.format(cal.getTime()))) {
-            binding.ibNext.setVisibility(View.GONE);
+            binding.ibNext.setVisibility(View.INVISIBLE);
         } else {
             binding.ibNext.setVisibility(View.VISIBLE);
         }
 
-        if(dateFormat.format(dbFirstDate).equals(dateFormat.format(cal.getTime()))){
-            binding.ibPrev.setVisibility(View.GONE);
-        }else{
+        if (dateFormat.format(dbFirstDate).equals(dateFormat.format(cal.getTime()))) {
+            binding.ibPrev.setVisibility(View.INVISIBLE);
+        } else {
             binding.ibPrev.setVisibility(View.VISIBLE);
         }
     }
 
     private void showTotalUsage(Date date) {
-        long totalAppUsageTime = appUsageDao.getTotalAppUsageTimeForDay(appInfoModel.getPackageName(), date);
+        long totalAppUsageTime = appUsageDao.getTotalAppUsageTimeForDay(packageName, date);
         binding.tvAppUsageTime.setText(Utils.getAppUsageTimeInFormat(totalAppUsageTime));
     }
 }

@@ -32,11 +32,11 @@ public class MyListAdapter extends RecyclerView.Adapter<MyListAdapter.ViewHolder
     private final Context mContext;
     OnItemClickListener onItemClickListener;
 
-    public MyListAdapter(Context context, List<AppInfoModel> appInfoModelList, List<String> favAppList,OnItemClickListener onItemClickListener) {
+    public MyListAdapter(Context context, List<AppInfoModel> appInfoModelList, List<String> favAppList, OnItemClickListener onItemClickListener) {
         this.mContext = context;
         this.appInfoModelList = appInfoModelList;
         this.favAppList = favAppList;
-        this.onItemClickListener= onItemClickListener;
+        this.onItemClickListener = onItemClickListener;
     }
 
     @NonNull
@@ -60,7 +60,10 @@ public class MyListAdapter extends RecyclerView.Adapter<MyListAdapter.ViewHolder
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 
         AppInfoModel appInfoModel = appInfoModelList.get(position);
-        holder.llAppInfo.setOnClickListener(v -> onItemClickListener.onClick(appInfoModel));
+        holder.llAppInfo.setOnClickListener(v -> {
+            if (favAppList.contains(appInfoModel.getPackageName()))
+                onItemClickListener.onClick(appInfoModel);
+        });
 
         holder.bind(mContext, appInfoModel, favAppList); // Pass the favorite list to the ViewHolder
     }
