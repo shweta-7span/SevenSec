@@ -7,7 +7,6 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -17,6 +16,7 @@ import androidx.appcompat.widget.SwitchCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.sevensec.R;
+import com.sevensec.database.DatabaseHelper;
 import com.sevensec.helper.OnItemClickListener;
 import com.sevensec.model.AppInfoModel;
 import com.sevensec.utils.Dlog;
@@ -61,8 +61,9 @@ public class MyListAdapter extends RecyclerView.Adapter<MyListAdapter.ViewHolder
 
         AppInfoModel appInfoModel = appInfoModelList.get(position);
         holder.llAppInfo.setOnClickListener(v -> {
-            if (favAppList.contains(appInfoModel.getPackageName()))
+            if (favAppList.contains(appInfoModel.getPackageName()) && DatabaseHelper.getDatabase(mContext).appUsageDao().getFirstDate(appInfoModel.getPackageName()) != null) {
                 onItemClickListener.onClick(appInfoModel);
+            }
         });
 
         holder.bind(mContext, appInfoModel, favAppList); // Pass the favorite list to the ViewHolder
