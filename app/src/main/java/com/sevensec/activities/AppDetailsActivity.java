@@ -30,8 +30,7 @@ public class AppDetailsActivity extends AppCompatActivity {
     @SuppressLint("SimpleDateFormat")
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM");
     Calendar cal;
-    Date dbFirstDate;
-
+    Date dbFirstDate, currentDate;
     String appName, packageName;
 
     @Override
@@ -40,6 +39,7 @@ public class AppDetailsActivity extends AppCompatActivity {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_app_details);
 
         appUsageDao = DatabaseHelper.getDatabase(this).appUsageDao();
+        currentDate = new Date();
         cal = Calendar.getInstance();
 
         appInfoModel = getIntent().getParcelableExtra(STR_PASS_APP_INFO);
@@ -53,15 +53,7 @@ public class AppDetailsActivity extends AppCompatActivity {
         dbFirstDate = appUsageDao.getFirstDate(packageName);
         Dlog.d("getFirstDate: " + dateFormat.format(dbFirstDate));
 
-        DatePickerDialog.OnDateSetListener date = (view, year, month, dayOfMonth) -> {
-            cal.set(Calendar.YEAR, year);
-            cal.set(Calendar.MONTH, month);
-            cal.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-
-            showAppUsageForSelectedDate(cal.getTime());
-        };
-
-        binding.tvDate.setOnClickListener(v -> new DatePickerDialog(AppDetailsActivity.this, date, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH)).show());
+        initAndOpenDatePicker();
 
         binding.ibPrev.setOnClickListener(v -> {
             cal.add(Calendar.DATE, -1);
@@ -72,17 +64,33 @@ public class AppDetailsActivity extends AppCompatActivity {
             showAppUsageForSelectedDate(cal.getTime());
         });
 
-        showAppUsageForSelectedDate(new Date());
+        showAppUsageForSelectedDate(currentDate);
+    }
+
+    private void initAndOpenDatePicker() {
+        DatePickerDialog.OnDateSetListener dateSetListener = (view, year, month, dayOfMonth) -> {
+            cal.set(Calendar.YEAR, year);
+            cal.set(Calendar.MONTH, month);
+            cal.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+
+            showAppUsageForSelectedDate(cal.getTime());
+        };
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(AppDetailsActivity.this, dateSetListener, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
+        datePickerDialog.getDatePicker().setMinDate(dbFirstDate.getTime());
+        datePickerDialog.getDatePicker().setMaxDate(currentDate.getTime());
+
+        binding.tvDate.setOnClickListener(v -> datePickerDialog.show());
     }
 
     private void showAppUsageForSelectedDate(Date selectedDate) {
         binding.tvDate.setText(dateFormat.format(selectedDate));
         showTotalUsage(selectedDate);
 
-        Dlog.d("current Date: " + dateFormat.format(new Date()));
+        Dlog.d("current Date: " + dateFormat.format(currentDate));
         Dlog.d("selected Date: " + dateFormat.format(selectedDate));
 
-        if (dateFormat.format(selectedDate).equals(dateFormat.format(new Date()))) {
+        if (dateFormat.format(selectedDate).equals(dateFormat.format(currentDate))) {
             binding.ibNext.setVisibility(View.INVISIBLE);
         } else {
             binding.ibNext.setVisibility(View.VISIBLE);
