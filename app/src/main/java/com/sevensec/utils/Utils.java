@@ -162,6 +162,8 @@ public class Utils {
 
         } else if (elapsedSeconds != 0) {
             s.append(elapsedSeconds).append(elapsedSeconds == 1 ? " sec" : " secs");
+        }else{
+            s.append("0 sec");
         }
 
         return String.valueOf(s);
