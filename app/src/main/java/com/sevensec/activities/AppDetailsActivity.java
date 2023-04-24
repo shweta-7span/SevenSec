@@ -7,6 +7,7 @@ import androidx.databinding.DataBindingUtil;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.view.View;
 
 import com.sevensec.R;
 import com.sevensec.database.AppUsageDao;
@@ -28,6 +29,7 @@ public class AppDetailsActivity extends AppCompatActivity {
     @SuppressLint("SimpleDateFormat")
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM");
     Calendar cal;
+    Date dbFirstDate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,10 +44,15 @@ public class AppDetailsActivity extends AppCompatActivity {
         Dlog.d("AppName: " + appInfoModel.getAppName());
         Dlog.d("PackageName: " + appInfoModel.getPackageName());
 
+
+        dbFirstDate = appUsageDao.getFirstDate(1);
+        Dlog.d("getFirstDate: " + dateFormat.format(dbFirstDate));
+
         showAppUsageForCurrentDate();
 
         binding.ibPrev.setOnClickListener(v -> changeDate(-1));
 
+        binding.ibNext.setVisibility(View.GONE);
         binding.ibNext.setOnClickListener(v -> changeDate(1));
     }
 
@@ -60,9 +67,20 @@ public class AppDetailsActivity extends AppCompatActivity {
 
         showTotalUsage(cal.getTime());
 
-//        if(new Date().equals(cal.getTime())){
-//            binding.ibNext.setVisibility(View.GONE);
-//        }
+        Dlog.d("new Date: " + dateFormat.format(new Date()));
+        Dlog.d("cal Date: " + dateFormat.format(cal.getTime()));
+
+        if (dateFormat.format(new Date()).equals(dateFormat.format(cal.getTime()))) {
+            binding.ibNext.setVisibility(View.GONE);
+        } else {
+            binding.ibNext.setVisibility(View.VISIBLE);
+        }
+
+        if(dateFormat.format(dbFirstDate).equals(dateFormat.format(cal.getTime()))){
+            binding.ibPrev.setVisibility(View.GONE);
+        }else{
+            binding.ibPrev.setVisibility(View.VISIBLE);
+        }
     }
 
     private void showTotalUsage(Date date) {
