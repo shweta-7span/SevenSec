@@ -15,7 +15,6 @@ import com.sevensec.database.AppUsageDao;
 import com.sevensec.database.DatabaseHelper;
 import com.sevensec.databinding.ActivityAppDetailsBinding;
 import com.sevensec.model.AppInfoModel;
-import com.sevensec.model.AppUsageByDate;
 import com.sevensec.utils.Dlog;
 import com.sevensec.utils.Utils;
 
@@ -23,7 +22,6 @@ import com.sevensec.utils.Utils;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
 public class AppDetailsActivity extends AppCompatActivity {
 
@@ -171,20 +169,21 @@ public class AppDetailsActivity extends AppCompatActivity {
     }
 
     private void showTotalUsage(Date startDate, Date endDate) {
-//        long totalAppUsageTime = appUsageDao.getTotalAppUsageTimeForDay(packageName, date);
-//        binding.tvAppUsageTime.setText(Utils.getAppUsageTimeInFormat(totalAppUsageTime));
-
-        List<AppUsageByDate> totalAppUsageTime = appUsageDao.getTotalAppUsageTimeForDay(packageName, startDate, endDate);
-        Dlog.e("totalAppUsageTime: " + totalAppUsageTime);
-
+        // Get appUsage for each day of the selected week
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(startDate);
         StringBuilder s = new StringBuilder(100);
 
-        for (int i = 0; i < totalAppUsageTime.size(); i++) {
-            Dlog.d("Date: " + totalAppUsageTime.get(i).date);
-            Dlog.d("Usage: " + Utils.getAppUsageTimeInFormat(totalAppUsageTime.get(i).total_usage));
+        while (calendar.getTime().before(endDate) || calendar.getTime().equals(endDate)) {
+            long totalAppUsageTime = appUsageDao.getTotalAppUsageTimeForDay(packageName, calendar.getTime());
 
-            s.append(totalAppUsageTime.get(i).date + " :" + Utils.getAppUsageTimeInFormat(totalAppUsageTime.get(i).total_usage) + "\n");
+            s.append(dateFormat.format(calendar.getTime()))
+                    .append(" :")
+                    .append(Utils.getAppUsageTimeInFormat(totalAppUsageTime))
+                    .append("\n");
+            calendar.add(Calendar.DAY_OF_MONTH, 1);
         }
+
         binding.tvAppUsageTime.setText(s);
     }
 }
