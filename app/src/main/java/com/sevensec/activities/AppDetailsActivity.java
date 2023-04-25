@@ -17,6 +17,7 @@ import com.sevensec.databinding.ActivityAppDetailsBinding;
 import com.sevensec.model.AppInfoModel;
 import com.sevensec.utils.Dlog;
 import com.sevensec.utils.Utils;
+import com.sevensec.utils.WeekType;
 
 
 import java.text.SimpleDateFormat;
@@ -31,7 +32,7 @@ public class AppDetailsActivity extends AppCompatActivity {
     @SuppressLint("SimpleDateFormat")
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM");
     Calendar cal;
-    Date dbFirstDate, currentDate;
+    Date dbFirstDate, currentDate, startDate, endDate;
     String appName, packageName;
 
     @Override
@@ -54,87 +55,59 @@ public class AppDetailsActivity extends AppCompatActivity {
         dbFirstDate = appUsageDao.getFirstDate(packageName);
         Dlog.d("getFirstDate: " + dateFormat.format(dbFirstDate));
 
+        //Show "UsageTime" for the week in which the user selected date include
         initAndOpenDatePicker();
 
-        binding.ibPrev.setOnClickListener(v -> {
-//            cal.add(Calendar.DATE, -1);
-//            showAppUsageForSelectedDate(cal.getTime());
+        binding.ibPrev.setOnClickListener(v -> setStartEndDate(WeekType.Previous));
+        binding.ibNext.setOnClickListener(v -> setStartEndDate(WeekType.Next));
 
-            cal.add(Calendar.WEEK_OF_YEAR, -1);
-//            cal.set(Calendar.DAY_OF_WEEK, cal.getFirstDayOfWeek());
+        setStartEndDate(WeekType.Current);
+    }
 
-            cal.add(Calendar.DAY_OF_WEEK, -6);
-            cal.set(Calendar.HOUR_OF_DAY, 0);
-            cal.set(Calendar.MINUTE, 0);
-            cal.set(Calendar.SECOND, 0);
-            cal.set(Calendar.MILLISECOND, 0);
-            Date startDate = cal.getTime(); // start date of previous week
+    private void setStartEndDate(WeekType type) {
+        switch (type) {
+            case Current:
+                cal.set(Calendar.DAY_OF_WEEK, cal.getFirstDayOfWeek());
+                startDate = getDateForSelectedType(1);
+                endDate = getDateForSelectedType(6);
+                break;
 
-            cal.add(Calendar.DAY_OF_WEEK, 6);
-            cal.set(Calendar.HOUR_OF_DAY, 0);
-            cal.set(Calendar.MINUTE, 0);
-            cal.set(Calendar.SECOND, 0);
-            cal.set(Calendar.MILLISECOND, 0);
-            Date endDate = cal.getTime();
+            case Previous:
+                cal.setTime(startDate);
+                startDate = getDateForSelectedType(-7);
+                endDate = getDateForSelectedType(6);
+                break;
 
-            Dlog.d("startDate: " + dateFormat.format(startDate));
-            Dlog.d("endDate: " + dateFormat.format(endDate));
+            case Next:
+                cal.setTime(startDate);
+                startDate = getDateForSelectedType(7);
+                endDate = getDateForSelectedType(6);
+                break;
+        }
 
-            showAppUsageForSelectedDate(cal.getTime(), startDate, endDate);
+        Dlog.d("Check startDate: " + dateFormat.format(startDate));
+        Dlog.d("Check endDate: " + dateFormat.format(endDate));
 
-        });
-        binding.ibNext.setOnClickListener(v -> {
-//            cal.add(Calendar.DATE, 1);
-//            showAppUsageForSelectedDate(cal.getTime());
-
-            cal.add(Calendar.DAY_OF_WEEK, 1);
-            cal.set(Calendar.HOUR_OF_DAY, 0);
-            cal.set(Calendar.MINUTE, 0);
-            cal.set(Calendar.SECOND, 0);
-            cal.set(Calendar.MILLISECOND, 0);
-            Date startDate = cal.getTime(); // start date of next week
-
-            cal.add(Calendar.DAY_OF_WEEK, 6);
-            cal.set(Calendar.HOUR_OF_DAY, 0);
-            cal.set(Calendar.MINUTE, 0);
-            cal.set(Calendar.SECOND, 0);
-            cal.set(Calendar.MILLISECOND, 0);
-            Date endDate = cal.getTime();
-
-            Dlog.d("startDate: " + dateFormat.format(startDate));
-            Dlog.d("endDate: " + dateFormat.format(endDate));
-
-            showAppUsageForSelectedDate(cal.getTime(), startDate, endDate);
-        });
-
-        cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
-        cal.set(Calendar.HOUR_OF_DAY, 0);
-        cal.set(Calendar.MINUTE, 0);
-        cal.set(Calendar.SECOND, 0);
-        cal.set(Calendar.MILLISECOND, 0);
-        Date startDate = cal.getTime();
-
-        cal.add(Calendar.DAY_OF_WEEK, 6);
-        cal.set(Calendar.HOUR_OF_DAY, 0);
-        cal.set(Calendar.MINUTE, 0);
-        cal.set(Calendar.SECOND, 0);
-        cal.set(Calendar.MILLISECOND, 0);
-        Date endDate = cal.getTime();
-
-        Dlog.d("startDate: " + dateFormat.format(startDate));
-        Dlog.d("endDate: " + dateFormat.format(endDate));
-
-        showAppUsageForSelectedDate(currentDate, startDate, endDate);
+        showAppUsageForSelectedDate(startDate, endDate);
     }
 
     private void initAndOpenDatePicker() {
         DatePickerDialog.OnDateSetListener dateSetListener = (view, year, month, dayOfMonth) -> {
+
             cal.set(Calendar.YEAR, year);
             cal.set(Calendar.MONTH, month);
             cal.set(Calendar.DAY_OF_MONTH, dayOfMonth);
 
-            //TODO: NEED TO SHOW THE WEEK IN WHICH THE SELECTED DATE IS INCLUDE
-//            showAppUsageForSelectedDate(cal.getTime());
+            cal.setTime(cal.getTime());
+            cal.set(Calendar.DAY_OF_WEEK, cal.getFirstDayOfWeek());
+
+            startDate = getDateForSelectedType(1);
+            endDate = getDateForSelectedType(6);
+
+            Dlog.d("Pick startDate: " + dateFormat.format(startDate));
+            Dlog.d("Pick endDate: " + dateFormat.format(endDate));
+
+            showAppUsageForSelectedDate(startDate, endDate);
         };
 
         DatePickerDialog datePickerDialog = new DatePickerDialog(AppDetailsActivity.this, dateSetListener, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
@@ -144,14 +117,21 @@ public class AppDetailsActivity extends AppCompatActivity {
         binding.tvDate.setOnClickListener(v -> datePickerDialog.show());
     }
 
-    private void showAppUsageForSelectedDate(Date selectedDate, Date startDate, Date endDate) {
-        binding.tvDate.setText(dateFormat.format(startDate) + " - " + dateFormat.format(endDate));
-//        showTotalUsage(selectedDate);
+    private Date getDateForSelectedType(int numberOfDays) {
+        cal.add(Calendar.DAY_OF_WEEK, numberOfDays);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        return cal.getTime();
+    }
+
+    private void showAppUsageForSelectedDate(Date startDate, Date endDate) {
+        binding.tvDate.setText(String.format("%s - %s", dateFormat.format(startDate), dateFormat.format(endDate)));
         showTotalUsage(startDate, endDate);
 
         Dlog.d("showAppUsageForSelectedDate currentDate: " + currentDate);
         Dlog.d("showAppUsageForSelectedDate dbFirstDate: " + dbFirstDate);
-        Dlog.d("showAppUsageForSelectedDate selectedDate: " + selectedDate);
         Dlog.d("showAppUsageForSelectedDate startDate: " + startDate);
         Dlog.d("showAppUsageForSelectedDate endDate: " + endDate);
 
