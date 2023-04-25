@@ -10,19 +10,28 @@ import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.view.View;
 
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.sevensec.R;
 import com.sevensec.database.AppUsageDao;
 import com.sevensec.database.DatabaseHelper;
 import com.sevensec.databinding.ActivityAppDetailsBinding;
 import com.sevensec.model.AppInfoModel;
+import com.sevensec.model.AppUsageByDate;
 import com.sevensec.utils.Dlog;
 import com.sevensec.utils.Utils;
 import com.sevensec.utils.WeekType;
 
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 public class AppDetailsActivity extends AppCompatActivity {
 
@@ -30,7 +39,9 @@ public class AppDetailsActivity extends AppCompatActivity {
     AppInfoModel appInfoModel;
     AppUsageDao appUsageDao;
     @SuppressLint("SimpleDateFormat")
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM");
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM");
+    @SuppressLint("SimpleDateFormat")
+    private static final SimpleDateFormat dateFormatForDay = new SimpleDateFormat("EEE");
     Calendar cal;
     Date dbFirstDate, currentDate, startDate, endDate;
     String appName, packageName;
@@ -51,6 +62,9 @@ public class AppDetailsActivity extends AppCompatActivity {
         packageName = appInfoModel.getPackageName();
         Dlog.d("AppName: " + appName);
         Dlog.d("PackageName: " + packageName);
+
+        binding.ivAppIcon.setImageBitmap(appInfoModel.getAppIconBitmap());
+        binding.tvAppName.setText(appName);
 
         dbFirstDate = appUsageDao.getFirstDate(packageName);
         Dlog.d("getFirstDate: " + dateFormat.format(dbFirstDate));
@@ -152,18 +166,83 @@ public class AppDetailsActivity extends AppCompatActivity {
         // Get appUsage for each day of the selected week
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(startDate);
-        StringBuilder s = new StringBuilder(100);
+
+        List<AppUsageByDate> usageByDateList = new ArrayList<>();
 
         while (calendar.getTime().before(endDate) || calendar.getTime().equals(endDate)) {
+
             long totalAppUsageTime = appUsageDao.getTotalAppUsageTimeForDay(packageName, calendar.getTime());
 
-            s.append(dateFormat.format(calendar.getTime()))
-                    .append(" :")
-                    .append(Utils.getAppUsageTimeInFormat(totalAppUsageTime))
-                    .append("\n");
+            AppUsageByDate appUsageByDate = new AppUsageByDate(dateFormatForDay.format(calendar.getTime()), totalAppUsageTime);
+            usageByDateList.add(appUsageByDate);
+
             calendar.add(Calendar.DAY_OF_MONTH, 1);
         }
 
-        binding.tvAppUsageTime.setText(s);
+        showBarChart(usageByDateList);
+    }
+
+    private void showBarChart(List<AppUsageByDate> usageByDateList){
+        // Create a BarDataSet
+        BarDataSet dataSet = new BarDataSet(getDataEntries(usageByDateList), "App Usage");
+
+        // Create a BarData object
+        BarData data = new BarData(dataSet);
+
+        // Set the x-axis value formatter
+        ValueFormatter xAxisFormatter = new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                return usageByDateList.get((int)value).getDate();
+            }
+        };
+        XAxis xAxis = binding.barChartView.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setTextSize(12f);
+        xAxis.setValueFormatter(xAxisFormatter);
+
+        // Set the y-axis value formatter
+        ValueFormatter yAxisFormatter = new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                return Utils.getAppUsageTimeInFormat((long) value);
+            }
+        };
+        YAxis yAxis = binding.barChartView.getAxisLeft();
+        yAxis.setValueFormatter(yAxisFormatter);
+        yAxis.setTextSize(12f);
+        //Remove label from Right Side
+        binding.barChartView.getAxisRight().setEnabled(false);
+
+        //Show formatted value on the bar
+        dataSet.setValueFormatter(yAxisFormatter);
+        dataSet.setValueTextSize(10f);
+
+        //Set Color of Bar
+        dataSet.setColor(R.color.primary500);
+
+        //Remove Lines form background
+        binding.barChartView.getXAxis().setDrawGridLines(false);
+
+        //Remove Description
+        binding.barChartView.getDescription().setEnabled(false);
+
+        //Remove extra space in bottom of X Axis
+        binding.barChartView.getAxisLeft().setAxisMinimum(0f);
+        binding.barChartView.getAxisRight().setAxisMinimum(0f);
+
+        //Remove Title
+        binding.barChartView.getLegend().setEnabled(false);
+
+        binding.barChartView.setData(data);
+        binding.barChartView.invalidate();
+    }
+
+    private List<BarEntry> getDataEntries(List<AppUsageByDate> usageByDateList) {
+        List<BarEntry> entries = new ArrayList<>();
+        for (int i = 0; i < usageByDateList.size(); i++) {
+            entries.add(new BarEntry(i, usageByDateList.get(i).getUsage()));
+        }
+        return entries;
     }
 }
