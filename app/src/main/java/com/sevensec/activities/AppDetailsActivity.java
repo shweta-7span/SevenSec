@@ -30,10 +30,8 @@ import com.sevensec.utils.WeekType;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class AppDetailsActivity extends AppCompatActivity {
 
@@ -205,15 +203,7 @@ public class AppDetailsActivity extends AppCompatActivity {
 
         YAxis yAxis = binding.barChartView.getAxisLeft();
         yAxis.setTextSize(12f);
-
-        long maxTime = Collections.max(usageByDateList, (a, b) -> Float.compare(a.getUsage(), b.getUsage())).getUsage();
-        if (maxTime >= 3600000) {
-            yAxis.setValueFormatter(HourAxisValueFormatter);
-        } else if (maxTime >= 60000) {
-            yAxis.setValueFormatter(MinuteAxisValueFormatter);
-        } else {
-            yAxis.setValueFormatter(SecondAxisValueFormatter);
-        }
+        yAxis.setValueFormatter(yAxisFormatter);
 
         //Remove label from Right Side
         binding.barChartView.getAxisRight().setEnabled(false);
@@ -242,29 +232,11 @@ public class AppDetailsActivity extends AppCompatActivity {
         binding.barChartView.invalidate();
     }
 
-    // Set the y-axis value formatter
-    ValueFormatter SecondAxisValueFormatter = new ValueFormatter() {
+    ValueFormatter yAxisFormatter = new ValueFormatter() {
         @Override
         public String getFormattedValue(float value) {
-            long seconds = TimeUnit.MILLISECONDS.toSeconds((long) value);
-            Dlog.d("seconds: " + seconds);
-            return seconds + "s";
-        }
-    };
-
-    ValueFormatter MinuteAxisValueFormatter = new ValueFormatter() {
-        @Override
-        public String getFormattedValue(float value) {
-            long minutes = TimeUnit.MILLISECONDS.toMinutes((long) value);
-            return minutes + "m";
-        }
-    };
-
-    ValueFormatter HourAxisValueFormatter = new ValueFormatter() {
-        @Override
-        public String getFormattedValue(float value) {
-            long hours = TimeUnit.MILLISECONDS.toHours((long) value);
-            return hours + "h";
+            long timeMills = (long) value;
+            return  Utils.getAppUsageTimeInFormat(timeMills, true);
         }
     };
 
@@ -272,7 +244,8 @@ public class AppDetailsActivity extends AppCompatActivity {
     ValueFormatter barValueFormatter = new ValueFormatter() {
         @Override
         public String getFormattedValue(float value) {
-            return Utils.getAppUsageTimeInFormat((long) value);
+            Dlog.i("App Usage: " + Utils.getAppUsageTimeInFormat((long) value, false));
+            return Utils.getAppUsageTimeInFormat((long) value, false);
         }
     };
 

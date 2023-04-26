@@ -123,7 +123,7 @@ public class Utils {
         return String.valueOf(s);
     }
 
-    public static String getAppUsageTimeInFormat(long difference) {
+    public static String getAppUsageTimeInFormat(long difference, boolean includeZero) {
 
         System.out.println("difference : " + difference);
 
@@ -143,12 +143,12 @@ public class Utils {
 
         if (elapsedHours != 0) {
             s.append(elapsedHours).append("h");
-            if (elapsedMinutes != 0)
+            if (elapsedMinutes != 0 || includeZero)
                 s.append(" ").append(elapsedMinutes).append("m");
 
         } else if (elapsedMinutes != 0) {
             s.append(elapsedMinutes).append("m");
-            if (elapsedSeconds != 0)
+            if (elapsedSeconds != 0 || includeZero)
                 s.append(" ").append(elapsedSeconds).append("s");
 
         } else if (elapsedSeconds != 0) {
