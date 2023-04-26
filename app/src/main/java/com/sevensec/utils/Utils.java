@@ -132,10 +132,6 @@ public class Utils {
         long secondsInMilli = 1000;
         long minutesInMilli = secondsInMilli * 60;
         long hoursInMilli = minutesInMilli * 60;
-        long daysInMilli = hoursInMilli * 24;
-
-        long elapsedDays = difference / daysInMilli;
-        difference = difference % daysInMilli;
 
         long elapsedHours = difference / hoursInMilli;
         difference = difference % hoursInMilli;
@@ -145,12 +141,7 @@ public class Utils {
 
         long elapsedSeconds = difference / secondsInMilli;
 
-        if (elapsedDays != 0) {
-            s.append(elapsedDays).append("d");
-            if (elapsedHours != 0)
-                s.append(" ").append(elapsedHours).append("h");
-
-        } else if (elapsedHours != 0) {
+        if (elapsedHours != 0) {
             s.append(elapsedHours).append("h");
             if (elapsedMinutes != 0)
                 s.append(" ").append(elapsedMinutes).append("m");
@@ -341,7 +332,7 @@ public class Utils {
         if (drawable instanceof BitmapDrawable) {
             bitmap = ((BitmapDrawable) drawable).getBitmap();
         } else {
-            if(drawable.getIntrinsicWidth() <= 0 || drawable.getIntrinsicHeight() <= 0) {
+            if (drawable.getIntrinsicWidth() <= 0 || drawable.getIntrinsicHeight() <= 0) {
                 bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888); // Single color bitmap will be created of 1x1 pixel
             } else {
                 bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
