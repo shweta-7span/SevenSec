@@ -16,7 +16,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="@dimen/space_20"
+            android:layout_marginTop="@dimen/space_30"
             android:gravity="center"
             android:orientation="vertical">
 
@@ -28,22 +28,10 @@
                 tools:ignore="ContentDescription" />
 
             <TextView
-                android:id="@+id/tvAppName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_7"
-                android:text="@string/app_name"
-                android:textColor="@color/grey900"
-                android:textFontWeight="400"
-                android:textSize="20sp"
-                tools:targetApi="p"
-                tools:text="appName" />
-
-            <TextView
                 android:id="@+id/tvCurrentDayUsage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_20"
+                android:layout_marginTop="@dimen/space_10"
                 android:textAlignment="center"
                 android:textColor="@color/grey900"
                 android:textStyle="bold"
@@ -84,7 +72,8 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:padding="@dimen/space_7"
-                android:src="@drawable/ic_previous" />
+                android:src="@drawable/ic_previous"
+                tools:ignore="ContentDescription" />
 
             <TextView
                 android:id="@+id/tvDate"
@@ -104,7 +93,8 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:padding="@dimen/space_7"
-                android:src="@drawable/ic_next" />
+                android:src="@drawable/ic_next"
+                tools:ignore="ContentDescription" />
 
         </LinearLayout>
 

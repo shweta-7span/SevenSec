@@ -63,11 +63,17 @@ public class AppDetailsActivity extends AppCompatActivity {
         Dlog.d("AppName: " + appName);
         Dlog.d("PackageName: " + packageName);
 
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+
+            getSupportActionBar().setTitle(appName + " Usage");
+        }
+
         binding.ivAppIcon.setImageBitmap(appInfoModel.getAppIconBitmap());
-        binding.tvAppName.setText(appName);
 
         String currentDateAppUsage = Utils.getAppUsageTimeInFormat(appUsageDao.getTotalAppUsageTimeForDay(packageName, currentDate), false);
-        binding.tvCurrentDayUsage.setText(String.format("%s", currentDateAppUsage.isEmpty() ? "0 Sec": currentDateAppUsage));
+        binding.tvCurrentDayUsage.setText(String.format("%s", currentDateAppUsage.isEmpty() ? "0 Sec" : currentDateAppUsage));
 
         dbFirstDate = appUsageDao.getFirstDate(packageName);
         Dlog.d("getFirstDate: " + dateFormat.format(dbFirstDate));
@@ -239,7 +245,7 @@ public class AppDetailsActivity extends AppCompatActivity {
         @Override
         public String getFormattedValue(float value) {
             long timeMills = (long) value;
-            return  Utils.getAppUsageTimeInFormat(timeMills, true);
+            return Utils.getAppUsageTimeInFormat(timeMills, true);
         }
     };
 
@@ -258,5 +264,11 @@ public class AppDetailsActivity extends AppCompatActivity {
             entries.add(new BarEntry(i, usageByDateList.get(i).getUsage()));
         }
         return entries;
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
     }
 }
