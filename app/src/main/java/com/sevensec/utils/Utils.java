@@ -146,24 +146,24 @@ public class Utils {
         long elapsedSeconds = difference / secondsInMilli;
 
         if (elapsedDays != 0) {
-            s.append(elapsedDays).append(elapsedDays == 1 ? " day" : " days");
+            s.append(elapsedDays).append("d");
             if (elapsedHours != 0)
-                s.append(" ").append(elapsedHours).append(elapsedHours == 1 ? " hr" : " hrs");
+                s.append(" ").append(elapsedHours).append("h");
 
         } else if (elapsedHours != 0) {
-            s.append(elapsedHours).append(elapsedHours == 1 ? " hr" : " hrs");
+            s.append(elapsedHours).append("h");
             if (elapsedMinutes != 0)
-                s.append(" ").append(elapsedMinutes).append(elapsedMinutes == 1 ? " min" : " mins");
+                s.append(" ").append(elapsedMinutes).append("m");
 
         } else if (elapsedMinutes != 0) {
-            s.append(elapsedMinutes).append(elapsedMinutes == 1 ? " min" : " mins");
+            s.append(elapsedMinutes).append("m");
             if (elapsedSeconds != 0)
-                s.append(" ").append(elapsedSeconds).append(elapsedSeconds == 1 ? " sec" : " secs");
+                s.append(" ").append(elapsedSeconds).append("s");
 
         } else if (elapsedSeconds != 0) {
-            s.append(elapsedSeconds).append(elapsedSeconds == 1 ? " sec" : " secs");
+            s.append(elapsedSeconds).append("s");
         }else{
-            s.append("0 sec");
+            s.append("0 s");
         }
 
         return String.valueOf(s);
