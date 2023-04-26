@@ -66,6 +66,9 @@ public class AppDetailsActivity extends AppCompatActivity {
         binding.ivAppIcon.setImageBitmap(appInfoModel.getAppIconBitmap());
         binding.tvAppName.setText(appName);
 
+        String currentDateAppUsage = Utils.getAppUsageTimeInFormat(appUsageDao.getTotalAppUsageTimeForDay(packageName, currentDate), false);
+        binding.tvCurrentDayUsage.setText(String.format("%s", currentDateAppUsage.isEmpty() ? "0 Sec": currentDateAppUsage));
+
         dbFirstDate = appUsageDao.getFirstDate(packageName);
         Dlog.d("getFirstDate: " + dateFormat.format(dbFirstDate));
 
