@@ -66,4 +66,8 @@ public class Constants {
     public static final int BATTERY_OPTIMIZATION_REQUEST_CODE = 104;
     public static final int IN_APP_UPDATE_REQUEST_CODE = 105;
     public static final int NOTIFICATION_PERMISSION_REQUEST_CODE = 106;
+
+    //Set NumOfDays in Calendar
+    public static final int START_DAY = 0; //0 = SUN and 1 = MON
+
 }

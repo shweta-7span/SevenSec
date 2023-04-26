@@ -1,5 +1,6 @@
 package com.sevensec.activities;
 
+import static com.sevensec.utils.Constants.START_DAY;
 import static com.sevensec.utils.Constants.STR_PASS_APP_INFO;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -91,7 +92,7 @@ public class AppDetailsActivity extends AppCompatActivity {
         switch (type) {
             case Current:
                 cal.set(Calendar.DAY_OF_WEEK, cal.getFirstDayOfWeek());
-                startDate = getDateForSelectedType(1);
+                startDate = getDateForSelectedType(START_DAY);
                 endDate = getDateForSelectedType(6);
                 break;
 
@@ -124,7 +125,7 @@ public class AppDetailsActivity extends AppCompatActivity {
             cal.setTime(cal.getTime());
             cal.set(Calendar.DAY_OF_WEEK, cal.getFirstDayOfWeek());
 
-            startDate = getDateForSelectedType(1);
+            startDate = getDateForSelectedType(START_DAY);
             endDate = getDateForSelectedType(6);
 
             Dlog.d("Pick startDate: " + dateFormat.format(startDate));
