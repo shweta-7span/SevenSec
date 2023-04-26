@@ -69,5 +69,8 @@ public class Constants {
 
     //Set NumOfDays in Calendar
     public static final int START_DAY = 0; //0 = SUN and 1 = MON
+    public static final int ADD_DAYS_FOR_END_DATE = 6;
+    public static final int REMOVE_DAYS_FOR_PREV_WEEK = -7;
+    public static final int ADD_DAYS_FOR_NEXT_WEEK = 7;
 
 }

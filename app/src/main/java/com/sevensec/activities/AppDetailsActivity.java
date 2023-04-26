@@ -1,5 +1,8 @@
 package com.sevensec.activities;
 
+import static com.sevensec.utils.Constants.ADD_DAYS_FOR_END_DATE;
+import static com.sevensec.utils.Constants.ADD_DAYS_FOR_NEXT_WEEK;
+import static com.sevensec.utils.Constants.REMOVE_DAYS_FOR_PREV_WEEK;
 import static com.sevensec.utils.Constants.START_DAY;
 import static com.sevensec.utils.Constants.STR_PASS_APP_INFO;
 
@@ -93,19 +96,19 @@ public class AppDetailsActivity extends AppCompatActivity {
             case Current:
                 cal.set(Calendar.DAY_OF_WEEK, cal.getFirstDayOfWeek());
                 startDate = getDateForSelectedType(START_DAY);
-                endDate = getDateForSelectedType(6);
+                endDate = getDateForSelectedType(ADD_DAYS_FOR_END_DATE);
                 break;
 
             case Previous:
                 cal.setTime(startDate);
-                startDate = getDateForSelectedType(-7);
-                endDate = getDateForSelectedType(6);
+                startDate = getDateForSelectedType(REMOVE_DAYS_FOR_PREV_WEEK);
+                endDate = getDateForSelectedType(ADD_DAYS_FOR_END_DATE);
                 break;
 
             case Next:
                 cal.setTime(startDate);
-                startDate = getDateForSelectedType(7);
-                endDate = getDateForSelectedType(6);
+                startDate = getDateForSelectedType(ADD_DAYS_FOR_NEXT_WEEK);
+                endDate = getDateForSelectedType(ADD_DAYS_FOR_END_DATE);
                 break;
         }
 
@@ -126,7 +129,7 @@ public class AppDetailsActivity extends AppCompatActivity {
             cal.set(Calendar.DAY_OF_WEEK, cal.getFirstDayOfWeek());
 
             startDate = getDateForSelectedType(START_DAY);
-            endDate = getDateForSelectedType(6);
+            endDate = getDateForSelectedType(ADD_DAYS_FOR_END_DATE);
 
             Dlog.d("Pick startDate: " + dateFormat.format(startDate));
             Dlog.d("Pick endDate: " + dateFormat.format(endDate));
