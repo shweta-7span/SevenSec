@@ -7,7 +7,6 @@ import static com.sevensec.utils.Constants.OPEN_ATTEMPT_SCREEN_DELAY;
 import static com.sevensec.utils.Constants.PREF_BLOCK_APP_OPEN_TIME;
 import static com.sevensec.utils.Constants.PREF_APP_SWITCH_DURATION;
 import static com.sevensec.utils.Constants.STR_LAST_WARN_APP;
-import static com.sevensec.utils.Constants.getAppCloseTimeKey;
 import static com.sevensec.utils.Constants.getIsUserOpenBlockAppKey;
 
 import android.app.ActivityManager;
@@ -249,7 +248,6 @@ public class MyForegroundService extends Service {
 
     private void getAppUsage(String appPackage, long appCloseTime) {
         Dlog.d("AppSwitch: closed Time for " + appPackage + " :" + appCloseTime);
-        SharedPref.writeLong(getAppCloseTimeKey(appPackage), appCloseTime);
 
         /*long previousAppUsage = SharedPref.readLong(getAppUsageKey(appPackage), 0);
         long appStartTime = SharedPref.readLong(PREF_APP_START_TIME, appCloseTime);
@@ -303,7 +301,18 @@ public class MyForegroundService extends Service {
             return true;
 
         } else {
-            long lastUsedDifference = Math.abs(SharedPref.readLong(getAppCloseTimeKey(lastAppPN), new Date().getTime() + (appSwitchDuration * 1000 * 60)) - new Date().getTime());
+            long appCloseTime;
+
+            AppUsage appUsage = appUsageDao.getAppCloseTime(lastAppPN);
+            if (appUsage == null) {
+                Dlog.d("close time: NULL");
+                appCloseTime = new Date().getTime() + (appSwitchDuration * 1000 * 60);
+            }else{
+                Dlog.d("close time: "+appUsage.getAppCloseTime());
+                appCloseTime = appUsage.getAppCloseTime();
+            }
+
+            long lastUsedDifference = Math.abs(appCloseTime - new Date().getTime());
             long elapsedSeconds = lastUsedDifference / 1000;
 
             Dlog.v("AppSwitch: " + lastAppPN + " ,elapsedSeconds: " + elapsedSeconds);

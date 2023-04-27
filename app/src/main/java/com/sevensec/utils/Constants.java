@@ -36,7 +36,6 @@ public class Constants {
     //ROOM DB STRINGS
     public static final String ROOM_DB_NAME = "7SecDB";
     public static final String TABLE_NAME = "app_usage";
-    public static final String COLUMN_ID = "id";
     public static final String COLUMN_APP_NAME = "app_name";
     public static final String COLUMN_PACKAGE_NAME = "package_name";
     public static final String COLUMN_DATE = "date";
@@ -46,10 +45,6 @@ public class Constants {
 
     public static String getIsUserOpenBlockAppKey(String lastAppPackage) {
         return "IS_" + lastAppPackage;
-    }
-
-    public static String getAppCloseTimeKey(String appPackage) {
-        return appPackage + "_CLOSE_TIME";
     }
 
     //DELAY OR TIMERS

@@ -1,5 +1,6 @@
 package com.sevensec.database;
 
+import static com.sevensec.utils.Constants.COLUMN_APP_CLOSE_TIME;
 import static com.sevensec.utils.Constants.COLUMN_APP_OPEN_TIME;
 import static com.sevensec.utils.Constants.COLUMN_APP_USAGE_TIME;
 import static com.sevensec.utils.Constants.COLUMN_DATE;
@@ -30,6 +31,9 @@ public interface AppUsageDao {
 
     @Query("select SUM(" + COLUMN_APP_USAGE_TIME + ") from " + TABLE_NAME + " WHERE " + COLUMN_PACKAGE_NAME + " =:package_name AND " + COLUMN_DATE + "=:Date")
     long getTotalAppUsageTimeForDay(String package_name, Date Date);
+
+    @Query("SELECT * FROM " + TABLE_NAME + " WHERE " + COLUMN_PACKAGE_NAME + " =:package_name ORDER BY " + COLUMN_APP_CLOSE_TIME + " DESC LIMIT 1")
+    AppUsage getAppCloseTime(String package_name);
 }
 
 
