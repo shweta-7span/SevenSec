@@ -30,9 +30,6 @@ public interface AppUsageDao {
 
     @Query("select SUM(" + COLUMN_APP_USAGE_TIME + ") from " + TABLE_NAME + " WHERE " + COLUMN_PACKAGE_NAME + " =:package_name AND " + COLUMN_DATE + "=:Date")
     long getTotalAppUsageTimeForDay(String package_name, Date Date);
-
-    @Query("SELECT " + COLUMN_DATE + " FROM " + TABLE_NAME + " WHERE " + COLUMN_PACKAGE_NAME + "=:package_name LIMIT 1")
-    Date getFirstDate(String package_name);
 }
 
 

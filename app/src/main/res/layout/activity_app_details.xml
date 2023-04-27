@@ -34,8 +34,8 @@
                 android:layout_marginTop="@dimen/space_10"
                 android:textAlignment="center"
                 android:textColor="@color/grey900"
-                android:textStyle="bold"
                 android:textSize="20sp"
+                android:textStyle="bold"
                 tools:targetApi="p"
                 tools:text="Today App Usage" />
 
@@ -52,11 +52,46 @@
 
         </LinearLayout>
 
-        <com.github.mikephil.charting.charts.BarChart
-            android:id="@+id/barChart_view"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="@dimen/chart_height"
-            android:layout_margin="@dimen/space_20" />
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/space_20">
+
+            <com.github.mikephil.charting.charts.BarChart
+                android:id="@+id/barChart_view"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/chart_height" />
+
+            <LinearLayout
+                android:id="@+id/llNoData"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/chart_height"
+                android:orientation="vertical"
+                android:visibility="visible"
+                android:gravity="bottom"
+                tools:ignore="UseCompoundDrawables">
+
+                <ImageView
+                    android:layout_width="@dimen/no_data_img_size"
+                    android:layout_height="@dimen/no_data_img_size"
+                    android:layout_gravity="center"
+                    android:src="@drawable/no_data"
+                    tools:ignore="ContentDescription" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="@dimen/space_20"
+                    android:text="@string/no_data"
+                    android:textColor="@color/grey500"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    tools:targetApi="p" />
+
+            </LinearLayout>
+
+        </FrameLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"

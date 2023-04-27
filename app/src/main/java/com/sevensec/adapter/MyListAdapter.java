@@ -16,7 +16,6 @@ import androidx.appcompat.widget.SwitchCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.sevensec.R;
-import com.sevensec.database.DatabaseHelper;
 import com.sevensec.helper.OnItemClickListener;
 import com.sevensec.model.AppInfoModel;
 import com.sevensec.utils.Dlog;
@@ -61,7 +60,7 @@ public class MyListAdapter extends RecyclerView.Adapter<MyListAdapter.ViewHolder
 
         AppInfoModel appInfoModel = appInfoModelList.get(position);
         holder.llAppInfo.setOnClickListener(v -> {
-            if (favAppList.contains(appInfoModel.getPackageName()) && DatabaseHelper.getDatabase(mContext).appUsageDao().getFirstDate(appInfoModel.getPackageName()) != null) {
+            if (favAppList.contains(appInfoModel.getPackageName())) {
                 onItemClickListener.onClick(appInfoModel);
             }
         });

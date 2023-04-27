@@ -47,7 +47,7 @@ public class AppDetailsActivity extends AppCompatActivity {
     @SuppressLint("SimpleDateFormat")
     private static final SimpleDateFormat dateFormatForDay = new SimpleDateFormat("EEE");
     Calendar cal;
-    Date dbFirstDate, currentDate, startDate, endDate;
+    Date currentDate, startDate, endDate;
     String appName, packageName;
 
     @Override
@@ -78,9 +78,6 @@ public class AppDetailsActivity extends AppCompatActivity {
 
         String currentDateAppUsage = Utils.getAppUsageTimeInFormat(appUsageDao.getTotalAppUsageTimeForDay(packageName, currentDate), false);
         binding.tvCurrentDayUsage.setText(String.format("%s", currentDateAppUsage.isEmpty() ? "0 Sec" : currentDateAppUsage));
-
-        dbFirstDate = appUsageDao.getFirstDate(packageName);
-        Dlog.d("getFirstDate: " + dateFormat.format(dbFirstDate));
 
         //Show "UsageTime" for the week in which the user selected date include
         initAndOpenDatePicker();
@@ -138,7 +135,6 @@ public class AppDetailsActivity extends AppCompatActivity {
         };
 
         DatePickerDialog datePickerDialog = new DatePickerDialog(AppDetailsActivity.this, dateSetListener, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
-        datePickerDialog.getDatePicker().setMinDate(dbFirstDate.getTime());
         datePickerDialog.getDatePicker().setMaxDate(currentDate.getTime());
 
         binding.tvDate.setOnClickListener(v -> datePickerDialog.show());
@@ -158,7 +154,6 @@ public class AppDetailsActivity extends AppCompatActivity {
         showTotalUsage(startDate, endDate);
 
         Dlog.d("showAppUsageForSelectedDate currentDate: " + currentDate);
-        Dlog.d("showAppUsageForSelectedDate dbFirstDate: " + dbFirstDate);
         Dlog.d("showAppUsageForSelectedDate startDate: " + startDate);
         Dlog.d("showAppUsageForSelectedDate endDate: " + endDate);
 
@@ -167,15 +162,11 @@ public class AppDetailsActivity extends AppCompatActivity {
         } else {
             binding.ibNext.setVisibility(View.VISIBLE);
         }
-
-        if (dbFirstDate.compareTo(startDate) >= 0 && dbFirstDate.compareTo(endDate) <= 0) {
-            binding.ibPrev.setVisibility(View.INVISIBLE);
-        } else {
-            binding.ibPrev.setVisibility(View.VISIBLE);
-        }
     }
 
     private void showTotalUsage(Date startDate, Date endDate) {
+        boolean isSelectedWeekHaveData = false;
+
         // Get appUsage for each day of the selected week
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(startDate);
@@ -185,14 +176,25 @@ public class AppDetailsActivity extends AppCompatActivity {
         while (calendar.getTime().before(endDate) || calendar.getTime().equals(endDate)) {
 
             long totalAppUsageTime = appUsageDao.getTotalAppUsageTimeForDay(packageName, calendar.getTime());
-
+            if (totalAppUsageTime != 0) {
+                isSelectedWeekHaveData = true;
+            }
             AppUsageByDate appUsageByDate = new AppUsageByDate(dateFormatForDay.format(calendar.getTime()), totalAppUsageTime);
             usageByDateList.add(appUsageByDate);
 
             calendar.add(Calendar.DAY_OF_MONTH, 1);
         }
 
-        showBarChart(usageByDateList);
+        Dlog.i("isSelectedWeekHaveData: " + isSelectedWeekHaveData);
+
+        if (isSelectedWeekHaveData) {
+            binding.barChartView.setVisibility(View.VISIBLE);
+            binding.llNoData.setVisibility(View.GONE);
+            showBarChart(usageByDateList);
+        } else {
+            binding.barChartView.setVisibility(View.GONE);
+            binding.llNoData.setVisibility(View.VISIBLE);
+        }
     }
 
     private void showBarChart(List<AppUsageByDate> usageByDateList) {
