@@ -52,12 +52,13 @@
             android:id="@+id/progressBar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:indeterminateTint="@color/primary900">
+            android:indeterminateTint="@color/primary900"
+            android:visibility="gone">
 
             <ProgressBar
                 android:layout_width="@dimen/space_100"
                 android:layout_height="@dimen/space_100"
-                android:layout_centerInParent="true"/>
+                android:layout_centerInParent="true" />
 
         </RelativeLayout>
 

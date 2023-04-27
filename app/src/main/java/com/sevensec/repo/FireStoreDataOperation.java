@@ -8,11 +8,11 @@ import static com.sevensec.utils.Constants.DB_DOCUMENT_KEY_APP_NAME;
 import static com.sevensec.utils.Constants.DB_DOCUMENT_KEY_APP_PACKAGE;
 import static com.sevensec.utils.Constants.DB_DOCUMENT_KEY_TYPE;
 import static com.sevensec.utils.Constants.DB_USER_ID;
+import static com.sevensec.utils.Constants.PREF_IS_LOGIN;
 import static com.sevensec.utils.Utils.check24Hour;
 import static com.sevensec.utils.Utils.getTimeInFormat;
 
 import android.content.Context;
-import android.content.Intent;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,10 +27,11 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
-import com.sevensec.activities.MainActivity;
 import com.sevensec.helper.AuthFailureListener;
 import com.sevensec.repo.interfaces.DataOperation;
 import com.sevensec.utils.Dlog;
+import com.sevensec.utils.SharedPref;
+import com.sevensec.utils.Utils;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -206,8 +207,9 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 Dlog.d("FireStore: Anonymous UserID successfully added!");
+                SharedPref.writeBoolean(PREF_IS_LOGIN, true);
 
-                startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                Utils.openOnBoardingORMain(mContext);
                 finish();
             }
         }).addOnFailureListener(new OnFailureListener() {

@@ -24,6 +24,7 @@ public class Constants {
 
     //SHARED_PREF KEYS
     public static final String PREF_IS_APP_LAUNCH_FIRST_TIME = "IS_APP_LAUNCH_FIRST_TIME";
+    public static final String PREF_IS_LOGIN = "IS_LOGIN";
     public static final String PREF_DEVICE_ID = "DEVICE_ID";
     public static final String PREF_FAV_APP_LIST = "FAV_APP_LIST";
     public static final String PREF_APP_SWITCH_DURATION = "APP_SWITCH_DURATION";
