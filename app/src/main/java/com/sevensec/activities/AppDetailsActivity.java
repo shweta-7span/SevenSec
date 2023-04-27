@@ -135,7 +135,7 @@ public class AppDetailsActivity extends AppCompatActivity {
             showAppUsageForSelectedDate(startDate, endDate);
         };
 
-        DatePickerDialog datePickerDialog = new DatePickerDialog(AppDetailsActivity.this, dateSetListener, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
+        DatePickerDialog datePickerDialog = new DatePickerDialog(AppDetailsActivity.this, R.style.DialogTheme,dateSetListener, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
         datePickerDialog.getDatePicker().setMaxDate(currentDate.getTime());
 
         binding.tvDate.setOnClickListener(v -> datePickerDialog.show());
