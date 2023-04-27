@@ -7,96 +7,142 @@
     </data>
 
     <RelativeLayout
+        android:id="@+id/rlMain"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="?attr/fullscreenBackgroundColor"
         android:theme="@style/ThemeOverlay.SevenSec.FullscreenContainer"
         tools:context="com.sevensec.activities.SplashActivity">
 
-        <RelativeLayout
-            android:id="@+id/rlSplash"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="?attr/fullscreenBackgroundColor"
-            android:orientation="vertical"
-            android:visibility="gone">
+        <TextView
+            android:id="@+id/fullscreen_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:keepScreenOn="true"
+            android:text="@string/app_name"
+            android:textColor="?attr/fullscreenTextColor"
+            android:textSize="100sp"
+            android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/fullscreen_content"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:keepScreenOn="true"
-                android:text="@string/app_name"
-                android:textColor="?attr/fullscreenTextColor"
-                android:textSize="100sp"
-                android:textStyle="bold" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="@dimen/space_30"
+                android:layout_height="@dimen/space_30"
+                android:layout_marginBottom="@dimen/space_30" />
+
+            <LinearLayout
+                android:id="@+id/llNoInternet"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="@dimen/space_30"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:visibility="visible">
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="@dimen/space_10">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/no_internet"
+                        tools:targetApi="p" />
+
+                </RelativeLayout>
+
+                <TextView
+                    android:id="@+id/tvReTry"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/rounded_corner_primary_50"
+                    android:paddingStart="@dimen/space_20"
+                    android:paddingTop="@dimen/space_8"
+                    android:paddingEnd="@dimen/space_20"
+                    android:paddingBottom="@dimen/space_8"
+                    android:text="@string/retry"
+                    android:textColor="@color/grey900"
+                    android:textSize="16sp"
+                    tools:targetApi="p" />
+
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/appVersion"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
                 android:layout_marginBottom="@dimen/space_20"
                 android:gravity="center"
                 android:keepScreenOn="true"
-                android:textColor="@color/grey300"
-                android:textSize="18sp"
-                tools:text="version" />
-
-        </RelativeLayout>
-
-        <LinearLayout
-            android:id="@+id/llNoInternet"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:visibility="visible">
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/no_internet"
-                tools:ignore="ContentDescription" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="@string/no_internet_connection"
-                android:textColor="@color/grey900"
-                android:textSize="22sp"
-                android:textStyle="bold"
-                tools:targetApi="p" />
-
-            <!--<TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="@string/please_try_again"
-                android:textColor="@color/grey900"
-                android:textFontWeight="500"
-                android:textSize="18sp"
-                tools:targetApi="p" />-->
-
-            <TextView
-                android:id="@+id/tvReTry"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_20"
-                android:background="@drawable/rounded_corner_primary_900"
-                android:paddingTop="@dimen/space_8"
-                android:paddingStart="@dimen/space_20"
-                android:paddingEnd="@dimen/space_20"
-                android:paddingBottom="@dimen/space_8"
-                android:text="@string/try_again"
-                android:textAlignment="center"
                 android:textColor="@color/primary50"
-                android:textFontWeight="500"
-                android:textSize="20sp"
-                tools:targetApi="p" />
+                android:textSize="12sp"
+                tools:text="version" />
 
         </LinearLayout>
 
     </RelativeLayout>
+
+    <!--<LinearLayout
+        android:id="@+id/llNoInternet"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/no_internet"
+            tools:ignore="ContentDescription" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/no_internet_connection"
+            android:textColor="@color/grey900"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            tools:targetApi="p" />
+
+        &lt;!&ndash;<TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/please_try_again"
+            android:textColor="@color/grey900"
+            android:textFontWeight="500"
+            android:textSize="18sp"
+            tools:targetApi="p" />&ndash;&gt;
+
+        <TextView
+            android:id="@+id/tvReTry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_20"
+            android:background="@drawable/rounded_corner_primary_900"
+            android:paddingTop="@dimen/space_8"
+            android:paddingStart="@dimen/space_20"
+            android:paddingEnd="@dimen/space_20"
+            android:paddingBottom="@dimen/space_8"
+            android:text="@string/try_again"
+            android:textAlignment="center"
+            android:textColor="@color/primary50"
+            android:textFontWeight="500"
+            android:textSize="20sp"
+            tools:targetApi="p" />
+
+    </LinearLayout>-->
+
 </layout>

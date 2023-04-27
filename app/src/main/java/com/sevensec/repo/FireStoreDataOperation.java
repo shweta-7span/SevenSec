@@ -13,6 +13,7 @@ import static com.sevensec.utils.Utils.check24Hour;
 import static com.sevensec.utils.Utils.getTimeInFormat;
 
 import android.content.Context;
+import android.content.Intent;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,6 +28,7 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
+import com.sevensec.activities.OnBoardingActivity;
 import com.sevensec.helper.AuthFailureListener;
 import com.sevensec.repo.interfaces.DataOperation;
 import com.sevensec.utils.Dlog;
@@ -209,7 +211,7 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
                 Dlog.d("FireStore: Anonymous UserID successfully added!");
                 SharedPref.writeBoolean(PREF_IS_LOGIN, true);
 
-                Utils.openOnBoardingORMain(mContext);
+                startActivity(new Intent(getApplicationContext(), OnBoardingActivity.class));
                 finish();
             }
         }).addOnFailureListener(new OnFailureListener() {
