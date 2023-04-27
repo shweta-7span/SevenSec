@@ -244,6 +244,9 @@ public class AppDetailsActivity extends AppCompatActivity {
         //Remove Title
         binding.barChartView.getLegend().setEnabled(false);
 
+        //Animation
+        binding.barChartView.animateY(1000);
+
         binding.barChartView.setData(data);
         binding.barChartView.invalidate();
     }
