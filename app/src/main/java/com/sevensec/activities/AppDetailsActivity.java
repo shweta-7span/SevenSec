@@ -7,6 +7,7 @@ import static com.sevensec.utils.Constants.START_DAY;
 import static com.sevensec.utils.Constants.STR_PASS_APP_INFO;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 
 import android.annotation.SuppressLint;
@@ -228,7 +229,7 @@ public class AppDetailsActivity extends AppCompatActivity {
         dataSet.setValueTextSize(10f);
 
         //Set Color of Bar
-        dataSet.setColor(R.color.primary500);
+        dataSet.setColors(ContextCompat.getColor(this, R.color.primary700));
 
         //Remove Lines form background
         binding.barChartView.getXAxis().setDrawGridLines(false);
