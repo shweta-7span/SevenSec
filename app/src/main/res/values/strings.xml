@@ -53,6 +53,7 @@
     <string name="search">Search</string>
     <string name="today">Today</string>
     <string name="no_data">No Data</string>
+    <string name="msg_for_disabled_app"><![CDATA[Tracking for <b>]]></string>
 
     <string-array name="arrOnBoardingTitleList">
         <item>Start Delaying \nDistracting Apps</item>

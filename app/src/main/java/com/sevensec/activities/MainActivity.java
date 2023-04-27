@@ -220,9 +220,18 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
         }
 
         adapter = new MyListAdapter(getApplicationContext(), appInfoModelList, favAppList, appInfoModel -> {
-            Intent intent = new Intent(getApplicationContext(), AppDetailsActivity.class);
-            intent.putExtra(STR_PASS_APP_INFO, appInfoModel);
-            startActivity(intent);
+
+            if (favAppList.contains(appInfoModel.getPackageName())) {
+                Intent intent = new Intent(getApplicationContext(), AppDetailsActivity.class);
+                intent.putExtra(STR_PASS_APP_INFO, appInfoModel);
+                startActivity(intent);
+            } else {
+                new AlertDialog.Builder(MainActivity.this, R.style.MyAlertDialogTheme)
+                        .setMessage(Html.fromHtml(getString(R.string.msg_for_disabled_app) + appInfoModel.getAppName() + "</b> is currently disabled. Please enable it to view its usage data."))
+                        .setPositiveButton(android.R.string.ok, null)
+                        .create()
+                        .show();
+            }
         });
         binding.recyclerView.addItemDecoration(new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL));
         binding.recyclerView.setHasFixedSize(true);
