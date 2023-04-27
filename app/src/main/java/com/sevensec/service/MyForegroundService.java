@@ -249,17 +249,6 @@ public class MyForegroundService extends Service {
     private void getAppUsage(String appPackage, long appCloseTime) {
         Dlog.d("AppSwitch: closed Time for " + appPackage + " :" + appCloseTime);
 
-        /*long previousAppUsage = SharedPref.readLong(getAppUsageKey(appPackage), 0);
-        long appStartTime = SharedPref.readLong(PREF_APP_START_TIME, appCloseTime);
-
-        long appUsageTimeMillis = appCloseTime - appStartTime;
-        Dlog.v("appUsageTimeMillis: "+ Utils.getTimeInFormat(appUsageTimeMillis));
-
-        long totalAppUsageTimeMillis = previousAppUsage + appUsageTimeMillis;
-        Dlog.i("totalAppUsageTimeMillis: "+ Utils.getTimeInFormat(totalAppUsageTimeMillis));
-
-        SharedPref.writeLong(getAppUsageKey(appPackage), totalAppUsageTimeMillis);*/
-
         long appOpenTime = SharedPref.readLong(PREF_BLOCK_APP_OPEN_TIME, appCloseTime);
 
         long appUsageTimeMillis = appCloseTime - appOpenTime;
@@ -282,12 +271,6 @@ public class MyForegroundService extends Service {
     }
 
     private boolean isAppSwitchTimeExpire(String lastAppPN) {
-        /*long lastUsedDifference = Math.abs(SharedPref.readLong(lastAppPN, new Date().getTime() + ((1000 * 60) * 60)) - new Date().getTime());
-        long elapsedMinutes = lastUsedDifference / (1000 * 60);
-
-        Dlog.v( "App Switch: " + lastAppPN + ": " + elapsedMinutes);
-
-        return elapsedMinutes >= 1;*/
 
         //Default AppSwitchDuration when user installed the app & not change the AppSwitchDuration
         String[] arrAppSwitchDelay = getResources().getStringArray(R.array.arrAppSwitchDelay);

@@ -33,6 +33,10 @@ public class Constants {
     public static final String PREF_IS_SKIP_PROTECTED_APP_CHECKED = "IS_SKIP_PROTECTED_APP_CHECKED";
     public static final String PREF_IS_XIAOMI_OVERLAY_DONE = "IS_XIAOMI_OVERLAY_DONE";
 
+    public static String getIsUserOpenBlockAppKey(String lastAppPackage) {
+        return "IS_" + lastAppPackage;
+    }
+
     //ROOM DB STRINGS
     public static final String ROOM_DB_NAME = "7SecDB";
     public static final String TABLE_NAME = "app_usage";
@@ -42,10 +46,6 @@ public class Constants {
     public static final String COLUMN_APP_OPEN_TIME = "app_open_time";
     public static final String COLUMN_APP_CLOSE_TIME = "app_close_time";
     public static final String COLUMN_APP_USAGE_TIME = "app_usage_time";
-
-    public static String getIsUserOpenBlockAppKey(String lastAppPackage) {
-        return "IS_" + lastAppPackage;
-    }
 
     //DELAY OR TIMERS
     public static final long SPLASH_DELAY = 1000;
