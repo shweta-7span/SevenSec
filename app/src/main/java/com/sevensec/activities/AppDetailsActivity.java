@@ -200,7 +200,7 @@ public class AppDetailsActivity extends AppCompatActivity {
 
     private void showBarChart(List<AppUsageByDate> usageByDateList) {
         // Create a BarDataSet
-        BarDataSet dataSet = new BarDataSet(getDataEntries(usageByDateList), "App Usage");
+        BarDataSet dataSet = new BarDataSet(getDataEntries(usageByDateList), "");
 
         // Create a BarData object
         BarData data = new BarData(dataSet);
@@ -242,7 +242,8 @@ public class AppDetailsActivity extends AppCompatActivity {
         binding.barChartView.getAxisRight().setAxisMinimum(0f);
 
         //Remove Title
-        binding.barChartView.getLegend().setEnabled(false);
+        binding.barChartView.getLegend().setEnabled(true);
+        binding.barChartView.getLegend().setFormSize(0f);
 
         //Animation
         binding.barChartView.animateY(1000);
