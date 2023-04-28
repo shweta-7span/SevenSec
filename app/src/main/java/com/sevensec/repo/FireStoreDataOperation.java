@@ -1,15 +1,16 @@
 package com.sevensec.repo;
 
-import static com.sevensec.utils.Constants.ANDROID;
+import static com.sevensec.utils.Constants.DB_ANDROID;
 import static com.sevensec.utils.Constants.DB_COLLECTION_APPS;
 import static com.sevensec.utils.Constants.DB_COLLECTION_USERS;
 import static com.sevensec.utils.Constants.DB_DOCUMENT_KEY_APP_ATTEMPTS;
 import static com.sevensec.utils.Constants.DB_DOCUMENT_KEY_APP_NAME;
 import static com.sevensec.utils.Constants.DB_DOCUMENT_KEY_APP_PACKAGE;
 import static com.sevensec.utils.Constants.DB_DOCUMENT_KEY_TYPE;
-import static com.sevensec.utils.Constants.USER_ID;
+import static com.sevensec.utils.Constants.DB_USER_ID;
+import static com.sevensec.utils.Constants.PREF_IS_LOGIN;
 import static com.sevensec.utils.Utils.check24Hour;
-import static com.sevensec.utils.Utils.getLastUsedTime;
+import static com.sevensec.utils.Utils.getTimeInFormat;
 
 import android.content.Context;
 import android.content.Intent;
@@ -27,10 +28,12 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
-import com.sevensec.activities.MainActivity;
+import com.sevensec.activities.OnBoardingActivity;
 import com.sevensec.helper.AuthFailureListener;
 import com.sevensec.repo.interfaces.DataOperation;
 import com.sevensec.utils.Dlog;
+import com.sevensec.utils.SharedPref;
+import com.sevensec.utils.Utils;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -79,7 +82,7 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
     public void addUserOnFireStore(String deviceId) {
         // Create a new user with a first and last name
         Map<String, Object> type = new HashMap<>();
-        type.put(DB_DOCUMENT_KEY_TYPE, ANDROID);
+        type.put(DB_DOCUMENT_KEY_TYPE, DB_ANDROID);
 
         // Add a new document with a generated ID
         firebaseFirestore.collection(DB_COLLECTION_USERS).document(deviceId)
@@ -133,7 +136,7 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
 
         if (timeList != null) {
             long lastUsedDifference = Math.abs(timeList.get(timeList.size() - 1) - (new Date().getTime()));
-            lastUsedTime = getLastUsedTime(lastUsedDifference);
+            lastUsedTime = getTimeInFormat(lastUsedDifference);
 
             for (Long timeStamp : timeList) {
                 Dlog.v("FireStore: getLastAttemptAndTime: " + timeStamp);
@@ -200,14 +203,15 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
     public void addUserID(Context mContext, String deviceId, AuthFailureListener authFailureListener) {
 
         Map<String, Object> userID = new HashMap<>();
-        userID.put(USER_ID, Objects.requireNonNull(mAuth.getCurrentUser()).getUid());
+        userID.put(DB_USER_ID, Objects.requireNonNull(mAuth.getCurrentUser()).getUid());
 
         firebaseFirestore.collection(DB_COLLECTION_USERS).document(deviceId).set(userID).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 Dlog.d("FireStore: Anonymous UserID successfully added!");
+                SharedPref.writeBoolean(PREF_IS_LOGIN, true);
 
-                startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                startActivity(new Intent(getApplicationContext(), OnBoardingActivity.class));
                 finish();
             }
         }).addOnFailureListener(new OnFailureListener() {

@@ -2,12 +2,12 @@ package com.sevensec.service;
 
 import static com.sevensec.utils.Constants.APP_PACKAGE_NAME;
 import static com.sevensec.utils.Constants.CHECK_TOP_APPLICATION_DELAY;
-import static com.sevensec.utils.Constants.DELAY_TOP_APP_WHEN_ATTEMPT_OPEN;
+import static com.sevensec.utils.Constants.CHECK_TOP_APPLICATION_WHEN_ATTEMPT_OPEN_DELAY;
 import static com.sevensec.utils.Constants.OPEN_ATTEMPT_SCREEN_DELAY;
-import static com.sevensec.utils.Constants.STR_APP_SWITCH_DURATION;
-import static com.sevensec.utils.Constants.STR_FAV_APP_LIST;
+import static com.sevensec.utils.Constants.PREF_BLOCK_APP_OPEN_TIME;
+import static com.sevensec.utils.Constants.PREF_APP_SWITCH_DURATION;
 import static com.sevensec.utils.Constants.STR_LAST_WARN_APP;
-import static com.sevensec.utils.Utils.getIsLastAppOpenKey;
+import static com.sevensec.utils.Constants.getIsUserOpenBlockAppKey;
 
 import android.app.ActivityManager;
 import android.app.Notification;
@@ -31,8 +31,12 @@ import androidx.core.app.NotificationCompat;
 import com.sevensec.R;
 import com.sevensec.activities.AttemptActivity;
 import com.sevensec.activities.MainActivity;
+import com.sevensec.database.AppUsageDao;
+import com.sevensec.database.DatabaseHelper;
+import com.sevensec.database.table.AppUsage;
 import com.sevensec.utils.Dlog;
 import com.sevensec.utils.SharedPref;
+import com.sevensec.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -46,6 +50,8 @@ public class MyForegroundService extends Service {
     public static MyForegroundService instance;
     //    String[] androidStrings;
     List<String> favAppList = new ArrayList<>();
+
+    AppUsageDao appUsageDao;
 
     @Override
     public void onCreate() {
@@ -68,9 +74,10 @@ public class MyForegroundService extends Service {
 
         TAG = getApplicationContext().getClass().getName();
         instance = this;
+        appUsageDao = DatabaseHelper.getDatabase(this).appUsageDao();
 
         //androidStrings = getResources().getStringArray(R.array.arrFavApps);
-        Dlog.d( "onStartCommand: " + lastAppPN);
+        Dlog.d("onStartCommand: " + lastAppPN);
 
         //scheduleMethod();
         checkRunningApps();
@@ -119,8 +126,8 @@ public class MyForegroundService extends Service {
     public void checkRunningApps() {
 
         SharedPref.init(getApplicationContext());
-        favAppList = SharedPref.readListString(STR_FAV_APP_LIST);
-        Dlog.w( "TEST favAppList: " + favAppList.size());
+        favAppList = Utils.getFavAppList();
+        Dlog.w("TEST favAppList: " + favAppList.size());
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             /*------For [Build.VERSION.SDK_INT < 20]---------*/
@@ -147,18 +154,18 @@ public class MyForegroundService extends Service {
                 activityOnTop = result;
             }
         }
-        Dlog.v( "TEST activity on Top: " + activityOnTop);
+        Dlog.v("TEST activity on Top: " + activityOnTop);
         saveAppCloseTime(activityOnTop, lastAppPN);
 
         // Provide the packageName(s) of apps here, you want to show attempt activity
         if (favAppList.contains(activityOnTop)) {
 
-            Dlog.v( "TEST lastAppPN: " + lastAppPN);
+            Dlog.v("TEST lastAppPN: " + lastAppPN);
 
             if (!(activityOnTop.equals(lastAppPN) ||
                     (activityOnTop.equals(APP_PACKAGE_NAME)))) {
 
-                if(isAppSwitchTimeExpire(activityOnTop)) {
+                if (isAppSwitchTimeExpire(activityOnTop)) {
 
                     new Handler(Looper.getMainLooper()).postDelayed(() -> {
 
@@ -183,31 +190,31 @@ public class MyForegroundService extends Service {
                         startActivity(intent);
 
                         //call the method again after execution of the above code
-                        callAgain(DELAY_TOP_APP_WHEN_ATTEMPT_OPEN);
+                        callAgain(CHECK_TOP_APPLICATION_WHEN_ATTEMPT_OPEN_DELAY);
 
                     }, OPEN_ATTEMPT_SCREEN_DELAY);
 
-                }else{
+                } else {
                     setLastApp(activityOnTop);
-                    Dlog.d( "TEST isAppSwitchTimeExpire False");
+                    Dlog.d("TEST isAppSwitchTimeExpire False");
                     //call the method again after execution of the above code
                     callAgain(CHECK_TOP_APPLICATION_DELAY);
                 }
 
             } else {
-                Dlog.d( "TEST Don't Show Password Activity");
+                Dlog.d("TEST Don't Show Password Activity");
                 //call the method again after execution of the above code
                 callAgain(CHECK_TOP_APPLICATION_DELAY);
             }
 
         } else {
             // DO nothing
-            Dlog.w( "TEST DO nothing: " + activityOnTop);
+            Dlog.w("TEST DO nothing: " + activityOnTop);
 
             if (activityOnTop.equals(lastAppPN) || activityOnTop.equals(APP_PACKAGE_NAME)) {
-                Dlog.d("TEST Don't Update: lastAppPN: "+lastAppPN);
+                Dlog.d("TEST Don't Update: lastAppPN: " + lastAppPN);
             } else {
-                Dlog.w( "TEST Update lastAppPN: " + activityOnTop);
+                Dlog.w("TEST Update lastAppPN: " + activityOnTop);
                 setLastApp(activityOnTop);
             }
 
@@ -229,37 +236,66 @@ public class MyForegroundService extends Service {
 
     private void saveAppCloseTime(String activityOnTop, String lastAppPN) {
         //Check user open the app after click on continue button of Attempt Screen OR not
-        if (SharedPref.readBoolean(getIsLastAppOpenKey(lastAppPN), false)) {
+        if (SharedPref.readBoolean(getIsUserOpenBlockAppKey(lastAppPN), false)) {
             if (!activityOnTop.equals(lastAppPN) &&
                     !activityOnTop.equals(APP_PACKAGE_NAME) &&
                     favAppList.contains(lastAppPN)) {
-                Dlog.d( "AppSwitch: closed Time for " + lastAppPN + " :" + new Date().getTime());
-                SharedPref.writeLong(lastAppPN, new Date().getTime());
+
+                getAppUsage(lastAppPN, System.currentTimeMillis());
             }
         }
     }
 
+    private void getAppUsage(String appPackage, long appCloseTime) {
+        Dlog.d("AppSwitch: closed Time for " + appPackage + " :" + appCloseTime);
+
+        long appOpenTime = SharedPref.readLong(PREF_BLOCK_APP_OPEN_TIME, appCloseTime);
+
+        long appUsageTimeMillis = appCloseTime - appOpenTime;
+        Dlog.v("appUsageTimeMillis: " + Utils.getTimeInFormat(appUsageTimeMillis));
+
+        Dlog.d("appPackage: " + appPackage);
+        Dlog.d("appOpenTime: " + appOpenTime);
+        List<AppUsage> appUsageList = appUsageDao.getAppUsageByPackageNameAndOpenTime(appPackage, appOpenTime);
+
+        if (appUsageList.size() > 0) {
+            AppUsage appUsage = appUsageList.get(0);
+
+            appUsage.setAppCloseTime(appCloseTime);
+            appUsage.setAppUsageTime(appUsageTimeMillis);
+
+            appUsageDao.updateAppData(appUsage);
+        } else {
+            Dlog.e("Not get this Data");
+        }
+    }
+
     private boolean isAppSwitchTimeExpire(String lastAppPN) {
-        /*long lastUsedDifference = Math.abs(SharedPref.readLong(lastAppPN, new Date().getTime() + ((1000 * 60) * 60)) - new Date().getTime());
-        long elapsedMinutes = lastUsedDifference / (1000 * 60);
-
-        Dlog.v( "App Switch: " + lastAppPN + ": " + elapsedMinutes);
-
-        return elapsedMinutes >= 1;*/
 
         //Default AppSwitchDuration when user installed the app & not change the AppSwitchDuration
         String[] arrAppSwitchDelay = getResources().getStringArray(R.array.arrAppSwitchDelay);
         int durationInSeconds = Integer.parseInt(arrAppSwitchDelay[arrAppSwitchDelay.length - 1].split(" ")[0]) * 60;
 
-        long appSwitchDuration = SharedPref.readInteger(STR_APP_SWITCH_DURATION, durationInSeconds);
-        Dlog.w( "isAppSwitchTimeExpire: appSwitchDuration: " + appSwitchDuration);
+        long appSwitchDuration = SharedPref.readInteger(PREF_APP_SWITCH_DURATION, durationInSeconds);
+        Dlog.w("isAppSwitchTimeExpire: appSwitchDuration: " + appSwitchDuration);
 
         if (appSwitchDuration == 0) {
-            Dlog.v( "AppSwitch: " + lastAppPN + " ,elapsedSeconds already: " + 0);
+            Dlog.v("AppSwitch: " + lastAppPN + " ,elapsedSeconds already: " + 0);
             return true;
 
         } else {
-            long lastUsedDifference = Math.abs(SharedPref.readLong(lastAppPN, new Date().getTime() + (appSwitchDuration * 1000 * 60)) - new Date().getTime());
+            long appCloseTime;
+
+            AppUsage appUsage = appUsageDao.getAppCloseTime(lastAppPN);
+            if (appUsage == null) {
+                Dlog.d("close time: NULL");
+                appCloseTime = new Date().getTime() + (appSwitchDuration * 1000 * 60);
+            }else{
+                Dlog.d("close time: "+appUsage.getAppCloseTime());
+                appCloseTime = appUsage.getAppCloseTime();
+            }
+
+            long lastUsedDifference = Math.abs(appCloseTime - new Date().getTime());
             long elapsedSeconds = lastUsedDifference / 1000;
 
             Dlog.v("AppSwitch: " + lastAppPN + " ,elapsedSeconds: " + elapsedSeconds);
@@ -277,14 +313,14 @@ public class MyForegroundService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Dlog.e( "MyService: onDestroy: ");
+        Dlog.e("MyService: onDestroy: ");
         startMyService();
     }
 
     @Override
     public void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
-        Dlog.e( "MyService: onTaskRemoved: ");
+        Dlog.e("MyService: onTaskRemoved: ");
         startMyService();
     }
 
