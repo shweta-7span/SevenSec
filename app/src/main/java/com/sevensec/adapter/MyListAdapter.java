@@ -105,9 +105,11 @@ public class MyListAdapter extends RecyclerView.Adapter<MyListAdapter.ViewHolder
                 if (isChecked) {
                     favAppList.add(appInfoModel1.getPackageName());
                     Dlog.d("Check favAppList.add: " + appInfoModel1.getPackageName());
+                    appInfoModel1.setFavorite(true);
                 } else {
                     favAppList.remove(appInfoModel1.getPackageName());
                     Dlog.d("Check favAppList.remove: " + appInfoModel1.getPackageName());
+                    appInfoModel1.setFavorite(false);
                 }
 
                 Dlog.v("onBindViewHolder onCheckedChanged favAppList.size: " + favAppList.size());
