@@ -94,14 +94,18 @@ public class SplashActivity extends FireBaseAuthOperation implements AuthFailure
 
         } else {
 
+            if(!Utils.isInternetAvailable(this)){
+                binding.progressBar.setVisibility(View.GONE);
+                binding.llNoInternet.setVisibility(View.VISIBLE);
+                binding.tvNoInternet.setVisibility(View.VISIBLE);
+            }
+
             // Get an instance of the ConnectivityManager
             connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 
             // Register the network callback
             NetworkRequest.Builder builder = new NetworkRequest.Builder();
             connMgr.registerNetworkCallback(builder.build(), networkCallback);
-
-            checkForLogin(this, DEVICE_ID, Utils.isInternetAvailable(this));
         }
 
         binding.tvReTry.setOnClickListener(v -> checkForLogin(this, DEVICE_ID, Utils.isInternetAvailable(this)));
@@ -125,5 +129,13 @@ public class SplashActivity extends FireBaseAuthOperation implements AuthFailure
     @Override
     public void authFail() {
         SharedPref.writeBoolean(PREF_IS_LOGIN, false);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (connMgr != null) {
+            connMgr.unregisterNetworkCallback(networkCallback);
+        }
     }
 }

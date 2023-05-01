@@ -36,7 +36,8 @@
                 android:id="@+id/progressBar"
                 android:layout_width="@dimen/space_30"
                 android:layout_height="@dimen/space_30"
-                android:layout_marginBottom="@dimen/space_30" />
+                android:layout_marginBottom="@dimen/space_30"
+                android:visibility="gone"/>
 
             <TextView
                 android:id="@+id/tvNoInternet"
@@ -49,7 +50,8 @@
                 android:text="@string/no_network"
                 android:textColor="@color/primary200"
                 android:textSize="18sp"
-                tools:targetApi="p" />
+                tools:targetApi="p"
+                android:visibility="gone"/>
 
             <LinearLayout
                 android:id="@+id/llNoInternet"
@@ -58,7 +60,7 @@
                 android:layout_marginBottom="@dimen/space_30"
                 android:gravity="center"
                 android:orientation="horizontal"
-                android:visibility="visible">
+                android:visibility="gone">
 
                 <RelativeLayout
                     android:layout_width="wrap_content"
