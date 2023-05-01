@@ -8,16 +8,17 @@ import static com.sevensec.utils.Constants.SPLASH_DELAY;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkRequest;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
 import android.view.View;
 import android.view.WindowManager;
 
-import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 
-import com.google.android.material.snackbar.Snackbar;
 import com.sevensec.BuildConfig;
 import com.sevensec.R;
 import com.sevensec.databinding.ActivitySplashBinding;
@@ -36,6 +37,30 @@ public class SplashActivity extends FireBaseAuthOperation implements AuthFailure
 
     ActivitySplashBinding binding;
 
+    String DEVICE_ID;
+
+    ConnectivityManager connMgr;
+
+    // Define a NetworkCallback object
+    ConnectivityManager.NetworkCallback networkCallback = new ConnectivityManager.NetworkCallback() {
+        @Override
+        public void onAvailable(Network network) {
+            // The network is available
+            // Do something here, such as update your UI
+            Dlog.d("Internet: onAvailable");
+            runOnUiThread(() -> checkForLogin(getApplicationContext(), DEVICE_ID, true));
+        }
+
+        @Override
+        public void onLost(Network network) {
+            // The network is lost
+            // Do something here, such as update your UI
+            Dlog.d("Internet: onLost");
+            runOnUiThread(() -> checkForLogin(getApplicationContext(), DEVICE_ID, false));
+        }
+    };
+
+    @SuppressLint("HardwareIds")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,7 +73,7 @@ public class SplashActivity extends FireBaseAuthOperation implements AuthFailure
         binding.appVersion.setText(String.format("v %s", BuildConfig.VERSION_NAME));
 
         //Store DEVICE_ID in Preference
-        @SuppressLint("HardwareIds") String DEVICE_ID = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+        DEVICE_ID = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
         Dlog.d("OnBoardingActivity onCreate DEVICE_ID: " + DEVICE_ID);
         SharedPref.writeString(PREF_DEVICE_ID, DEVICE_ID);
 
@@ -56,6 +81,7 @@ public class SplashActivity extends FireBaseAuthOperation implements AuthFailure
 
             binding.progressBar.setVisibility(View.GONE);
             binding.llNoInternet.setVisibility(View.GONE);
+            binding.tvNoInternet.setVisibility(View.GONE);
 
             new Handler().postDelayed(() -> {
                 if (SharedPref.readBoolean(PREF_IS_APP_LAUNCH_FIRST_TIME, true)) {
@@ -67,35 +93,37 @@ public class SplashActivity extends FireBaseAuthOperation implements AuthFailure
             }, SPLASH_DELAY);
 
         } else {
-            checkForLogin(getApplicationContext(), DEVICE_ID);
+
+            // Get an instance of the ConnectivityManager
+            connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+            // Register the network callback
+            NetworkRequest.Builder builder = new NetworkRequest.Builder();
+            connMgr.registerNetworkCallback(builder.build(), networkCallback);
+
+            checkForLogin(this, DEVICE_ID, Utils.isInternetAvailable(this));
         }
 
-        binding.tvReTry.setOnClickListener(v -> checkForLogin(getApplicationContext(), DEVICE_ID));
+        binding.tvReTry.setOnClickListener(v -> checkForLogin(this, DEVICE_ID, Utils.isInternetAvailable(this)));
     }
 
-    private void checkForLogin(Context context, String device_id) {
-        if (Utils.isInternetAvailable(this)) {
+    private void checkForLogin(Context context, String device_id, boolean isInternetAvailable) {
+        if (isInternetAvailable) {
             binding.progressBar.setVisibility(View.VISIBLE);
             binding.llNoInternet.setVisibility(View.GONE);
+            binding.tvNoInternet.setVisibility(View.GONE);
 
             loginAnonymously(context, device_id, this);
 
         } else {
             binding.progressBar.setVisibility(View.GONE);
             binding.llNoInternet.setVisibility(View.VISIBLE);
-
-            showSnackBar(getApplicationContext(), binding.rlMain);
+            binding.tvNoInternet.setVisibility(View.VISIBLE);
         }
     }
 
     @Override
     public void authFail() {
         SharedPref.writeBoolean(PREF_IS_LOGIN, false);
-    }
-
-    public static void showSnackBar(Context mcontext, View parentLayout) {
-        Snackbar.make(parentLayout, mcontext.getResources().getString(R.string.no_internet_connection), Snackbar.LENGTH_LONG)
-                .setBackgroundTint(ContextCompat.getColor(mcontext, android.R.color.holo_red_light))
-                .show();
     }
 }
