@@ -248,6 +248,9 @@ public class AppDetailsActivity extends AppCompatActivity {
         //Animation
         binding.barChartView.animateY(1000);
 
+        //Stop zooming
+        binding.barChartView.setScaleEnabled(false);
+
         binding.barChartView.setData(data);
         binding.barChartView.invalidate();
     }
