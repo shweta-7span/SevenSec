@@ -13,7 +13,7 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/white"
+            android:background="@color/gif_background"
             tools:context="com.sevensec.activities.AttemptActivity">
 
             <LinearLayout
@@ -33,7 +33,7 @@
                     android:paddingLeft="@dimen/space_36"
                     android:paddingRight="@dimen/space_36"
                     android:text="@string/str_breath_description"
-                    android:textColor="@color/black"
+                    android:textColor="@color/white"
                     android:textFontWeight="400"
                     android:textSize="24sp"
                     tools:targetApi="p" />
@@ -43,8 +43,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_weight="1.3"
-                    android:background="#fff"
-                    android:src="@drawable/breathe" />
+                    android:background="@color/gif_background"
+                    android:src="@drawable/breathing" />
 
             </LinearLayout>
 

@@ -92,7 +92,7 @@ public class AttemptActivity extends FireStoreDataOperation {
 
         binding.tvExit.setOnClickListener(view -> closeApp());
 
-        InputStream is = getResources().openRawResource(R.raw.breathe);
+        InputStream is = getResources().openRawResource(R.raw.breathing);
         Movie movie = Movie.decodeStream(is);
         int duration = movie.duration();
         Dlog.e(".gif duration: " + duration);

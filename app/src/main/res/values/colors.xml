@@ -40,4 +40,6 @@
 
     <color name="switch_thumb_stoke_color">#0000FFFF</color>
 
+    <color name="gif_background">#FF7F84BE</color>
+
 </resources>
