@@ -207,7 +207,7 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
         firebaseFirestore.collection(DB_COLLECTION_USERS).document(deviceId).set(userID).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                Dlog.d("FireStore: Anonymous UserID successfully added!");
+                Dlog.d("FireStore: UserID successfully added!");
                 SharedPref.writeBoolean(PREF_IS_LOGIN, true);
 
                 startActivity(new Intent(getApplicationContext(), MainActivity.class));
