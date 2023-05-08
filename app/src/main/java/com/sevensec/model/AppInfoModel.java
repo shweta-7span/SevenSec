@@ -5,6 +5,8 @@ import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.sevensec.utils.Dlog;
+
 public class AppInfoModel implements Parcelable {
     private ApplicationInfo appInfo;
     private Bitmap appIconBitmap;
@@ -13,7 +15,7 @@ public class AppInfoModel implements Parcelable {
     private String category;
     private boolean isFavorite;
 
-    public AppInfoModel(){
+    public AppInfoModel() {
     }
 
     public ApplicationInfo getAppInfo() {
@@ -92,7 +94,13 @@ public class AppInfoModel implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeParcelable(appInfo, flags);
-        dest.writeParcelable(appIconBitmap, flags);
+
+        Dlog.e("appIconBitmap Width: " + appIconBitmap.getWidth() +" ,Height: "+ appIconBitmap.getHeight());
+        // Scale down the bitmap
+        Bitmap scaledBitmap = Bitmap.createScaledBitmap(appIconBitmap, 300, 300, true);
+        Dlog.i("scaledBitmap Width: " + scaledBitmap.getWidth() +" ,Height: "+ scaledBitmap.getHeight());
+
+        dest.writeParcelable(scaledBitmap, flags);
         dest.writeString(appName);
         dest.writeString(packageName);
         dest.writeString(category);
