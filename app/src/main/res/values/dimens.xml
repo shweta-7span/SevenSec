@@ -12,8 +12,11 @@
     <dimen name="space_26">26dp</dimen>
     <dimen name="space_30">30dp</dimen>
     <dimen name="space_34">34dp</dimen>
+    <dimen name="space_35">35dp</dimen>
     <dimen name="space_36">36dp</dimen>
+    <dimen name="space_38">38dp</dimen>
     <dimen name="space_40">40dp</dimen>
+    <dimen name="space_48">48dp</dimen>
     <dimen name="space_50">50dp</dimen>
     <dimen name="space_64">64dp</dimen>
     <dimen name="space_80">80dp</dimen>

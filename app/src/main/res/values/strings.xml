@@ -8,7 +8,7 @@
     <!--    <string name="not_go">I don\'t want to open</string>-->
     <!--    <string name="str_breath_description">It\'s time to take a deep breath…</string>-->
     <string name="strContinue">Continue</string>
-<!--    <string name="str_attempts_description">Attempts to open Instagram within 24 hours.</string>-->
+    <!--    <string name="str_attempts_description">Attempts to open Instagram within 24 hours.</string>-->
     <string name="title_activity_warning">WarningActivity</string>
     <string name="attempt_to_open">attempt have been made to open</string>
     <string name="attempts_to_open">attempts have been made to open</string>
@@ -58,6 +58,7 @@
     <string name="please_try_again">Please try again</string>
     <string name="retry">Retry</string>
     <string name="no_network">No network!</string>
+    <string name="log_in_with_google">Log in with Google</string>
 
     <string-array name="arrOnBoardingTitleList">
         <item>Start Delaying \nDistracting Apps</item>
