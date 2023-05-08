@@ -14,7 +14,7 @@
             android:id="@+id/rlLogin"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="gone"
+            android:visibility="visible"
             tools:context=".activities.LoginActivity">
 
             <TextView
@@ -63,7 +63,7 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:orientation="vertical"
-            android:visibility="visible">
+            android:visibility="gone">
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -109,6 +109,14 @@
                 tools:targetApi="p" />-->
 
         </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="@dimen/space_80"
+            android:layout_height="@dimen/space_80"
+            android:layout_gravity="center"
+            android:layout_marginBottom="@dimen/space_30"
+            android:visibility="gone" />
 
     </FrameLayout>
 </layout>

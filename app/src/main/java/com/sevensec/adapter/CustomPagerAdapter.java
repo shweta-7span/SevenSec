@@ -1,8 +1,6 @@
 package com.sevensec.adapter;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +10,6 @@ import androidx.annotation.NonNull;
 import androidx.viewpager.widget.PagerAdapter;
 
 import com.sevensec.R;
-import com.sevensec.activities.MainActivity;
 
 public class CustomPagerAdapter extends PagerAdapter {
 
@@ -20,17 +17,23 @@ public class CustomPagerAdapter extends PagerAdapter {
     String[] titleList;
     String[] descriptionList;
     NextClickListener nextClickListener;
+    SkipClickListener skipClickListener;
 
-    public CustomPagerAdapter(Context context, String[] titleList, String[] descriptionList, NextClickListener nextClickListener) {
+    public CustomPagerAdapter(Context context, String[] titleList, String[] descriptionList, SkipClickListener skipClickListener,NextClickListener nextClickListener) {
 
         mContext = context;
         this.titleList = titleList;
         this.descriptionList = descriptionList;
         this.nextClickListener = nextClickListener;
+        this.skipClickListener = skipClickListener;
     }
 
     public interface NextClickListener {
         void onNextClick();
+    }
+
+    public interface SkipClickListener {
+        void onSkipClick();
     }
 
     @NonNull
@@ -48,8 +51,9 @@ public class CustomPagerAdapter extends PagerAdapter {
         tvDescription.setText(descriptionList[position]);
 
         tvSkip.setOnClickListener(v -> {
-            mContext.startActivity(new Intent(mContext, MainActivity.class));
-            ((Activity) mContext).finish();
+            if (skipClickListener != null) {
+                skipClickListener.onSkipClick();
+            }
         });
 
         tvNext.setOnClickListener(v -> {

@@ -28,12 +28,11 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
-import com.sevensec.activities.OnBoardingActivity;
+import com.sevensec.activities.MainActivity;
 import com.sevensec.helper.AuthFailureListener;
 import com.sevensec.repo.interfaces.DataOperation;
 import com.sevensec.utils.Dlog;
 import com.sevensec.utils.SharedPref;
-import com.sevensec.utils.Utils;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -211,7 +210,7 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
                 Dlog.d("FireStore: Anonymous UserID successfully added!");
                 SharedPref.writeBoolean(PREF_IS_LOGIN, true);
 
-                startActivity(new Intent(getApplicationContext(), OnBoardingActivity.class));
+                startActivity(new Intent(getApplicationContext(), MainActivity.class));
                 finish();
             }
         }).addOnFailureListener(new OnFailureListener() {
