@@ -2,7 +2,7 @@ package com.sevensec.utils;
 
 import static com.sevensec.utils.Constants.IN_APP_UPDATE_REQUEST_CODE;
 import static com.sevensec.utils.Constants.PREF_FAV_APP_LIST;
-import static com.sevensec.utils.Constants.PREF_IS_APP_LAUNCH_FIRST_TIME;
+import static com.sevensec.utils.Constants.PREF_IS_LOGIN;
 import static com.sevensec.utils.Constants.STR_OPPO;
 import static com.sevensec.utils.Constants.PREF_IS_SKIP_PROTECTED_APP_CHECKED;
 import static com.sevensec.utils.Constants.STR_XIAOMI;
@@ -29,18 +29,16 @@ import android.widget.CheckBox;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.play.core.appupdate.AppUpdateInfo;
 import com.google.android.play.core.appupdate.AppUpdateManager;
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
 import com.google.android.play.core.install.model.AppUpdateType;
 import com.google.android.play.core.install.model.UpdateAvailability;
 import com.sevensec.R;
+import com.sevensec.activities.LoginActivity;
 import com.sevensec.activities.MainActivity;
-import com.sevensec.activities.OnBoardingActivity;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -356,5 +354,13 @@ public class Utils {
 
     public static List<String> getFavAppList() {
         return SharedPref.readListString(PREF_FAV_APP_LIST);
+    }
+
+    public static void isLogin(Context mContext){
+        if (SharedPref.readBoolean(PREF_IS_LOGIN, false)) {
+            mContext.startActivity(new Intent(mContext, MainActivity.class));
+        } else {
+            mContext.startActivity(new Intent(mContext, LoginActivity.class));
+        }
     }
 }

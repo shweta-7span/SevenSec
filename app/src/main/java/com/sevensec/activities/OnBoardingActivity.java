@@ -1,9 +1,7 @@
 package com.sevensec.activities;
 
 import static com.sevensec.utils.Constants.PREF_IS_APP_LAUNCH_FIRST_TIME;
-import static com.sevensec.utils.Constants.PREF_IS_LOGIN;
 
-import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,6 +12,7 @@ import com.sevensec.adapter.CustomPagerAdapter;
 import com.sevensec.databinding.ActivityOnBoardingBinding;
 import com.sevensec.utils.Dlog;
 import com.sevensec.utils.SharedPref;
+import com.sevensec.utils.Utils;
 
 import java.util.Objects;
 
@@ -54,11 +53,7 @@ public class OnBoardingActivity extends AppCompatActivity {
 
         SharedPref.writeBoolean(PREF_IS_APP_LAUNCH_FIRST_TIME, false);
 
-        if (SharedPref.readBoolean(PREF_IS_LOGIN, false)) {
-            startActivity(new Intent(getApplicationContext(), MainActivity.class));
-        } else {
-            startActivity(new Intent(getApplicationContext(), LoginActivity.class));
-        }
+        Utils.isLogin(this);
         finish();
     }
 }

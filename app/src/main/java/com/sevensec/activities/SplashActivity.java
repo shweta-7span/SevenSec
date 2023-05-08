@@ -16,6 +16,7 @@ import com.sevensec.BuildConfig;
 import com.sevensec.R;
 import com.sevensec.databinding.ActivitySplashBinding;
 import com.sevensec.utils.SharedPref;
+import com.sevensec.utils.Utils;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -42,7 +43,7 @@ public class SplashActivity extends AppCompatActivity {
             if (SharedPref.readBoolean(PREF_IS_APP_LAUNCH_FIRST_TIME, true)) {
                 startActivity(new Intent(getApplicationContext(), OnBoardingActivity.class));
             } else {
-                startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+                Utils.isLogin(this);
             }
             finish();
         }, SPLASH_DELAY);
