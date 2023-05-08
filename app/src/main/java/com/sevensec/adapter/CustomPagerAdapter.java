@@ -20,23 +20,17 @@ public class CustomPagerAdapter extends PagerAdapter {
     String[] titleList;
     String[] descriptionList;
     NextClickListener nextClickListener;
-    SkipClickListener skipClickListener;
 
-    public CustomPagerAdapter(Context context, String[] titleList, String[] descriptionList, SkipClickListener skipClickListener, NextClickListener nextClickListener) {
+    public CustomPagerAdapter(Context context, String[] titleList, String[] descriptionList, NextClickListener nextClickListener) {
 
         mContext = context;
         this.titleList = titleList;
         this.descriptionList = descriptionList;
-        this.skipClickListener = skipClickListener;
         this.nextClickListener = nextClickListener;
     }
 
     public interface NextClickListener {
         void onNextClick();
-    }
-
-    public interface SkipClickListener {
-        void onSkipClick();
     }
 
     @NonNull
@@ -53,11 +47,9 @@ public class CustomPagerAdapter extends PagerAdapter {
         tvTitle.setText(titleList[position]);
         tvDescription.setText(descriptionList[position]);
 
-
         tvSkip.setOnClickListener(v -> {
-            if (skipClickListener != null) {
-                skipClickListener.onSkipClick();
-            }
+            mContext.startActivity(new Intent(mContext, MainActivity.class));
+            ((Activity) mContext).finish();
         });
 
         tvNext.setOnClickListener(v -> {

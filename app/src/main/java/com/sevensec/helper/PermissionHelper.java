@@ -38,7 +38,7 @@ public class PermissionHelper {
 //            if ((applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 1) {
 //                continue;
 //            }
-            Dlog.v( "onCreate appName: " + packageManager.getApplicationLabel(applicationInfo).toString());
+            Dlog.v( "onCreate appName: " + packageManager.getApplicationLabel(applicationInfo));
             Dlog.d( "onCreate installed: " + applicationInfo.packageName);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 Dlog.d( "onCreate info: " + ApplicationInfo.getCategoryTitle(context, applicationInfo.category));
@@ -46,9 +46,14 @@ public class PermissionHelper {
 
             AppInfoModel appInfoModel = new AppInfoModel();
             appInfoModel.setAppInfo(applicationInfo);
-            appInfoModel.setAppIcon(packageManager.getApplicationIcon(applicationInfo));
+            appInfoModel.setAppIconBitmap(Utils.getBitmapFromDrawable(packageManager.getApplicationIcon(applicationInfo)));
             appInfoModel.setAppName(packageManager.getApplicationLabel(applicationInfo).toString());
             appInfoModel.setPackageName(applicationInfo.packageName);
+
+            List<String> favAppList = Utils.getFavAppList();
+            if(favAppList.contains(applicationInfo.packageName)){
+                appInfoModel.setFavorite(true);
+            }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 if (ApplicationInfo.getCategoryTitle(context, applicationInfo.category) != null)

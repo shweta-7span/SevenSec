@@ -1,8 +1,10 @@
 package com.sevensec.utils;
 
 import static com.sevensec.utils.Constants.IN_APP_UPDATE_REQUEST_CODE;
+import static com.sevensec.utils.Constants.PREF_FAV_APP_LIST;
+import static com.sevensec.utils.Constants.PREF_IS_APP_LAUNCH_FIRST_TIME;
 import static com.sevensec.utils.Constants.STR_OPPO;
-import static com.sevensec.utils.Constants.STR_SKIP_PROTECTED_APP_CHECK;
+import static com.sevensec.utils.Constants.PREF_IS_SKIP_PROTECTED_APP_CHECKED;
 import static com.sevensec.utils.Constants.STR_XIAOMI;
 
 import android.app.Activity;
@@ -14,6 +16,10 @@ import android.content.IntentSender;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.os.Build;
 import android.provider.Settings;
@@ -23,22 +29,24 @@ import android.widget.CheckBox;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.play.core.appupdate.AppUpdateInfo;
 import com.google.android.play.core.appupdate.AppUpdateManager;
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
 import com.google.android.play.core.install.model.AppUpdateType;
 import com.google.android.play.core.install.model.UpdateAvailability;
 import com.sevensec.R;
+import com.sevensec.activities.MainActivity;
+import com.sevensec.activities.OnBoardingActivity;
 
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
 public class Utils {
-
-    private static final String TAG = "Utils";
 
     public static boolean isAccessGranted(Context context) {
         try {
@@ -78,7 +86,7 @@ public class Utils {
         return moreThanDay;
     }
 
-    public static String getLastUsedTime(long difference) {
+    public static String getTimeInFormat(long difference) {
 
         System.out.println("difference : " + difference);
 
@@ -101,25 +109,16 @@ public class Utils {
         long elapsedSeconds = difference / secondsInMilli;
 
         if (elapsedDays != 0) {
-            if (elapsedDays == 1)
-                s.append(elapsedDays).append(" day ago");
-            else
-                s.append(elapsedDays).append(" days ago");
+            s.append(elapsedDays).append(elapsedDays == 1 ? " day" : " days");
+
         } else if (elapsedHours != 0) {
-            if (elapsedHours == 1)
-                s.append(elapsedHours).append(" hr ago");
-            else
-                s.append(elapsedHours).append(" hrs ago");
+            s.append(elapsedHours).append(elapsedHours == 1 ? " hr" : " hrs");
+
         } else if (elapsedMinutes != 0) {
-            if (elapsedMinutes == 1)
-                s.append(elapsedMinutes).append(" min ago");
-            else
-                s.append(elapsedMinutes).append(" mins ago");
+            s.append(elapsedMinutes).append(elapsedMinutes == 1 ? " min" : " mins");
+
         } else if (elapsedSeconds != 0) {
-            if (elapsedSeconds == 1)
-                s.append(elapsedSeconds).append(" sec ago");
-            else
-                s.append(elapsedSeconds).append(" secs ago");
+            s.append(elapsedSeconds).append(elapsedSeconds == 1 ? " sec" : " secs");
         }
 
         System.out.printf(
@@ -129,8 +128,39 @@ public class Utils {
         return String.valueOf(s);
     }
 
-    public static String getIsLastAppOpenKey(String lastAppPackage) {
-        return "IS" + lastAppPackage;
+    public static String getAppUsageTimeInFormat(long difference, boolean includeZero) {
+
+        System.out.println("difference : " + difference);
+
+        StringBuilder s = new StringBuilder(100);
+
+        long secondsInMilli = 1000;
+        long minutesInMilli = secondsInMilli * 60;
+        long hoursInMilli = minutesInMilli * 60;
+
+        long elapsedHours = difference / hoursInMilli;
+        difference = difference % hoursInMilli;
+
+        long elapsedMinutes = difference / minutesInMilli;
+        difference = difference % minutesInMilli;
+
+        long elapsedSeconds = difference / secondsInMilli;
+
+        if (elapsedHours != 0) {
+            s.append(elapsedHours).append("h");
+            if (elapsedMinutes != 0 || includeZero)
+                s.append(" ").append(elapsedMinutes).append("m");
+
+        } else if (elapsedMinutes != 0) {
+            s.append(elapsedMinutes).append("m");
+            if (elapsedSeconds != 0 || includeZero)
+                s.append(" ").append(elapsedSeconds).append("s");
+
+        } else if (elapsedSeconds != 0) {
+            s.append(elapsedSeconds).append("s");
+        }
+
+        return String.valueOf(s);
     }
 
     public static List<Intent> POWER_MANAGER_INTENTS = Arrays.asList(
@@ -151,7 +181,7 @@ public class Utils {
 
 
     public static void startPowerSaverIntent(Context context) {
-        boolean skipMessage = SharedPref.readBoolean(STR_SKIP_PROTECTED_APP_CHECK, false);
+        boolean skipMessage = SharedPref.readBoolean(PREF_IS_SKIP_PROTECTED_APP_CHECKED, false);
 
         String title;
         String message;
@@ -189,7 +219,7 @@ public class Utils {
                             .setView(view)
                             .setCancelable(false)
                             .setPositiveButton(R.string.go_to_settings, (dialog, which) -> {
-                                SharedPref.writeBoolean(STR_SKIP_PROTECTED_APP_CHECK, checkBox.isChecked());
+                                SharedPref.writeBoolean(PREF_IS_SKIP_PROTECTED_APP_CHECKED, checkBox.isChecked());
                                 try {
                                     if (!Build.MANUFACTURER.equalsIgnoreCase(STR_OPPO)) {
                                         context.startActivity(intent);
@@ -239,7 +269,7 @@ public class Utils {
                 }
             }
             if (!foundCorrectIntent) {
-                SharedPref.writeBoolean(STR_SKIP_PROTECTED_APP_CHECK, true);
+                SharedPref.writeBoolean(PREF_IS_SKIP_PROTECTED_APP_CHECKED, true);
             }
         }
     }
@@ -300,5 +330,31 @@ public class Utils {
         ConnectivityManager cm = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
 
         return cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo().isConnected();
+    }
+
+    public static Bitmap getBitmapFromDrawable(Drawable drawable) {
+        Bitmap bitmap;
+        if (drawable instanceof BitmapDrawable) {
+            bitmap = ((BitmapDrawable) drawable).getBitmap();
+        } else {
+            if (drawable.getIntrinsicWidth() <= 0 || drawable.getIntrinsicHeight() <= 0) {
+                bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888); // Single color bitmap will be created of 1x1 pixel
+            } else {
+                bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+            }
+            Canvas canvas = new Canvas(bitmap);
+            drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+            drawable.draw(canvas);
+        }
+        return bitmap;
+    }
+
+    public static Drawable getDrawableFromBitmap(Context context, Bitmap bitmap) {
+        return new BitmapDrawable(context.getResources(), bitmap);
+//        return new BitmapDrawable(bitmap);
+    }
+
+    public static List<String> getFavAppList() {
+        return SharedPref.readListString(PREF_FAV_APP_LIST);
     }
 }

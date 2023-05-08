@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        tools:context=".activities.AppDetailsActivity">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/space_30"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/ivAppIcon"
+                android:layout_width="@dimen/app_icon_size"
+                android:layout_height="@dimen/app_icon_size"
+                android:src="@mipmap/ic_launcher"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:id="@+id/tvCurrentDayUsage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_10"
+                android:textAlignment="center"
+                android:textColor="@color/grey900"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                tools:targetApi="p"
+                tools:text="Today App Usage" />
+
+            <TextView
+                android:id="@+id/tvToday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/today"
+                android:textAlignment="center"
+                android:textColor="@color/grey600"
+                android:textFontWeight="400"
+                android:textSize="16sp"
+                tools:targetApi="p" />
+
+        </LinearLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/space_20">
+
+            <com.github.mikephil.charting.charts.BarChart
+                android:id="@+id/barChart_view"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/chart_height" />
+
+            <LinearLayout
+                android:id="@+id/llNoData"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/chart_height"
+                android:orientation="vertical"
+                android:visibility="visible"
+                android:gravity="bottom"
+                tools:ignore="UseCompoundDrawables">
+
+                <ImageView
+                    android:layout_width="@dimen/no_data_img_size"
+                    android:layout_height="@dimen/no_data_img_size"
+                    android:layout_gravity="center"
+                    android:src="@drawable/no_data"
+                    tools:ignore="ContentDescription" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="@dimen/space_20"
+                    android:text="@string/no_data"
+                    android:textColor="@color/grey500"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    tools:targetApi="p" />
+
+            </LinearLayout>
+
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="@dimen/space_20"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/ibPrev"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:padding="@dimen/space_7"
+                android:src="@drawable/ic_previous"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:id="@+id/tvDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/space_20"
+                android:layout_marginEnd="@dimen/space_20"
+                android:textColor="@color/grey900"
+                android:textFontWeight="400"
+                android:textSize="18sp"
+                tools:targetApi="p"
+                tools:text="date" />
+
+            <ImageButton
+                android:id="@+id/ibNext"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:padding="@dimen/space_7"
+                android:src="@drawable/ic_next"
+                tools:ignore="ContentDescription" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+</layout>

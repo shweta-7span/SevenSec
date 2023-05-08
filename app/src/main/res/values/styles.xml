@@ -29,4 +29,9 @@
         <item name="android:textColorPrimary">@color/grey600</item>
     </style>
 
+    <!-- Theme.AppCompat.Light is not a dialog theme -->
+    <style name="DialogTheme" parent="Theme.AppCompat.Light.Dialog">
+        <item name="colorAccent">@color/primary700</item>
+    </style>
+
 </resources>
