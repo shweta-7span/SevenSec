@@ -1,10 +1,12 @@
 package com.sevensec.activities;
 
 import static com.sevensec.utils.Constants.PREF_IS_APP_LAUNCH_FIRST_TIME;
+import static com.sevensec.utils.Constants.SPLASH_DELAY;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.WindowManager;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -36,11 +38,13 @@ public class SplashActivity extends AppCompatActivity {
 
         binding.appVersion.setText(String.format("v %s", BuildConfig.VERSION_NAME));
 
-        if (SharedPref.readBoolean(PREF_IS_APP_LAUNCH_FIRST_TIME, true)) {
-            startActivity(new Intent(getApplicationContext(), OnBoardingActivity.class));
-        } else {
-            startActivity(new Intent(getApplicationContext(), LoginActivity.class));
-        }
-        finish();
+        new Handler().postDelayed(() -> {
+            if (SharedPref.readBoolean(PREF_IS_APP_LAUNCH_FIRST_TIME, true)) {
+                startActivity(new Intent(getApplicationContext(), OnBoardingActivity.class));
+            } else {
+                startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+            }
+            finish();
+        }, SPLASH_DELAY);
     }
 }
