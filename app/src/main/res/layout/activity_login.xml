@@ -6,48 +6,109 @@
 
     </data>
 
-    <RelativeLayout
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".activities.LoginActivity">
+        android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/tvSkip"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_marginTop="@dimen/space_40"
-            android:layout_marginEnd="@dimen/space_35"
-            android:text="@string/skip"
-            android:textColor="@color/black"
-            android:textFontWeight="500"
-            android:textSize="18sp"
-            tools:targetApi="p" />
+        <RelativeLayout
+            android:id="@+id/rlLogin"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            tools:context=".activities.LoginActivity">
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:src="@drawable/login_illustration"
-            tools:ignore="ContentDescription" />
+            <TextView
+                android:id="@+id/tvSkip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="@dimen/space_40"
+                android:layout_marginEnd="@dimen/space_35"
+                android:text="@string/skip"
+                android:textColor="@color/black"
+                android:textFontWeight="500"
+                android:textSize="18sp"
+                tools:targetApi="p" />
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginBottom="@dimen/space_48"
-            android:background="@drawable/rounded_corner_primary_900"
-            android:drawableStart="@drawable/ic_google"
-            android:drawablePadding="@dimen/space_12"
-            android:paddingStart="@dimen/space_38"
-            android:paddingTop="@dimen/space_12"
-            android:paddingEnd="@dimen/space_38"
-            android:paddingBottom="@dimen/space_12"
-            android:text="@string/log_in_with_google"
-            android:textAllCaps="false"
-            android:textColor="@color/white"
-            tools:targetApi="p" />
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:src="@drawable/login_illustration"
+                tools:ignore="ContentDescription" />
 
-    </RelativeLayout>
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="@dimen/space_48"
+                android:background="@drawable/rounded_corner_primary_900"
+                android:drawableStart="@drawable/ic_google"
+                android:drawablePadding="@dimen/space_12"
+                android:paddingStart="@dimen/space_38"
+                android:paddingTop="@dimen/space_12"
+                android:paddingEnd="@dimen/space_38"
+                android:paddingBottom="@dimen/space_12"
+                android:text="@string/log_in_with_google"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                tools:targetApi="p" />
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:id="@+id/llNoInternet"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:visibility="visible">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/no_internet_illustration"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/no_internet_connection"
+                android:textColor="@color/grey900"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                tools:targetApi="p" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/please_try_again"
+                android:textColor="@color/grey900"
+                android:textFontWeight="500"
+                android:textSize="18sp"
+                tools:targetApi="p" />
+
+            <!--<TextView
+                android:id="@+id/tvReTry"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_20"
+                android:background="@drawable/rounded_corner_primary_900"
+                android:paddingStart="@dimen/space_20"
+                android:paddingTop="@dimen/space_8"
+                android:paddingEnd="@dimen/space_20"
+                android:paddingBottom="@dimen/space_8"
+                android:text="@string/retry"
+                android:textAlignment="center"
+                android:textColor="@color/primary50"
+                android:textFontWeight="500"
+                android:textSize="20sp"
+                tools:targetApi="p" />-->
+
+        </LinearLayout>
+
+    </FrameLayout>
 </layout>
