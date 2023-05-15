@@ -16,14 +16,14 @@ import androidx.fragment.app.DialogFragment;
 import com.sevensec.R;
 import com.sevensec.utils.SharedPref;
 
-public class SingleChoiceDialogFragment extends DialogFragment {
+public class AppSwitchDelayDialogFragment extends DialogFragment {
 
     int position = 0;
 
     public interface SingleChoiceListener {
-        void onPositiveButtonClick(int position, String selectedItem);
+        void onAppSwitchPositiveButtonClick(int position, String selectedItem);
 
-        void onNegativeButtonClick(DialogInterface dialog);
+        void onAppSwitchNegativeButtonClick(DialogInterface dialog);
     }
 
     SingleChoiceListener mListener;
@@ -47,13 +47,13 @@ public class SingleChoiceDialogFragment extends DialogFragment {
 
         position = SharedPref.readInteger(PREF_APP_SWITCH_POSITION, arrAppSwitchDelay.length - 1);
 
-        View view = getLayoutInflater().inflate(R.layout.single_choice_dialog, null);
+        View view = getLayoutInflater().inflate(R.layout.app_switch_delay_dialog, null);
 
 //        builder.setTitle(R.string.select_app_switch_delay)
         builder.setCustomTitle(view)
                 .setSingleChoiceItems(arrAppSwitchDelay, position, (dialog, i) -> position = i)
-                .setPositiveButton(getString(R.string.save), (dialog, i) -> mListener.onPositiveButtonClick(position, arrAppSwitchDelay[position]))
-                .setNegativeButton(getString(R.string.cancel), (dialog, which) -> mListener.onNegativeButtonClick(dialog));
+                .setPositiveButton(getString(R.string.save), (dialog, i) -> mListener.onAppSwitchPositiveButtonClick(position, arrAppSwitchDelay[position]))
+                .setNegativeButton(getString(R.string.cancel), (dialog, which) -> mListener.onAppSwitchNegativeButtonClick(dialog));
         return builder.create();
     }
 }

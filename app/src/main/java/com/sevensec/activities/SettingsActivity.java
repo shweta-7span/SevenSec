@@ -11,12 +11,13 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 
 import com.sevensec.R;
-import com.sevensec.activities.fragments.SingleChoiceDialogFragment;
+import com.sevensec.activities.fragments.BreathingTimerDialogFragment;
+import com.sevensec.activities.fragments.AppSwitchDelayDialogFragment;
 import com.sevensec.databinding.ActivitySettingsBinding;
 import com.sevensec.utils.Dlog;
 import com.sevensec.utils.SharedPref;
 
-public class SettingsActivity extends AppCompatActivity implements SingleChoiceDialogFragment.SingleChoiceListener {
+public class SettingsActivity extends AppCompatActivity implements AppSwitchDelayDialogFragment.SingleChoiceListener{
 
     ActivitySettingsBinding binding;
 
@@ -33,16 +34,17 @@ public class SettingsActivity extends AppCompatActivity implements SingleChoiceD
         }
 
         binding.llSwitchDelay.setOnClickListener(v -> openAppSwitchingPopup());
+        binding.llBreathingTimer.setOnClickListener(v -> openBreathingTimerPopup());
     }
 
     private void openAppSwitchingPopup() {
-        DialogFragment singleChoiceDialog = new SingleChoiceDialogFragment();
+        DialogFragment singleChoiceDialog = new AppSwitchDelayDialogFragment();
         singleChoiceDialog.setCancelable(false);
-        singleChoiceDialog.show(getSupportFragmentManager(), "Single Choice Dialog");
+        singleChoiceDialog.show(getSupportFragmentManager(), "App Switch Dialog");
     }
 
     @Override
-    public void onPositiveButtonClick(int position, String selectedItem) {
+    public void onAppSwitchPositiveButtonClick(int position, String selectedItem) {
         Dlog.w("onPositiveButtonClick: selectedItem: " + selectedItem);
         Dlog.w("onPositiveButtonClick: appSwitchDuration: " + Integer.parseInt(selectedItem.split(" ")[0]) * ((position == 0) ? 1 : 60));
 
@@ -53,8 +55,14 @@ public class SettingsActivity extends AppCompatActivity implements SingleChoiceD
     }
 
     @Override
-    public void onNegativeButtonClick(DialogInterface dialog) {
+    public void onAppSwitchNegativeButtonClick(DialogInterface dialog) {
         dialog.dismiss();
+    }
+
+    private void openBreathingTimerPopup() {
+        DialogFragment singleChoiceDialog = new BreathingTimerDialogFragment();
+        singleChoiceDialog.setCancelable(false);
+        singleChoiceDialog.show(getSupportFragmentManager(), "Breathing Timer Dialog");
     }
 
     @Override
