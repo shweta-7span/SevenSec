@@ -6,8 +6,6 @@ import static com.sevensec.utils.Constants.IN_APP_UPDATE_REQUEST_CODE;
 import static com.sevensec.utils.Constants.NOTIFICATION_PERMISSION_REQUEST_CODE;
 import static com.sevensec.utils.Constants.OVERLAY_REQUEST_CODE;
 import static com.sevensec.utils.Constants.PERMISSION_POPUP_DELAY;
-import static com.sevensec.utils.Constants.PREF_APP_SWITCH_DURATION;
-import static com.sevensec.utils.Constants.PREF_APP_SWITCH_POSITION;
 import static com.sevensec.utils.Constants.PREF_DEVICE_ID;
 import static com.sevensec.utils.Constants.STR_PASS_APP_INFO;
 import static com.sevensec.utils.Constants.STR_XIAOMI;
@@ -18,7 +16,6 @@ import static com.sevensec.utils.Utils.isAccessGranted;
 import static com.sevensec.utils.Utils.isDrawOverlayPermissionGranted;
 
 import android.app.SearchManager;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -42,13 +39,11 @@ import androidx.appcompat.widget.SearchView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
-import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.sevensec.R;
-import com.sevensec.activities.fragments.SingleChoiceDialogFragment;
 import com.sevensec.adapter.MyListAdapter;
 import com.sevensec.databinding.ActivityMainBinding;
 import com.sevensec.helper.ActionClickInterface;
@@ -65,7 +60,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class MainActivity extends FireStoreDataOperation implements SingleChoiceDialogFragment.SingleChoiceListener, ActionClickInterface {
+public class MainActivity extends FireStoreDataOperation implements ActionClickInterface {
 
     ActivityMainBinding binding;
     PowerManager pm;
@@ -141,7 +136,7 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_settings) {
-            openAppSwitchingPopup();
+            openSettingsScreen();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -326,26 +321,8 @@ public class MainActivity extends FireStoreDataOperation implements SingleChoice
         }
     }
 
-    private void openAppSwitchingPopup() {
-        DialogFragment singleChoiceDialog = new SingleChoiceDialogFragment();
-        singleChoiceDialog.setCancelable(false);
-        singleChoiceDialog.show(getSupportFragmentManager(), "Single Choice Dialog");
-    }
-
-    @Override
-    public void onPositiveButtonClick(int position, String selectedItem) {
-        Dlog.w("onPositiveButtonClick: selectedItem: " + selectedItem);
-        Dlog.w("onPositiveButtonClick: appSwitchDuration: " + Integer.parseInt(selectedItem.split(" ")[0]) * ((position == 0) ? 1 : 60));
-
-        SharedPref.writeInteger(PREF_APP_SWITCH_POSITION, position);
-
-        int durationInSeconds = Integer.parseInt(selectedItem.split(" ")[0]) * ((position == 0) ? 1 : 60);
-        SharedPref.writeInteger(PREF_APP_SWITCH_DURATION, durationInSeconds);
-    }
-
-    @Override
-    public void onNegativeButtonClick(DialogInterface dialog) {
-        dialog.dismiss();
+    private void openSettingsScreen() {
+        startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
     }
 
     @Override
