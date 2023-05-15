@@ -56,4 +56,10 @@ public class SettingsActivity extends AppCompatActivity implements SingleChoiceD
     public void onNegativeButtonClick(DialogInterface dialog) {
         dialog.dismiss();
     }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
+    }
 }
