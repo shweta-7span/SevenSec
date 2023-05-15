@@ -1,6 +1,7 @@
 package com.sevensec.activities;
 
 import static com.sevensec.utils.Constants.PREF_BLOCK_APP_OPEN_TIME;
+import static com.sevensec.utils.Constants.PREF_BREATHING_POSITION;
 import static com.sevensec.utils.Constants.PREF_DEVICE_ID;
 import static com.sevensec.utils.Constants.getIsUserOpenBlockAppKey;
 
@@ -92,9 +93,11 @@ public class AttemptActivity extends FireStoreDataOperation {
 
         binding.tvExit.setOnClickListener(view -> closeApp());
 
+        int breathingSelectedPosition = SharedPref.readInteger(PREF_BREATHING_POSITION, 0) + 1;
+
         InputStream is = getResources().openRawResource(R.raw.breathing);
         Movie movie = Movie.decodeStream(is);
-        int duration = movie.duration();
+        int duration = movie.duration() * breathingSelectedPosition;
         Dlog.e(".gif duration: " + duration);
 
         new Handler().postDelayed(() -> {

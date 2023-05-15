@@ -29,6 +29,7 @@ public class Constants {
     public static final String PREF_FAV_APP_LIST = "FAV_APP_LIST";
     public static final String PREF_APP_SWITCH_DURATION = "APP_SWITCH_DURATION";
     public static final String PREF_APP_SWITCH_POSITION = "APP_SWITCH_POSITION";
+    public static final String PREF_BREATHING_POSITION = "BREATHING_POSITION";
     public static final String PREF_BLOCK_APP_OPEN_TIME = "BLOCK_APP_OPEN_TIME";
     public static final String PREF_IS_SKIP_PROTECTED_APP_CHECKED = "IS_SKIP_PROTECTED_APP_CHECKED";
     public static final String PREF_IS_XIAOMI_OVERLAY_DONE = "IS_XIAOMI_OVERLAY_DONE";
