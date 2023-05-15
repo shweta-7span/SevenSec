@@ -59,6 +59,11 @@
     <string name="retry">Retry</string>
     <string name="no_network">No network!</string>
     <string name="log_in_with_google">Log in with Google</string>
+    <string name="user_name">User name</string>
+    <string name="login">Login</string>
+    <string name="select_breathing_timer">Select breathing timer</string>
+    <string name="share_app">Share app</string>
+    <string name="logout">Logout</string>
 
     <string-array name="arrOnBoardingTitleList">
         <item>Start Delaying \nDistracting Apps</item>
