@@ -64,6 +64,7 @@
     <string name="select_breathing_timer">Select Breathing timer</string>
     <string name="share_app">Share app</string>
     <string name="logout">Logout</string>
+    <string name="share_app_message">\nBoost your productivity and beat distractions with SevenSec!\n\n</string>
 
     <string-array name="arrOnBoardingTitleList">
         <item>Start Delaying \nDistracting Apps</item>

@@ -8,8 +8,10 @@ import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.DialogFragment;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 
+import com.sevensec.BuildConfig;
 import com.sevensec.R;
 import com.sevensec.activities.fragments.BreathingTimerDialogFragment;
 import com.sevensec.activities.fragments.AppSwitchDelayDialogFragment;
@@ -17,7 +19,7 @@ import com.sevensec.databinding.ActivitySettingsBinding;
 import com.sevensec.utils.Dlog;
 import com.sevensec.utils.SharedPref;
 
-public class SettingsActivity extends AppCompatActivity implements AppSwitchDelayDialogFragment.SingleChoiceListener{
+public class SettingsActivity extends AppCompatActivity implements AppSwitchDelayDialogFragment.SingleChoiceListener {
 
     ActivitySettingsBinding binding;
 
@@ -35,6 +37,7 @@ public class SettingsActivity extends AppCompatActivity implements AppSwitchDela
 
         binding.llSwitchDelay.setOnClickListener(v -> openAppSwitchingPopup());
         binding.llBreathingTimer.setOnClickListener(v -> openBreathingTimerPopup());
+        binding.llShare.setOnClickListener(v -> openShareAppPopup());
     }
 
     private void openAppSwitchingPopup() {
@@ -63,6 +66,19 @@ public class SettingsActivity extends AppCompatActivity implements AppSwitchDela
         DialogFragment singleChoiceDialog = new BreathingTimerDialogFragment();
         singleChoiceDialog.setCancelable(false);
         singleChoiceDialog.show(getSupportFragmentManager(), "Breathing Timer Dialog");
+    }
+
+    private void openShareAppPopup() {
+        try {
+            Intent shareIntent = new Intent(Intent.ACTION_SEND);
+            shareIntent.setType("text/plain");
+            String shareMessage = getString(R.string.share_app_message);
+            shareMessage = shareMessage + "https://play.google.com/store/apps/details?id=" + BuildConfig.APPLICATION_ID + "\n";
+            shareIntent.putExtra(Intent.EXTRA_TEXT, shareMessage);
+            startActivity(Intent.createChooser(shareIntent, "choose one"));
+        } catch (Exception e) {
+            Dlog.e("Share App Error: " + e.getMessage());//e.toString();
+        }
     }
 
     @Override
