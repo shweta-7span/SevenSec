@@ -33,6 +33,9 @@ public class Constants {
     public static final String PREF_BLOCK_APP_OPEN_TIME = "BLOCK_APP_OPEN_TIME";
     public static final String PREF_IS_SKIP_PROTECTED_APP_CHECKED = "IS_SKIP_PROTECTED_APP_CHECKED";
     public static final String PREF_IS_XIAOMI_OVERLAY_DONE = "IS_XIAOMI_OVERLAY_DONE";
+    public static final String PREF_IS_GOOGLE_LOGIN_DONE = "IS_GOOGLE_LOGIN_DONE";
+    public static final String PREF_GOOGLE_AUTH_USER_NAME = "GOOGLE_AUTH_USER_NAME";
+    public static final String PREF_GOOGLE_AUTH_USER_PIC = "GOOGLE_AUTH_USER_PIC";
 
     public static String getIsUserOpenBlockAppKey(String lastAppPackage) {
         return "IS_" + lastAppPackage;

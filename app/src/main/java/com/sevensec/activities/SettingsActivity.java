@@ -2,6 +2,9 @@ package com.sevensec.activities;
 
 import static com.sevensec.utils.Constants.PREF_APP_SWITCH_DURATION;
 import static com.sevensec.utils.Constants.PREF_APP_SWITCH_POSITION;
+import static com.sevensec.utils.Constants.PREF_GOOGLE_AUTH_USER_NAME;
+import static com.sevensec.utils.Constants.PREF_GOOGLE_AUTH_USER_PIC;
+import static com.sevensec.utils.Constants.PREF_IS_GOOGLE_LOGIN_DONE;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
@@ -9,8 +12,11 @@ import androidx.fragment.app.DialogFragment;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.view.View;
 
+import com.bumptech.glide.Glide;
 import com.sevensec.BuildConfig;
 import com.sevensec.R;
 import com.sevensec.activities.fragments.BreathingTimerDialogFragment;
@@ -33,6 +39,27 @@ public class SettingsActivity extends AppCompatActivity implements AppSwitchDela
             getSupportActionBar().setDisplayShowHomeEnabled(true);
 
             getSupportActionBar().setTitle(R.string.settings);
+        }
+
+        if (SharedPref.readBoolean(PREF_IS_GOOGLE_LOGIN_DONE, false)) {
+
+            binding.llLogin.setVisibility(View.GONE);
+            binding.btnLogout.setVisibility(View.VISIBLE);
+
+            // Name, email address, and profile photo Url
+            String name = SharedPref.readString(PREF_GOOGLE_AUTH_USER_NAME, "");
+            Uri photoUrl = Uri.parse(SharedPref.readString(PREF_GOOGLE_AUTH_USER_PIC, "photoUrl.toString()"));
+
+            Dlog.d("googleAuthUser name: " + name);
+            Dlog.d("googleAuthUser photoUrl: " + photoUrl);
+
+            Glide.with(getApplicationContext())
+                    .load(photoUrl)
+                    .into(binding.ivUser);
+            binding.tvUsername.setText(name);
+        } else {
+            binding.llLogin.setVisibility(View.VISIBLE);
+            binding.btnLogout.setVisibility(View.GONE);
         }
 
         binding.llLogin.setOnClickListener(v -> openLoginScreen());

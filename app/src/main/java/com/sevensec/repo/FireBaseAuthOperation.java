@@ -1,8 +1,13 @@
 package com.sevensec.repo;
 
+import static com.sevensec.utils.Constants.PREF_GOOGLE_AUTH_USER_NAME;
+import static com.sevensec.utils.Constants.PREF_GOOGLE_AUTH_USER_PIC;
+import static com.sevensec.utils.Constants.PREF_IS_GOOGLE_LOGIN_DONE;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 
 import androidx.activity.result.ActivityResultLauncher;
 
@@ -16,9 +21,11 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.sevensec.R;
+import com.sevensec.activities.SettingsActivity;
 import com.sevensec.helper.AuthFailureListener;
 import com.sevensec.repo.interfaces.AuthOperation;
 import com.sevensec.utils.Dlog;
+import com.sevensec.utils.SharedPref;
 
 abstract public class FireBaseAuthOperation extends FireStoreDataOperation implements AuthOperation {
 
@@ -47,6 +54,7 @@ abstract public class FireBaseAuthOperation extends FireStoreDataOperation imple
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
+                .requestProfile()
                 .build();
 
         GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
@@ -69,7 +77,7 @@ abstract public class FireBaseAuthOperation extends FireStoreDataOperation imple
                 Dlog.e("linkWithGoogleAuth currentUser Null");
                 signInWithGoogle(credential, activity, deviceId, task, authFailureListener);
             } else {
-                linkWithGoogleAccount(currentUser, credential, activity, task, authFailureListener);
+                linkWithGoogleAccount(currentUser, credential, activity, task, authFailureListener, account);
             }
 
         } catch (ApiException e) {
@@ -85,7 +93,19 @@ abstract public class FireBaseAuthOperation extends FireStoreDataOperation imple
                 FirebaseUser user = mAuth.getCurrentUser();
                 if (user != null) {
                     Dlog.d("signInWithCredential FirebaseUser: " + user.getUid());
+
                     addUserID(activity, deviceId, authFailureListener);
+
+                    // Name, email address, and profile photo Url
+                    String name = user.getDisplayName();
+                    String email = user.getEmail();
+                    Uri photoUrl = user.getPhotoUrl();
+
+                    Dlog.d("signInWithGoogle name: " + name);
+                    Dlog.d("signInWithGoogle email: " + email);
+                    Dlog.d("signInWithGoogle photoUrl: " + photoUrl);
+
+                    storeNamePhoto(name, photoUrl);
                 } else {
                     Dlog.w("signInWithCredential user Null");
                     authFailureListener.authFail();
@@ -97,13 +117,27 @@ abstract public class FireBaseAuthOperation extends FireStoreDataOperation imple
         });
     }
 
-    private void linkWithGoogleAccount(FirebaseUser currentUser, AuthCredential credential, Activity activity, Task<GoogleSignInAccount> task, AuthFailureListener authFailureListener) {
+    private void linkWithGoogleAccount(FirebaseUser currentUser, AuthCredential credential, Activity activity, Task<GoogleSignInAccount> task, AuthFailureListener authFailureListener, GoogleSignInAccount googleSignInAccount) {
         currentUser.linkWithCredential(credential).addOnCompleteListener(activity, task1 -> {
             if (task.isSuccessful()) {
                 // Sign in success, update UI with the signed-in user's information
                 FirebaseUser user = mAuth.getCurrentUser();
                 if (user != null) {
                     Dlog.d("linkWithGoogleAuth FirebaseUser: " + user.getUid());
+
+                    // Name, email address, and profile photo Url
+                    String name = googleSignInAccount.getDisplayName();
+                    String email = googleSignInAccount.getEmail();
+                    Uri photoUrl = googleSignInAccount.getPhotoUrl();
+
+                    Dlog.d("linkWithGoogle name: " + name);
+                    Dlog.d("linkWithGoogle email: " + email);
+                    Dlog.d("linkWithGoogle photoUrl: " + photoUrl);
+
+                    storeNamePhoto(name, photoUrl);
+
+                    startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
+                    finish();
                 } else {
                     Dlog.w("linkWithGoogleAuth user Null");
                     authFailureListener.authFail();
@@ -113,5 +147,11 @@ abstract public class FireBaseAuthOperation extends FireStoreDataOperation imple
                 Dlog.e("linkWithCredential:failure" + task.getException());
             }
         });
+    }
+
+    private void storeNamePhoto(String name, Uri photoUrl) {
+        SharedPref.writeBoolean(PREF_IS_GOOGLE_LOGIN_DONE, true);
+        SharedPref.writeString(PREF_GOOGLE_AUTH_USER_NAME, name);
+        SharedPref.writeString(PREF_GOOGLE_AUTH_USER_PIC, photoUrl.toString());
     }
 }
