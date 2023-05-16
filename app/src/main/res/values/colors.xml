@@ -36,6 +36,8 @@
     <color name="white">#FFFFFFFF</color>
     <color name="black">#FF000000</color>
 
+    <color name="progress_bg">#80000000</color>
+
     <color name="gifColor">#FF0B0743</color>
 
     <color name="switch_thumb_stoke_color">#0000FFFF</color>

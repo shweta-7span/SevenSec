@@ -35,9 +35,14 @@ public class SettingsActivity extends AppCompatActivity implements AppSwitchDela
             getSupportActionBar().setTitle(R.string.settings);
         }
 
+        binding.llLogin.setOnClickListener(v -> openLoginScreen());
         binding.llSwitchDelay.setOnClickListener(v -> openAppSwitchingPopup());
         binding.llBreathingTimer.setOnClickListener(v -> openBreathingTimerPopup());
         binding.llShare.setOnClickListener(v -> openShareAppPopup());
+    }
+
+    private void openLoginScreen() {
+        startActivity(new Intent(getApplicationContext(), LoginActivity.class));
     }
 
     private void openAppSwitchingPopup() {

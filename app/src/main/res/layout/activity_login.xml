@@ -111,13 +111,21 @@
 
         </LinearLayout>
 
-        <ProgressBar
+        <LinearLayout
             android:id="@+id/progressBar"
-            android:layout_width="@dimen/space_80"
-            android:layout_height="@dimen/space_80"
-            android:layout_gravity="center"
-            android:layout_marginBottom="@dimen/space_30"
-            android:visibility="gone" />
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/progress_bg"
+            android:gravity="center"
+            android:visibility="gone">
+
+            <ProgressBar
+                android:layout_width="@dimen/space_80"
+                android:layout_height="@dimen/space_80"
+                android:layout_gravity="center"
+                android:layout_marginBottom="@dimen/space_30" />
+
+        </LinearLayout>
 
     </FrameLayout>
 </layout>
