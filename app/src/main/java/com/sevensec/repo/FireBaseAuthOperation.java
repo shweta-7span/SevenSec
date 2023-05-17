@@ -55,7 +55,6 @@ abstract public class FireBaseAuthOperation extends FireStoreDataOperation imple
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
-                .requestProfile()
                 .build();
 
         GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
@@ -76,7 +75,7 @@ abstract public class FireBaseAuthOperation extends FireStoreDataOperation imple
 
             if (currentUser == null) {
                 Dlog.e("linkWithGoogleAuth currentUser Null");
-                signInWithGoogle(credential, activity, deviceId, task, authFailureListener);
+                signInWithGoogle(credential, activity, deviceId, task, authFailureListener, account);
             } else {
                 linkWithGoogleAccount(currentUser, credential, activity, task, authFailureListener, account);
             }
@@ -87,26 +86,16 @@ abstract public class FireBaseAuthOperation extends FireStoreDataOperation imple
         }
     }
 
-    private void signInWithGoogle(AuthCredential credential, Activity activity, String deviceId, Task<GoogleSignInAccount> task, AuthFailureListener authFailureListener) {
+    private void signInWithGoogle(AuthCredential credential, Activity activity, String deviceId, Task<GoogleSignInAccount> task, AuthFailureListener authFailureListener, GoogleSignInAccount googleSignInAccount) {
         mAuth.signInWithCredential(credential).addOnCompleteListener(task12 -> {
             if (task.isSuccessful()) {
                 // Sign in success, update UI with the signed-in user's information
                 FirebaseUser user = mAuth.getCurrentUser();
                 if (user != null) {
                     Dlog.d("signInWithCredential FirebaseUser: " + user.getUid());
-
                     addUserID(activity, deviceId, authFailureListener);
 
-                    // Name, email address, and profile photo Url
-                    String name = user.getDisplayName();
-                    String email = user.getEmail();
-                    Uri photoUrl = user.getPhotoUrl();
-
-                    Dlog.d("signInWithGoogle name: " + name);
-                    Dlog.d("signInWithGoogle email: " + email);
-                    Dlog.d("signInWithGoogle photoUrl: " + photoUrl);
-
-                    storeGoogleAuthData(name, photoUrl);
+                    storeGoogleAuthData(googleSignInAccount);
                 } else {
                     Dlog.w("signInWithCredential user Null");
                     authFailureListener.authFail();
@@ -126,16 +115,7 @@ abstract public class FireBaseAuthOperation extends FireStoreDataOperation imple
                 if (user != null) {
                     Dlog.d("linkWithGoogleAuth FirebaseUser: " + user.getUid());
 
-                    // Name, email address, and profile photo Url
-                    String name = googleSignInAccount.getDisplayName();
-                    String email = googleSignInAccount.getEmail();
-                    Uri photoUrl = googleSignInAccount.getPhotoUrl();
-
-                    Dlog.d("linkWithGoogle name: " + name);
-                    Dlog.d("linkWithGoogle email: " + email);
-                    Dlog.d("linkWithGoogle photoUrl: " + photoUrl);
-
-                    storeGoogleAuthData(name, photoUrl);
+                    storeGoogleAuthData(googleSignInAccount);
                     finish();
                 } else {
                     Dlog.w("linkWithGoogleAuth user Null");
@@ -148,7 +128,17 @@ abstract public class FireBaseAuthOperation extends FireStoreDataOperation imple
         });
     }
 
-    private void storeGoogleAuthData(String name, Uri photoUrl) {
+    private void storeGoogleAuthData(GoogleSignInAccount googleSignInAccount) {
+
+        // Name, email address, and profile photo Url
+        String name = googleSignInAccount.getDisplayName();
+        String email = googleSignInAccount.getEmail();
+        Uri photoUrl = googleSignInAccount.getPhotoUrl();
+
+        Dlog.d("storeGoogleAuthData name: " + name);
+        Dlog.d("storeGoogleAuthData email: " + email);
+        Dlog.d("storeGoogleAuthData photoUrl: " + photoUrl);
+
         SharedPref.writeBoolean(PREF_IS_GOOGLE_LOGIN_DONE, true);
         SharedPref.writeString(PREF_GOOGLE_AUTH_USER_NAME, name);
         SharedPref.writeString(PREF_GOOGLE_AUTH_USER_PIC, photoUrl.toString());
