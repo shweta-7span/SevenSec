@@ -23,7 +23,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.sevensec.R;
 import com.sevensec.activities.LoginActivity;
-import com.sevensec.activities.SettingsActivity;
 import com.sevensec.helper.AuthFailureListener;
 import com.sevensec.repo.interfaces.AuthOperation;
 import com.sevensec.utils.Dlog;
@@ -137,8 +136,6 @@ abstract public class FireBaseAuthOperation extends FireStoreDataOperation imple
                     Dlog.d("linkWithGoogle photoUrl: " + photoUrl);
 
                     storeGoogleAuthData(name, photoUrl);
-
-                    startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
                     finish();
                 } else {
                     Dlog.w("linkWithGoogleAuth user Null");

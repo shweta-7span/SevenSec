@@ -41,6 +41,16 @@ public class SettingsActivity extends FireBaseAuthOperation implements AppSwitch
             getSupportActionBar().setTitle(R.string.settings);
         }
 
+        binding.llLogin.setOnClickListener(v -> openLoginScreen());
+        binding.llSwitchDelay.setOnClickListener(v -> openAppSwitchingPopup());
+        binding.llBreathingTimer.setOnClickListener(v -> openBreathingTimerPopup());
+        binding.llShare.setOnClickListener(v -> openShareAppPopup());
+        binding.btnLogout.setOnClickListener(v -> logout(getApplicationContext()));
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         if (SharedPref.readBoolean(PREF_IS_GOOGLE_LOGIN_DONE, false)) {
 
             binding.llLogin.setVisibility(View.GONE);
@@ -61,12 +71,6 @@ public class SettingsActivity extends FireBaseAuthOperation implements AppSwitch
             binding.llLogin.setVisibility(View.VISIBLE);
             binding.btnLogout.setVisibility(View.GONE);
         }
-
-        binding.llLogin.setOnClickListener(v -> openLoginScreen());
-        binding.llSwitchDelay.setOnClickListener(v -> openAppSwitchingPopup());
-        binding.llBreathingTimer.setOnClickListener(v -> openBreathingTimerPopup());
-        binding.llShare.setOnClickListener(v -> openShareAppPopup());
-        binding.btnLogout.setOnClickListener(v -> logout(getApplicationContext()));
     }
 
     private void openLoginScreen() {
