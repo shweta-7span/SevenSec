@@ -56,17 +56,23 @@ public class SettingsActivity extends FireBaseAuthOperation implements AppSwitch
             binding.llLogin.setVisibility(View.GONE);
             binding.btnLogout.setVisibility(View.VISIBLE);
 
-            // Name, email address, and profile photo Url
+            // Set User Name
             String name = SharedPref.readString(PREF_GOOGLE_AUTH_USER_NAME, "");
-            Uri photoUrl = Uri.parse(SharedPref.readString(PREF_GOOGLE_AUTH_USER_PIC, "photoUrl.toString()"));
-
             Dlog.d("googleAuthUser name: " + name);
-            Dlog.d("googleAuthUser photoUrl: " + photoUrl);
-
-            Glide.with(getApplicationContext())
-                    .load(photoUrl)
-                    .into(binding.ivUser);
             binding.tvUsername.setText(name);
+
+            //Set Profile Picture
+            String strPhotoUri = SharedPref.readString(PREF_GOOGLE_AUTH_USER_PIC, "");
+
+            if (!strPhotoUri.isEmpty()) {
+
+                Uri photoUrl = Uri.parse(strPhotoUri);
+                Dlog.d("googleAuthUser photoUrl: " + photoUrl);
+
+                Glide.with(getApplicationContext())
+                        .load(photoUrl)
+                        .into(binding.ivUser);
+            }
         } else {
             binding.llLogin.setVisibility(View.VISIBLE);
             binding.btnLogout.setVisibility(View.GONE);

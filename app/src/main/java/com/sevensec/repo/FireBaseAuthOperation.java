@@ -86,6 +86,7 @@ abstract public class FireBaseAuthOperation extends FireStoreDataOperation imple
         }
     }
 
+    //It will call, when user do the "GoogleSignIn" directly
     private void signInWithGoogle(AuthCredential credential, Activity activity, String deviceId, Task<GoogleSignInAccount> task, AuthFailureListener authFailureListener, GoogleSignInAccount googleSignInAccount) {
         mAuth.signInWithCredential(credential).addOnCompleteListener(task12 -> {
             if (task.isSuccessful()) {
@@ -107,6 +108,7 @@ abstract public class FireBaseAuthOperation extends FireStoreDataOperation imple
         });
     }
 
+    //It will call If user already SignIn "Anonymously" and then do the "GoogleSignIn"
     private void linkWithGoogleAccount(FirebaseUser currentUser, AuthCredential credential, Activity activity, Task<GoogleSignInAccount> task, AuthFailureListener authFailureListener, GoogleSignInAccount googleSignInAccount) {
         currentUser.linkWithCredential(credential).addOnCompleteListener(activity, task1 -> {
             if (task.isSuccessful()) {
@@ -141,7 +143,8 @@ abstract public class FireBaseAuthOperation extends FireStoreDataOperation imple
 
         SharedPref.writeBoolean(PREF_IS_GOOGLE_LOGIN_DONE, true);
         SharedPref.writeString(PREF_GOOGLE_AUTH_USER_NAME, name);
-        SharedPref.writeString(PREF_GOOGLE_AUTH_USER_PIC, photoUrl.toString());
+        if (photoUrl != null)
+            SharedPref.writeString(PREF_GOOGLE_AUTH_USER_PIC, photoUrl.toString());
     }
 
     private void clearGoogleAuthData() {
