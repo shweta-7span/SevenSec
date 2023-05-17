@@ -3,6 +3,7 @@ package com.sevensec.repo;
 import static com.sevensec.utils.Constants.PREF_GOOGLE_AUTH_USER_NAME;
 import static com.sevensec.utils.Constants.PREF_GOOGLE_AUTH_USER_PIC;
 import static com.sevensec.utils.Constants.PREF_IS_GOOGLE_LOGIN_DONE;
+import static com.sevensec.utils.Constants.PREF_IS_LOGIN;
 
 import android.app.Activity;
 import android.content.Context;
@@ -157,6 +158,7 @@ abstract public class FireBaseAuthOperation extends FireStoreDataOperation imple
     }
 
     private void clearGoogleAuthData() {
+        SharedPref.clear(PREF_IS_LOGIN);
         SharedPref.clear(PREF_IS_GOOGLE_LOGIN_DONE);
         SharedPref.clear(PREF_GOOGLE_AUTH_USER_NAME);
         SharedPref.clear(PREF_GOOGLE_AUTH_USER_PIC);
@@ -168,7 +170,9 @@ abstract public class FireBaseAuthOperation extends FireStoreDataOperation imple
 
         if (mAuth.getCurrentUser() == null) {
             clearGoogleAuthData();
-            startActivity(new Intent(mContext, LoginActivity.class));
+            Intent intent = new Intent(mContext, LoginActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
             Dlog.d("Firebase logout Success");
         } else {
             Dlog.e("Firebase logout Failed");

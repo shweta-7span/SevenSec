@@ -210,7 +210,10 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
                 Dlog.d("FireStore: UserID successfully added!");
                 SharedPref.writeBoolean(PREF_IS_LOGIN, true);
 
-                startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+
                 finish();
             }
         }).addOnFailureListener(new OnFailureListener() {
