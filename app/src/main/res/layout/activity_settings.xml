@@ -20,11 +20,12 @@
             android:layout_marginBottom="@dimen/space_32"
             android:orientation="vertical">
 
-            <ImageView
+            <com.sevensec.extra.CircularImageView
                 android:id="@+id/iv_user"
                 android:layout_width="98dp"
                 android:layout_height="98dp"
-                android:src="@drawable/ic_user" />
+                android:src="@drawable/ic_user"
+                android:scaleType="centerCrop"/>
 
             <TextView
                 android:id="@+id/tv_username"
