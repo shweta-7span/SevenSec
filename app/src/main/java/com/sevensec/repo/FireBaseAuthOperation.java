@@ -52,14 +52,7 @@ abstract public class FireBaseAuthOperation extends FireStoreDataOperation imple
     }
 
     public void showGoogleAccounts(ActivityResultLauncher<Intent> startActivityIntent) {
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build();
-
-        GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-
-        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        Intent signInIntent = getGoogleSignInClient().getSignInIntent();
         startActivityIntent.launch(signInIntent);
     }
 
@@ -154,16 +147,30 @@ abstract public class FireBaseAuthOperation extends FireStoreDataOperation imple
         SharedPref.clear(PREF_GOOGLE_AUTH_USER_PIC);
     }
 
-    public void logout(Context mContext) {
+    GoogleSignInClient getGoogleSignInClient() {
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+
+        return GoogleSignIn.getClient(this, gso);
+    }
+
+    public void logout(Activity activity) {
         Dlog.d("Firebase logout");
         mAuth.signOut();
 
         if (mAuth.getCurrentUser() == null) {
-            clearGoogleAuthData();
-            Intent intent = new Intent(mContext, LoginActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            Dlog.d("Firebase logout Success");
+            getGoogleSignInClient().revokeAccess().addOnCompleteListener(activity, task -> {
+
+                clearGoogleAuthData();
+                Intent intent = new Intent(activity, LoginActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                Dlog.d("Firebase logout Success");
+
+            });
+
         } else {
             Dlog.e("Firebase logout Failed");
         }

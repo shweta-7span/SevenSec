@@ -45,7 +45,7 @@ public class SettingsActivity extends FireBaseAuthOperation implements AppSwitch
         binding.llSwitchDelay.setOnClickListener(v -> openAppSwitchingPopup());
         binding.llBreathingTimer.setOnClickListener(v -> openBreathingTimerPopup());
         binding.llShare.setOnClickListener(v -> openShareAppPopup());
-        binding.btnLogout.setOnClickListener(v -> logout(getApplicationContext()));
+        binding.btnLogout.setOnClickListener(v -> logout(this));
     }
 
     @Override
