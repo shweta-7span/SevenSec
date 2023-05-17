@@ -21,6 +21,7 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.sevensec.R;
+import com.sevensec.activities.LoginActivity;
 import com.sevensec.activities.SettingsActivity;
 import com.sevensec.helper.AuthFailureListener;
 import com.sevensec.repo.interfaces.AuthOperation;
@@ -105,7 +106,7 @@ abstract public class FireBaseAuthOperation extends FireStoreDataOperation imple
                     Dlog.d("signInWithGoogle email: " + email);
                     Dlog.d("signInWithGoogle photoUrl: " + photoUrl);
 
-                    storeNamePhoto(name, photoUrl);
+                    storeGoogleAuthData(name, photoUrl);
                 } else {
                     Dlog.w("signInWithCredential user Null");
                     authFailureListener.authFail();
@@ -134,7 +135,7 @@ abstract public class FireBaseAuthOperation extends FireStoreDataOperation imple
                     Dlog.d("linkWithGoogle email: " + email);
                     Dlog.d("linkWithGoogle photoUrl: " + photoUrl);
 
-                    storeNamePhoto(name, photoUrl);
+                    storeGoogleAuthData(name, photoUrl);
 
                     startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
                     finish();
@@ -149,9 +150,28 @@ abstract public class FireBaseAuthOperation extends FireStoreDataOperation imple
         });
     }
 
-    private void storeNamePhoto(String name, Uri photoUrl) {
+    private void storeGoogleAuthData(String name, Uri photoUrl) {
         SharedPref.writeBoolean(PREF_IS_GOOGLE_LOGIN_DONE, true);
         SharedPref.writeString(PREF_GOOGLE_AUTH_USER_NAME, name);
         SharedPref.writeString(PREF_GOOGLE_AUTH_USER_PIC, photoUrl.toString());
+    }
+
+    private void clearGoogleAuthData() {
+        SharedPref.clear(PREF_IS_GOOGLE_LOGIN_DONE);
+        SharedPref.clear(PREF_GOOGLE_AUTH_USER_NAME);
+        SharedPref.clear(PREF_GOOGLE_AUTH_USER_PIC);
+    }
+
+    public void logout(Context mContext) {
+        Dlog.d("Firebase logout");
+        mAuth.signOut();
+
+        if (mAuth.getCurrentUser() == null) {
+            clearGoogleAuthData();
+            startActivity(new Intent(mContext, LoginActivity.class));
+            Dlog.d("Firebase logout Success");
+        } else {
+            Dlog.e("Firebase logout Failed");
+        }
     }
 }

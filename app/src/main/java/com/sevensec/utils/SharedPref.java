@@ -96,7 +96,7 @@ public class SharedPref {
 
     public static void clear(String key) {
         SharedPreferences.Editor prefsEditor = mSharedPref.edit();
-        prefsEditor.remove(key);
+        prefsEditor.remove(key).apply();
     }
 
     public static void clearAll() {

@@ -6,7 +6,6 @@ import static com.sevensec.utils.Constants.PREF_GOOGLE_AUTH_USER_NAME;
 import static com.sevensec.utils.Constants.PREF_GOOGLE_AUTH_USER_PIC;
 import static com.sevensec.utils.Constants.PREF_IS_GOOGLE_LOGIN_DONE;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.DialogFragment;
 
@@ -22,10 +21,11 @@ import com.sevensec.R;
 import com.sevensec.activities.fragments.BreathingTimerDialogFragment;
 import com.sevensec.activities.fragments.AppSwitchDelayDialogFragment;
 import com.sevensec.databinding.ActivitySettingsBinding;
+import com.sevensec.repo.FireBaseAuthOperation;
 import com.sevensec.utils.Dlog;
 import com.sevensec.utils.SharedPref;
 
-public class SettingsActivity extends AppCompatActivity implements AppSwitchDelayDialogFragment.SingleChoiceListener {
+public class SettingsActivity extends FireBaseAuthOperation implements AppSwitchDelayDialogFragment.SingleChoiceListener {
 
     ActivitySettingsBinding binding;
 
@@ -66,6 +66,7 @@ public class SettingsActivity extends AppCompatActivity implements AppSwitchDela
         binding.llSwitchDelay.setOnClickListener(v -> openAppSwitchingPopup());
         binding.llBreathingTimer.setOnClickListener(v -> openBreathingTimerPopup());
         binding.llShare.setOnClickListener(v -> openShareAppPopup());
+        binding.btnLogout.setOnClickListener(v -> logout(getApplicationContext()));
     }
 
     private void openLoginScreen() {
