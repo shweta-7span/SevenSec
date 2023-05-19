@@ -11,6 +11,7 @@ public class Constants {
     public static final String STR_OPPO = "oppo";
     //Send Model in Detail Activity
     public static final String STR_PASS_APP_INFO = "PASS_APP_INFO";
+    public static final String STR_DYNAMIC_LINK = "https://sevensec.page.link/app-path";
 
     //FIRE_STORE DB KEYS
     public static final String DB_COLLECTION_USERS = "Users";

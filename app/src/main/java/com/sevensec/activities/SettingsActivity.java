@@ -5,6 +5,7 @@ import static com.sevensec.utils.Constants.PREF_APP_SWITCH_POSITION;
 import static com.sevensec.utils.Constants.PREF_GOOGLE_AUTH_USER_NAME;
 import static com.sevensec.utils.Constants.PREF_GOOGLE_AUTH_USER_PIC;
 import static com.sevensec.utils.Constants.PREF_IS_GOOGLE_LOGIN_DONE;
+import static com.sevensec.utils.Constants.STR_DYNAMIC_LINK;
 
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.DialogFragment;
@@ -16,7 +17,6 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.bumptech.glide.Glide;
-import com.sevensec.BuildConfig;
 import com.sevensec.R;
 import com.sevensec.activities.fragments.BreathingTimerDialogFragment;
 import com.sevensec.activities.fragments.AppSwitchDelayDialogFragment;
@@ -115,9 +115,7 @@ public class SettingsActivity extends FireBaseAuthOperation implements AppSwitch
         try {
             Intent shareIntent = new Intent(Intent.ACTION_SEND);
             shareIntent.setType("text/plain");
-            String shareMessage = getString(R.string.share_app_message);
-            shareMessage = shareMessage + "https://play.google.com/store/apps/details?id=" + BuildConfig.APPLICATION_ID + "\n";
-            shareIntent.putExtra(Intent.EXTRA_TEXT, shareMessage);
+            shareIntent.putExtra(Intent.EXTRA_TEXT, STR_DYNAMIC_LINK);
             startActivity(Intent.createChooser(shareIntent, "choose one"));
         } catch (Exception e) {
             Dlog.e("Share App Error: " + e.getMessage());//e.toString();
