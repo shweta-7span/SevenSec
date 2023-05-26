@@ -158,7 +158,9 @@ public class MainActivity extends FireStoreDataOperation implements ActionClickI
             Dlog.d("ManinActivity DEVICE_ID: " + DEVICE_ID);
 
             //Store DEVICE_ID in FireStore
-            checkDeviceIsStored(DEVICE_ID);
+//            checkDeviceIsStored(DEVICE_ID);
+            checkDeviceIsStoredNew(DEVICE_ID);
+
             isPermissionGranted = true;
             if (itemSettings != null) {
                 itemSettings.setVisible(true);

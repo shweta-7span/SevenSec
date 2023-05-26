@@ -40,7 +40,8 @@ abstract public class FireBaseAuthOperation extends FireStoreDataOperation imple
 
                 if (user != null) {
                     Dlog.d("signInAnonymously FirebaseUser: " + user.getUid());
-                    addUserID(mContext, deviceId, authFailureListener);
+//                    addUserID(mContext, deviceId, authFailureListener);
+                    addUserNew(user.getUid());
                 } else {
                     authFailureListener.authFail();
                 }
@@ -133,6 +134,8 @@ abstract public class FireBaseAuthOperation extends FireStoreDataOperation imple
         Dlog.d("storeGoogleAuthData name: " + name);
         Dlog.d("storeGoogleAuthData email: " + email);
         Dlog.d("storeGoogleAuthData photoUrl: " + photoUrl);
+
+        addGoogleAuthData(name, email, mAuth.getCurrentUser().getUid());
 
         SharedPref.writeBoolean(PREF_IS_GOOGLE_LOGIN_DONE, true);
         SharedPref.writeString(PREF_GOOGLE_AUTH_USER_NAME, name);

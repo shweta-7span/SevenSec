@@ -114,7 +114,8 @@ public class AttemptActivity extends FireStoreDataOperation {
             transaction.commit();
         }, DELAY_OPEN_GREY_PAGE);*/
 
-        checkAppAddedOrNot(DEVICE_ID, appLabel, appPackageName);
+//        checkAppAddedOrNot(DEVICE_ID, appLabel, appPackageName);
+        checkAppNew(DEVICE_ID, appLabel, appPackageName);
     }
 
     private void addAppOpenTimeInDB(String appLabel, String appPackageName, Date currentDate, long appUsageStartTime) {
