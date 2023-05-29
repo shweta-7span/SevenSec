@@ -28,6 +28,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -53,55 +54,76 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
 
     @Override
     public void checkDeviceIsStored(String deviceId) {
-        firebaseFirestore.collection(DB_COLLECTION_USERS).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
 
-                Dlog.d("FireStore: document Size: " + task.getResult().size());
+        FirebaseUser currentUser = mAuth.getCurrentUser();
 
-                if (task.isSuccessful()) {
-                    if (task.getResult().size() > 0) {
-                        for (DocumentSnapshot document : task.getResult()) {
-                            //Dlog.d("FireStore: document: " + document.get(DB_DOCUMENT_KEY_USER));
-                            Dlog.d("FireStore: document: " + document.getId());
+        if (currentUser != null) {
+            firebaseFirestore.collection(DB_COLLECTION_USERS).document(currentUser.getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
-                            if (Objects.equals(document.getId(), deviceId)) {
-                                Dlog.d("FireStore: DEVICE_ID already exists");
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
+                            Dlog.d("checkDeviceIsStored: Document exists!");
+
+                            Map<String, Object> deviceMapData = (Map<String, Object>) document.get(DB_DEVICE_MAP);
+                            Dlog.d("checkDeviceIsStored deviceMapData: " + deviceMapData);
+
+                            if (deviceMapData == null) {
+                                updateDevice(currentUser.getUid(), deviceId);
+
                             } else {
-                                Dlog.e("FireStore: DEVICE_ID NOT exists");
+                                if (deviceMapData.containsKey(deviceId)) {
+                                    Dlog.d("checkDeviceIsStored: Already added this device_id: " + deviceId);
+
+                                } else {
+                                    Dlog.e("checkDeviceIsStored: Not added this device_id!");
+                                    //add map of "apps" in this index
+                                    updateDevice(currentUser.getUid(), deviceId);
+                                }
                             }
+
+                        } else {
+                            Dlog.d("checkDeviceIsStored: Document does not exist!");
                         }
                     } else {
-                        Dlog.e("FireStore: Collection Not exists");
-                        addUserOnFireStore(deviceId);
+                        Dlog.d("checkDeviceIsStored: Failed with: " + task.getException());
                     }
-                } else {
-                    Dlog.e("FireStore: task NOT successful");
+
                 }
-            }
-        });
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Dlog.e("checkDeviceIsStored onFailure: " + e.getMessage());
+                }
+            });
+        }
     }
 
-    @Override
-    public void addUserOnFireStore(String deviceId) {
-        // Create a new user with a first and last name
-        Map<String, Object> type = new HashMap<>();
-        type.put(DB_DOCUMENT_KEY_TYPE, DB_ANDROID);
+    public void updateDevice(String userUID, String device_id) {
 
-        // Add a new document with a generated ID
-        firebaseFirestore.collection(DB_COLLECTION_USERS).document(deviceId)
-                .set(type)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void unused) {
-                        Dlog.d("FireStore: DocumentSnapshot successfully written!");
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Dlog.w("FireStore: Error adding document: " + e.getMessage());
-                    }
-                });
+        Map<String, Object> deviceElementMap = new HashMap<>();
+        deviceElementMap.put(device_id, new HashMap<>());
+
+        Map<String, Object> deviceMap = new HashMap<>();
+        deviceMap.put(DB_DEVICE_MAP, deviceElementMap);
+
+        Dlog.d("updateDevice deviceMap: " + deviceMap);
+
+        //Used `SetOptions.merge()` to update the map with existing data.
+        //The new map of "DeviceID" will be add as new key in the "device" map and already added key will be remain as it is.
+        firebaseFirestore.collection(DB_COLLECTION_USERS).document(userUID).set(deviceMap, SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                Dlog.d("updateDevice: addDevice success");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Dlog.e("updateDevice: addDevice onFailure: " + e.getMessage());
+            }
+        });
     }
 
     @Override

@@ -8,7 +8,7 @@ public interface DataOperation {
 
     void checkDeviceIsStored(String deviceId);
 
-    void addUserOnFireStore(String deviceId);
+    void updateDevice(String userUID, String device_id);
 
     void checkAppAddedOrNot(String deviceId, String appLabel, String lastAppPackage);
 
