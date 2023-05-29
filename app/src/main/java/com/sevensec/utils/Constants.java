@@ -19,12 +19,15 @@ public class Constants {
     public static final String DB_USER_NAME = "user_name";
     public static final String DB_USER_EMAIL = "user_email";
     public static final String DB_DEVICE_MAP = "device";
+
+    public static final String DB_APP_NAME = "app_name";
+    public static final String DB_APP_ALLOWED_TIME = "allowed_time";
+    public static final String DB_APP_DATE_MAP = "dates";
+    public static final String DB_APP_ATTEMPTS = "attempts";
+    public static final String DB_APP_LAST_USED_TIME = "last_used_time";
+    public static final String DB_APP_TOTAL_TIME = "total_time_spent";
     public static final String DB_COLLECTION_APPS = "Apps";
-    public static final String DB_DOCUMENT_KEY_TYPE = "Type";
-    public static final String DB_DOCUMENT_KEY_APP_NAME = "Name";
-    public static final String DB_DOCUMENT_KEY_APP_PACKAGE = "Package";
     public static final String DB_DOCUMENT_KEY_APP_ATTEMPTS = "Attempts";
-    public static final String DB_ANDROID = "Android";
 
     //SHARED_PREF KEYS
     public static final String PREF_IS_APP_LAUNCH_FIRST_TIME = "IS_APP_LAUNCH_FIRST_TIME";

@@ -4,6 +4,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.firebase.auth.FirebaseUser;
 import com.sevensec.helper.AuthFailureListener;
 
+import java.util.Map;
+
 public interface DataOperation {
 
     void checkDeviceIsStored(String deviceId);
@@ -12,7 +14,7 @@ public interface DataOperation {
 
     void checkAppAddedOrNot(String deviceId, String appLabel, String lastAppPackage);
 
-    void addAppDataWithAttempt(String deviceId, String appLabel, String lastAppPackage, int attempt, String lastUsedTime);
+    void addAppDataWithCurrentDate(String userUID, Map<String, Object> appMapData, String device_id, String app_name, String app_package);
 
     void removeTimeFromArray(String deviceId, String appLabel, long timeStamp);
 
