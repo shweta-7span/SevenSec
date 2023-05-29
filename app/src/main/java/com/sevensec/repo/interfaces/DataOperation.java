@@ -1,7 +1,7 @@
 package com.sevensec.repo.interfaces;
 
-import android.content.Context;
-
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.firebase.auth.FirebaseUser;
 import com.sevensec.helper.AuthFailureListener;
 
 public interface DataOperation {
@@ -16,5 +16,7 @@ public interface DataOperation {
 
     void removeTimeFromArray(String deviceId, String appLabel, long timeStamp);
 
-    void addUserID(Context mContext, String deviceId, AuthFailureListener authFailureListener);
+    void addUserAuthData(FirebaseUser user, AuthFailureListener authFailureListener, GoogleSignInAccount googleSignInAccount);
+
+    void updateUserAuthData(GoogleSignInAccount googleSignInAccount);
 }

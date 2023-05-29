@@ -2,6 +2,9 @@ package com.sevensec.utils;
 
 import static com.sevensec.utils.Constants.IN_APP_UPDATE_REQUEST_CODE;
 import static com.sevensec.utils.Constants.PREF_FAV_APP_LIST;
+import static com.sevensec.utils.Constants.PREF_GOOGLE_AUTH_USER_NAME;
+import static com.sevensec.utils.Constants.PREF_GOOGLE_AUTH_USER_PIC;
+import static com.sevensec.utils.Constants.PREF_IS_GOOGLE_LOGIN_DONE;
 import static com.sevensec.utils.Constants.PREF_IS_LOGIN;
 import static com.sevensec.utils.Constants.STR_OPPO;
 import static com.sevensec.utils.Constants.PREF_IS_SKIP_PROTECTED_APP_CHECKED;
@@ -21,6 +24,7 @@ import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
+import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
 import android.view.LayoutInflater;
@@ -30,6 +34,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.tasks.Task;
 import com.google.android.play.core.appupdate.AppUpdateInfo;
 import com.google.android.play.core.appupdate.AppUpdateManager;
@@ -362,5 +367,22 @@ public class Utils {
         } else {
             mContext.startActivity(new Intent(mContext, LoginActivity.class));
         }
+    }
+
+    public static void storeGoogleAuthDataInPreference(GoogleSignInAccount googleSignInAccount) {
+
+        // Name, email address, and profile photo Url
+        String name = googleSignInAccount.getDisplayName();
+        String email = googleSignInAccount.getEmail();
+        Uri photoUrl = googleSignInAccount.getPhotoUrl();
+
+        Dlog.d("storeGoogleAuthData name: " + name);
+        Dlog.d("storeGoogleAuthData email: " + email);
+        Dlog.d("storeGoogleAuthData photoUrl: " + photoUrl);
+
+        SharedPref.writeBoolean(PREF_IS_GOOGLE_LOGIN_DONE, true);
+        SharedPref.writeString(PREF_GOOGLE_AUTH_USER_NAME, name);
+        if (photoUrl != null)
+            SharedPref.writeString(PREF_GOOGLE_AUTH_USER_PIC, photoUrl.toString());
     }
 }

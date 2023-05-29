@@ -14,8 +14,11 @@ public class Constants {
     public static final String STR_DYNAMIC_LINK = "https://sevensec.page.link/app-path";
 
     //FIRE_STORE DB KEYS
-    public static final String DB_COLLECTION_USERS = "Users";
-    public static final String DB_USER_ID = "USER_ID";
+    public static final String DB_COLLECTION_USERS = "users";
+    public static final String DB_USER_ID = "user_id";
+    public static final String DB_USER_NAME = "user_name";
+    public static final String DB_USER_EMAIL = "user_email";
+    public static final String DB_DEVICE_MAP = "device";
     public static final String DB_COLLECTION_APPS = "Apps";
     public static final String DB_DOCUMENT_KEY_TYPE = "Type";
     public static final String DB_DOCUMENT_KEY_APP_NAME = "Name";

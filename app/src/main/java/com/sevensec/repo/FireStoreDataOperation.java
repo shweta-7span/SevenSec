@@ -3,26 +3,30 @@ package com.sevensec.repo;
 import static com.sevensec.utils.Constants.DB_ANDROID;
 import static com.sevensec.utils.Constants.DB_COLLECTION_APPS;
 import static com.sevensec.utils.Constants.DB_COLLECTION_USERS;
+import static com.sevensec.utils.Constants.DB_DEVICE_MAP;
 import static com.sevensec.utils.Constants.DB_DOCUMENT_KEY_APP_ATTEMPTS;
 import static com.sevensec.utils.Constants.DB_DOCUMENT_KEY_APP_NAME;
 import static com.sevensec.utils.Constants.DB_DOCUMENT_KEY_APP_PACKAGE;
 import static com.sevensec.utils.Constants.DB_DOCUMENT_KEY_TYPE;
+import static com.sevensec.utils.Constants.DB_USER_EMAIL;
 import static com.sevensec.utils.Constants.DB_USER_ID;
+import static com.sevensec.utils.Constants.DB_USER_NAME;
 import static com.sevensec.utils.Constants.PREF_IS_LOGIN;
 import static com.sevensec.utils.Utils.check24Hour;
 import static com.sevensec.utils.Utils.getTimeInFormat;
 
-import android.content.Context;
 import android.content.Intent;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -33,6 +37,7 @@ import com.sevensec.helper.AuthFailureListener;
 import com.sevensec.repo.interfaces.DataOperation;
 import com.sevensec.utils.Dlog;
 import com.sevensec.utils.SharedPref;
+import com.sevensec.utils.Utils;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -199,15 +204,27 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
                 });
     }
 
-    public void addUserID(Context mContext, String deviceId, AuthFailureListener authFailureListener) {
+    @Override
+    public void addUserAuthData(FirebaseUser user, AuthFailureListener authFailureListener, GoogleSignInAccount googleSignInAccount) {
 
-        Map<String, Object> userID = new HashMap<>();
-        userID.put(DB_USER_ID, Objects.requireNonNull(mAuth.getCurrentUser()).getUid());
+        Map<String, Object> userMap = new HashMap<>();
+        userMap.put(DB_USER_ID, Objects.requireNonNull(user.getUid()));
 
-        firebaseFirestore.collection(DB_COLLECTION_USERS).document(deviceId).set(userID).addOnCompleteListener(new OnCompleteListener<Void>() {
+        if (googleSignInAccount != null) {
+            userMap.put(DB_USER_NAME, googleSignInAccount.getDisplayName());
+            userMap.put(DB_USER_EMAIL, googleSignInAccount.getEmail());
+
+            Utils.storeGoogleAuthDataInPreference(googleSignInAccount);
+        }
+
+        Dlog.d("addUserAuthData userMap: " + userMap);
+
+        firebaseFirestore.collection(DB_COLLECTION_USERS).document(user.getUid()).set(userMap).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                Dlog.d("FireStore: UserID successfully added!");
+                Dlog.d("addUserAuthData onComplete UID: " + user.getUid());
+
+                Dlog.d("addUserAuthData: UserID successfully added!");
                 SharedPref.writeBoolean(PREF_IS_LOGIN, true);
 
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
@@ -219,9 +236,64 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Dlog.w("FireStore: Error adding Anonymous UserID: " + e.getMessage());
+                Dlog.w("addUserAuthData: Error adding UserID: " + e.getMessage());
                 authFailureListener.authFail();
             }
         });
+    }
+
+    @Override
+    public void updateUserAuthData(GoogleSignInAccount googleSignInAccount) {
+
+        FirebaseUser user = mAuth.getCurrentUser();
+
+        if (user != null) {
+            //Save the data in Preference here to show the image and name in settings screen when login screen closed
+            Utils.storeGoogleAuthDataInPreference(googleSignInAccount);
+
+            firebaseFirestore.collection(DB_COLLECTION_USERS).document(user.getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
+                            Dlog.d("updateUserAuthData: Document exists!");
+
+                            Map<String, Object> deviceMapData = (Map<String, Object>) document.get(DB_DEVICE_MAP);
+                            Dlog.d("updateUserAuthData: deviceMapData: " + deviceMapData);
+
+                            if (deviceMapData != null) {
+
+                                Map<String, Object> deviceMap = new HashMap<>();
+                                deviceMap.put(DB_DEVICE_MAP, deviceMapData);
+                                deviceMap.put(DB_USER_NAME, googleSignInAccount.getDisplayName());
+                                deviceMap.put(DB_USER_EMAIL, googleSignInAccount.getEmail());
+                                deviceMap.put(DB_USER_ID, user.getUid());
+
+                                Dlog.d("updateUserAuthData: deviceMap: " + deviceMap);
+
+                                firebaseFirestore.collection(DB_COLLECTION_USERS).document(user.getUid()).update(deviceMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        Dlog.d("updateUserAuthData: onComplete");
+                                    }
+                                }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Dlog.d("updateUserAuthData: onFailure");
+                                    }
+                                });
+                            }
+
+                        } else {
+                            Dlog.d("updateUserAuthData: Document does not exist!");
+                        }
+                    } else {
+                        Dlog.d("updateUserAuthData: Failed with: " + task.getException());
+                    }
+                }
+            });
+        }
     }
 }
