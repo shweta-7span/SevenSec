@@ -16,7 +16,7 @@ public interface DataOperation {
 
     void addAppDataWithCurrentDate(String userUID, Map<String, Object> appMapData, String device_id, String app_name, String app_package);
 
-    void removeTimeFromArray(String deviceId, String appLabel, long timeStamp);
+    void addUpdateDateMap(String userUID, Map<String, Object> datesMap, String device_id, String app_package, long attempts);
 
     void addUserAuthData(FirebaseUser user, AuthFailureListener authFailureListener, GoogleSignInAccount googleSignInAccount);
 

@@ -24,10 +24,8 @@ public class Constants {
     public static final String DB_APP_ALLOWED_TIME = "allowed_time";
     public static final String DB_APP_DATE_MAP = "dates";
     public static final String DB_APP_ATTEMPTS = "attempts";
-    public static final String DB_APP_LAST_USED_TIME = "last_used_time";
+    public static final String DB_APP_LAST_OPEN_TIME = "last_open_time";
     public static final String DB_APP_TOTAL_TIME = "total_time_spent";
-    public static final String DB_COLLECTION_APPS = "Apps";
-    public static final String DB_DOCUMENT_KEY_APP_ATTEMPTS = "Attempts";
 
     //SHARED_PREF KEYS
     public static final String PREF_IS_APP_LAUNCH_FIRST_TIME = "IS_APP_LAUNCH_FIRST_TIME";

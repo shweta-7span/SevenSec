@@ -3,13 +3,11 @@ package com.sevensec.repo;
 import static com.sevensec.utils.Constants.DB_APP_ALLOWED_TIME;
 import static com.sevensec.utils.Constants.DB_APP_ATTEMPTS;
 import static com.sevensec.utils.Constants.DB_APP_DATE_MAP;
-import static com.sevensec.utils.Constants.DB_APP_LAST_USED_TIME;
+import static com.sevensec.utils.Constants.DB_APP_LAST_OPEN_TIME;
 import static com.sevensec.utils.Constants.DB_APP_NAME;
 import static com.sevensec.utils.Constants.DB_APP_TOTAL_TIME;
-import static com.sevensec.utils.Constants.DB_COLLECTION_APPS;
 import static com.sevensec.utils.Constants.DB_COLLECTION_USERS;
 import static com.sevensec.utils.Constants.DB_DEVICE_MAP;
-import static com.sevensec.utils.Constants.DB_DOCUMENT_KEY_APP_ATTEMPTS;
 import static com.sevensec.utils.Constants.DB_USER_EMAIL;
 import static com.sevensec.utils.Constants.DB_USER_ID;
 import static com.sevensec.utils.Constants.DB_USER_NAME;
@@ -24,15 +22,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldPath;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.sevensec.activities.MainActivity;
 import com.sevensec.helper.AuthFailureListener;
@@ -45,7 +40,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -108,6 +102,7 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
         }
     }
 
+    @Override
     public void updateDevice(String userUID, String device_id) {
 
         Map<String, Object> deviceElementMap = new HashMap<>();
@@ -133,6 +128,7 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
         });
     }
 
+    @Override
     public void checkAppAddedOrNot(String device_id, String app_name, String app_package) {
 
         FirebaseUser currentUser = mAuth.getCurrentUser();
@@ -199,7 +195,7 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
         long attempts = (long) currentDateMap.get(DB_APP_ATTEMPTS);
         Dlog.d("checkAppAddedOrNot attempts: " + attempts);
 
-        long lastAttemptTime = (long) currentDateMap.get(DB_APP_LAST_USED_TIME);
+        long lastAttemptTime = (long) currentDateMap.get(DB_APP_LAST_OPEN_TIME);
         long lastUsedDifference = Math.abs(lastAttemptTime - new Date().getTime());
 
         //To show "Attempts" and "Last Used Time" in Warning screen
@@ -216,7 +212,7 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
 
         Map<String, Object> attemptMap = new HashMap<>();
         attemptMap.put(DB_APP_ATTEMPTS, 1);
-        attemptMap.put(DB_APP_LAST_USED_TIME, new Date().getTime());
+        attemptMap.put(DB_APP_LAST_OPEN_TIME, new Date().getTime());
         attemptMap.put(DB_APP_TOTAL_TIME, 0);
 
         Map<String, Object> currentDateMap = new HashMap<>();
@@ -256,11 +252,12 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
         });
     }
 
-    private void addUpdateDateMap(String userUID, Map<String, Object> datesMap, String device_id, String app_package, long attempts) {
+    @Override
+    public void addUpdateDateMap(String userUID, Map<String, Object> datesMap, String device_id, String app_package, long attempts) {
 
         Map<String, Object> attemptMap = new HashMap<>();
         attemptMap.put(DB_APP_ATTEMPTS, attempts + 1);
-        attemptMap.put(DB_APP_LAST_USED_TIME, new Date().getTime());
+        attemptMap.put(DB_APP_LAST_OPEN_TIME, new Date().getTime());
         attemptMap.put(DB_APP_TOTAL_TIME, 0);
 
         datesMap.put(currentDate, attemptMap);
@@ -280,104 +277,7 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
         });
     }
 
-    /*@Override
-    public void checkAppAddedOrNot(String deviceId, String appLabel, String lastAppPackage) {
-        Dlog.d("App Label -- " + appLabel);
-        //Check App is already Added OR Not
-        firebaseFirestore.collection(DB_COLLECTION_USERS).document(deviceId).collection(DB_COLLECTION_APPS).document(lastAppPackage).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        Dlog.d("FireStore: Document exists!");
-                        getLastAttemptAndTime(deviceId, appLabel, lastAppPackage, document);
-                    } else {
-                        Dlog.d("FireStore: Document does not exist!");
-                        addAppDataWithAttempt(deviceId, appLabel, lastAppPackage, 0, null);
-                    }
-                } else {
-                    Dlog.d("FireStore: Failed with: " + task.getException());
-                }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Dlog.w("FireStore: checkAppAddedOrNot Error: " + e);
-            }
-        });
-    }*/
-
-    /*private void getLastAttemptAndTime(String deviceId, String appLabel, String lastAppPackage, DocumentSnapshot document) {
-        List<Long> timeList = (List<Long>) document.get(DB_DOCUMENT_KEY_APP_ATTEMPTS);
-
-        int attemptCount = 0;
-        String lastUsedTime = null;
-
-        if (timeList != null) {
-            long lastUsedDifference = Math.abs(timeList.get(timeList.size() - 1) - (new Date().getTime()));
-            lastUsedTime = getTimeInFormat(lastUsedDifference);
-
-            for (Long timeStamp : timeList) {
-                Dlog.v("FireStore: getLastAttemptAndTime: " + timeStamp);
-                if (check24Hour(timeStamp)) {
-                    removeTimeFromArray(deviceId, lastAppPackage, timeStamp);
-                } else {
-                    attemptCount++;
-                }
-            }
-        }
-        addAppDataWithAttempt(deviceId, appLabel, lastAppPackage, attemptCount, lastUsedTime);
-    }*/
-
-    /*@Override
-    public void addAppDataWithAttempt(String deviceId, String appLabel, String lastAppPackage, int attempt, String lastUsedTime) {
-        Dlog.i("FireStore: addAppDataWithAttempt attempt: " + attempt);
-        setAttempt(attempt + 1, lastUsedTime);
-
-        Map<String, Object> apps = new HashMap<>();
-        apps.put(DB_DOCUMENT_KEY_APP_NAME, appLabel);
-        apps.put(DB_DOCUMENT_KEY_APP_PACKAGE, lastAppPackage);
-        apps.put(DB_DOCUMENT_KEY_APP_ATTEMPTS, FieldValue.arrayUnion(new Date().getTime()));
-
-        // Add a new document with above fields
-        firebaseFirestore.collection(DB_COLLECTION_USERS).document(deviceId).collection(DB_COLLECTION_APPS).document(lastAppPackage)
-                .set(apps, SetOptions.merge())
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void unused) {
-                        Dlog.d("FireStore: Apps successfully written!");
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Dlog.w("FireStore: Error adding App: " + e);
-                    }
-                });
-    }*/
-
     public void setAttempt(int i, String lastUsedTime) {
-    }
-
-    @Override
-    public void removeTimeFromArray(String deviceId, String lastAppPackage, long timeStamp) {
-        Map<String, Object> apps = new HashMap<>();
-        apps.put(DB_DOCUMENT_KEY_APP_ATTEMPTS, FieldValue.arrayRemove(timeStamp));
-
-        // Remove timeStamp from Array
-        firebaseFirestore.collection(DB_COLLECTION_USERS).document(deviceId).collection(DB_COLLECTION_APPS).document(lastAppPackage)
-                .update(apps)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void unused) {
-                        Dlog.d("FireStore: TimeStamp successfully removed!");
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Dlog.w("FireStore: Error adding App: " + e);
-                    }
-                });
     }
 
     @Override
