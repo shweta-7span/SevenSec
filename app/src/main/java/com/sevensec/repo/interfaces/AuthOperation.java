@@ -1,10 +1,10 @@
 package com.sevensec.repo.interfaces;
 
-import android.content.Context;
+import android.app.Activity;
 
 import com.sevensec.helper.AuthFailureListener;
 
 public interface AuthOperation {
 
-    void loginAnonymously(Context mContext, String DEVICE_ID, AuthFailureListener authFailureListener);
+    void loginAnonymously(Activity activity, String DEVICE_ID, AuthFailureListener authFailureListener);
 }

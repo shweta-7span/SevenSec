@@ -14,10 +14,10 @@ import static com.sevensec.utils.Constants.DB_USER_NAME;
 import static com.sevensec.utils.Constants.PREF_IS_LOGIN;
 import static com.sevensec.utils.Utils.getTimeInFormat;
 
+import android.app.Activity;
 import android.content.Intent;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -32,6 +32,7 @@ import com.google.firebase.firestore.SetOptions;
 import com.sevensec.activities.MainActivity;
 import com.sevensec.helper.AuthFailureListener;
 import com.sevensec.repo.interfaces.DataOperation;
+import com.sevensec.repo.interfaces.SetAttemptLastOpenTime;
 import com.sevensec.utils.Dlog;
 import com.sevensec.utils.SharedPref;
 import com.sevensec.utils.Utils;
@@ -44,14 +45,25 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
-public abstract class FireStoreDataOperation extends AppCompatActivity implements DataOperation {
+public class FireStoreDataOperation implements DataOperation {
 
-    FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
+    FirebaseFirestore firebaseFirestore;
+    FirebaseAuth mAuth;
+    String currentDate;
 
-    FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    SetAttemptLastOpenTime setAttemptLastOpenTime;
 
-    SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
-    String currentDate = df.format(Calendar.getInstance().getTime());
+    public FireStoreDataOperation() {
+        firebaseFirestore = FirebaseFirestore.getInstance();
+        mAuth = FirebaseAuth.getInstance();
+
+        SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
+        currentDate = df.format(Calendar.getInstance().getTime());
+    }
+
+    public void setAttemptInterface(SetAttemptLastOpenTime setAttemptLastOpenTime) {
+        this.setAttemptLastOpenTime = setAttemptLastOpenTime;
+    }
 
     @Override
     public void checkDeviceIsStored(String deviceId) {
@@ -199,7 +211,7 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
         long lastUsedDifference = Math.abs(lastAttemptTime - new Date().getTime());
 
         //To show "Attempts" and "Last Used Time" in Warning screen
-        setAttempt((int) (attempts + 1), getTimeInFormat(lastUsedDifference));
+        setAttemptLastOpenTime.addAttemptAndTimeListener((int) (attempts + 1), getTimeInFormat(lastUsedDifference));
 
         addUpdateDateMap(userUID, datesMap, device_id, app_package, attempts);
     }
@@ -208,7 +220,7 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
     public void addAppDataWithCurrentDate(String userUID, Map<String, Object> appMapData, String device_id, String app_name, String app_package) {
 
         //To show "Attempts" and "Last Used Time" in Warning screen
-        setAttempt(1, null);
+        setAttemptLastOpenTime.addAttemptAndTimeListener(1, null);
 
         Map<String, Object> attemptMap = new HashMap<>();
         attemptMap.put(DB_APP_ATTEMPTS, 1);
@@ -277,11 +289,8 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
         });
     }
 
-    public void setAttempt(int i, String lastUsedTime) {
-    }
-
     @Override
-    public void addUserAuthData(FirebaseUser user, AuthFailureListener authFailureListener, GoogleSignInAccount googleSignInAccount) {
+    public void addUserAuthData(Activity activity, FirebaseUser user, AuthFailureListener authFailureListener, GoogleSignInAccount googleSignInAccount) {
 
         Map<String, Object> userMap = new HashMap<>();
         userMap.put(DB_USER_ID, Objects.requireNonNull(user.getUid()));
@@ -303,11 +312,11 @@ public abstract class FireStoreDataOperation extends AppCompatActivity implement
                 Dlog.d("addUserAuthData: UserID successfully added!");
                 SharedPref.writeBoolean(PREF_IS_LOGIN, true);
 
-                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                Intent intent = new Intent(activity, MainActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
+                activity.startActivity(intent);
 
-                finish();
+                activity.finish();
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override

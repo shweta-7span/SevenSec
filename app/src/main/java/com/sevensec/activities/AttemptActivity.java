@@ -15,6 +15,7 @@ import android.os.Handler;
 import android.view.View;
 import android.view.WindowManager;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 
 import com.sevensec.R;
@@ -23,6 +24,7 @@ import com.sevensec.database.DatabaseHelper;
 import com.sevensec.database.table.AppUsage;
 import com.sevensec.databinding.ActivityAttemptBinding;
 import com.sevensec.repo.FireStoreDataOperation;
+import com.sevensec.repo.interfaces.SetAttemptLastOpenTime;
 import com.sevensec.service.MyForegroundService;
 import com.sevensec.utils.Constants;
 import com.sevensec.utils.Dlog;
@@ -31,7 +33,7 @@ import com.sevensec.utils.SharedPref;
 import java.io.InputStream;
 import java.util.Date;
 
-public class AttemptActivity extends FireStoreDataOperation {
+public class AttemptActivity extends AppCompatActivity implements SetAttemptLastOpenTime {
 
     ActivityAttemptBinding binding;
 
@@ -39,12 +41,17 @@ public class AttemptActivity extends FireStoreDataOperation {
     private String appPackageName;
     private AppUsageDao appUsageDao;
 
+    FireStoreDataOperation fireStoreDataOperation;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
                 WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_attempt);
+
+        fireStoreDataOperation = new FireStoreDataOperation();
+        fireStoreDataOperation.setAttemptInterface(this);
 
         String DEVICE_ID = SharedPref.readString(PREF_DEVICE_ID, "");
         PackageManager packageManager = getPackageManager();
@@ -114,7 +121,7 @@ public class AttemptActivity extends FireStoreDataOperation {
             transaction.commit();
         }, DELAY_OPEN_GREY_PAGE);*/
 
-        checkAppAddedOrNot(DEVICE_ID, appLabel, appPackageName);
+        fireStoreDataOperation.checkAppAddedOrNot(DEVICE_ID, appLabel, appPackageName);
     }
 
     private void addAppOpenTimeInDB(String appLabel, String appPackageName, Date currentDate, long appUsageStartTime) {
@@ -129,9 +136,27 @@ public class AttemptActivity extends FireStoreDataOperation {
         startActivity(i);
     }
 
-    @Override
+    /*@Override
     public void setAttempt(int lastAttempt, String lastUsedTime) {
         super.setAttempt(lastAttempt, lastUsedTime);
+        Dlog.d("setAttempt Attempt number: " + lastAttempt);
+        Dlog.d("setAttempt lastUsedTime: " + lastUsedTime);
+
+//        binding.tvAttempts.setText(String.valueOf(lastAttempt));
+        if (lastAttempt == 1) {
+            binding.tvAttempts.setText(String.format("%s%s%s%s%s", lastAttempt, " ", getString(R.string.attempt_to_open), " " + appLabel + " ", getString(R.string.within_24_hrs)));
+        } else {
+            binding.tvAttempts.setText(String.format("%s%s%s%s%s", lastAttempt, " ", getString(R.string.attempts_to_open), " " + appLabel + " ", getString(R.string.within_24_hrs)));
+        }
+
+        if (lastUsedTime != null) {
+            if (!lastUsedTime.isEmpty())
+                binding.tvLastUse.setText(String.format("Last attempt to open was %s ago", lastUsedTime));
+        }
+    }*/
+
+    @Override
+    public void addAttemptAndTimeListener(int lastAttempt, String lastUsedTime) {
         Dlog.d("setAttempt Attempt number: " + lastAttempt);
         Dlog.d("setAttempt lastUsedTime: " + lastUsedTime);
 

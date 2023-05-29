@@ -7,6 +7,7 @@ import static com.sevensec.utils.Constants.PREF_GOOGLE_AUTH_USER_PIC;
 import static com.sevensec.utils.Constants.PREF_IS_GOOGLE_LOGIN_DONE;
 import static com.sevensec.utils.Constants.STR_DYNAMIC_LINK;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.DialogFragment;
 
@@ -25,14 +26,17 @@ import com.sevensec.repo.FireBaseAuthOperation;
 import com.sevensec.utils.Dlog;
 import com.sevensec.utils.SharedPref;
 
-public class SettingsActivity extends FireBaseAuthOperation implements AppSwitchDelayDialogFragment.SingleChoiceListener {
+public class SettingsActivity extends AppCompatActivity implements AppSwitchDelayDialogFragment.SingleChoiceListener {
 
     ActivitySettingsBinding binding;
+    FireBaseAuthOperation fireBaseAuthOperation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_settings);
+
+        fireBaseAuthOperation = new FireBaseAuthOperation();
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -45,7 +49,7 @@ public class SettingsActivity extends FireBaseAuthOperation implements AppSwitch
         binding.llSwitchDelay.setOnClickListener(v -> openAppSwitchingPopup());
         binding.llBreathingTimer.setOnClickListener(v -> openBreathingTimerPopup());
         binding.llShare.setOnClickListener(v -> openShareAppPopup());
-        binding.btnLogout.setOnClickListener(v -> logout(this));
+        binding.btnLogout.setOnClickListener(v -> fireBaseAuthOperation.logout(this));
     }
 
     @Override

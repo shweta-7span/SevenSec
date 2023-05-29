@@ -1,5 +1,7 @@
 package com.sevensec.repo.interfaces;
 
+import android.app.Activity;
+
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.firebase.auth.FirebaseUser;
 import com.sevensec.helper.AuthFailureListener;
@@ -18,7 +20,7 @@ public interface DataOperation {
 
     void addUpdateDateMap(String userUID, Map<String, Object> datesMap, String device_id, String app_package, long attempts);
 
-    void addUserAuthData(FirebaseUser user, AuthFailureListener authFailureListener, GoogleSignInAccount googleSignInAccount);
+    void addUserAuthData(Activity activity, FirebaseUser user, AuthFailureListener authFailureListener, GoogleSignInAccount googleSignInAccount);
 
     void updateUserAuthData(GoogleSignInAccount googleSignInAccount);
 }

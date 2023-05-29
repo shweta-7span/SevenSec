@@ -5,6 +5,7 @@ import static com.sevensec.utils.Constants.PREF_IS_LOGIN;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 
 import android.app.Activity;
@@ -28,11 +29,13 @@ import com.sevensec.utils.Dlog;
 import com.sevensec.utils.SharedPref;
 import com.sevensec.utils.Utils;
 
-public class LoginActivity extends FireBaseAuthOperation implements AuthFailureListener {
+public class LoginActivity extends AppCompatActivity implements AuthFailureListener {
 
     ActivityLoginBinding binding;
     String DEVICE_ID;
     ConnectivityManager connMgr;
+
+    FireBaseAuthOperation fireBaseAuthOperation;
 
     // Define a NetworkCallback object
     ConnectivityManager.NetworkCallback networkCallback = new ConnectivityManager.NetworkCallback() {
@@ -58,6 +61,8 @@ public class LoginActivity extends FireBaseAuthOperation implements AuthFailureL
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_login);
 
+        fireBaseAuthOperation = new FireBaseAuthOperation();
+
         binding.rlLogin.setVisibility(View.GONE);
         binding.llNoInternet.setVisibility(View.GONE);
         binding.progressBar.setVisibility(View.GONE);
@@ -78,12 +83,10 @@ public class LoginActivity extends FireBaseAuthOperation implements AuthFailureL
 
         binding.tvSkip.setOnClickListener(v -> {
             binding.progressBar.setVisibility(View.VISIBLE);
-            loginAnonymously(getApplicationContext(), DEVICE_ID, this);
+            fireBaseAuthOperation.loginAnonymously(this, DEVICE_ID, this);
         });
 
-        binding.btnLoginWitGoogle.setOnClickListener(v -> {
-            showGoogleAccounts(startActivityIntent);
-        });
+        binding.btnLoginWitGoogle.setOnClickListener(v -> fireBaseAuthOperation.showGoogleAccounts(this, startActivityIntent));
     }
 
     private void checkForInternet(boolean isInternetAvailable) {
@@ -115,7 +118,7 @@ public class LoginActivity extends FireBaseAuthOperation implements AuthFailureL
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
 
             binding.progressBar.setVisibility(View.VISIBLE);
-            checkFirebaseUSer(this, DEVICE_ID, task, this);
+            fireBaseAuthOperation.checkFirebaseUser(this, task, this);
         }
     });
 

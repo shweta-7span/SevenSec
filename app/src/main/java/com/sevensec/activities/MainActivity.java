@@ -35,6 +35,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -60,7 +61,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class MainActivity extends FireStoreDataOperation implements ActionClickInterface {
+public class MainActivity extends AppCompatActivity implements ActionClickInterface {
 
     ActivityMainBinding binding;
     PowerManager pm;
@@ -72,11 +73,15 @@ public class MainActivity extends FireStoreDataOperation implements ActionClickI
     MyListAdapter adapter;
     List<AppInfoModel> appInfoModelList = new ArrayList<>();
 
+    FireStoreDataOperation fireStoreDataOperation;
+
     @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+
+        fireStoreDataOperation = new FireStoreDataOperation();
 
         pm = (PowerManager) getSystemService(POWER_SERVICE);
         FirebaseAnalytics.getInstance(this).setAnalyticsCollectionEnabled(true);
@@ -158,7 +163,8 @@ public class MainActivity extends FireStoreDataOperation implements ActionClickI
             Dlog.d("ManinActivity DEVICE_ID: " + DEVICE_ID);
 
             //Store DEVICE_ID in FireStore
-            checkDeviceIsStored(DEVICE_ID);
+            fireStoreDataOperation.checkDeviceIsStored(DEVICE_ID);
+
             isPermissionGranted = true;
             if (itemSettings != null) {
                 itemSettings.setVisible(true);
