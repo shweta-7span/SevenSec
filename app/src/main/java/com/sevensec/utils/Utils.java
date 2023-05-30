@@ -45,9 +45,12 @@ import com.sevensec.R;
 import com.sevensec.activities.LoginActivity;
 import com.sevensec.activities.MainActivity;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class Utils {
 
@@ -361,7 +364,7 @@ public class Utils {
         return SharedPref.readListString(PREF_FAV_APP_LIST);
     }
 
-    public static void isLogin(Context mContext){
+    public static void isLogin(Context mContext) {
         if (SharedPref.readBoolean(PREF_IS_LOGIN, false)) {
             mContext.startActivity(new Intent(mContext, MainActivity.class));
         } else {
@@ -384,5 +387,10 @@ public class Utils {
         SharedPref.writeString(PREF_GOOGLE_AUTH_USER_NAME, name);
         if (photoUrl != null)
             SharedPref.writeString(PREF_GOOGLE_AUTH_USER_PIC, photoUrl.toString());
+    }
+
+    public static String getCurrentDate() {
+        SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
+        return df.format(Calendar.getInstance().getTime());
     }
 }

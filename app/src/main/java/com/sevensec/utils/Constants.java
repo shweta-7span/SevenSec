@@ -24,7 +24,7 @@ public class Constants {
     public static final String DB_APP_ALLOWED_TIME = "allowed_time";
     public static final String DB_APP_DATE_MAP = "dates";
     public static final String DB_APP_ATTEMPTS = "attempts";
-    public static final String DB_APP_LAST_OPEN_TIME = "last_open_time";
+    public static final String DB_APP_LAST_ATTEMPT_TIME = "last_attempt_time";
     public static final String DB_APP_TOTAL_TIME = "total_time_spent";
 
     //SHARED_PREF KEYS

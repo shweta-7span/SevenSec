@@ -3,7 +3,7 @@ package com.sevensec.repo;
 import static com.sevensec.utils.Constants.DB_APP_ALLOWED_TIME;
 import static com.sevensec.utils.Constants.DB_APP_ATTEMPTS;
 import static com.sevensec.utils.Constants.DB_APP_DATE_MAP;
-import static com.sevensec.utils.Constants.DB_APP_LAST_OPEN_TIME;
+import static com.sevensec.utils.Constants.DB_APP_LAST_ATTEMPT_TIME;
 import static com.sevensec.utils.Constants.DB_APP_NAME;
 import static com.sevensec.utils.Constants.DB_APP_TOTAL_TIME;
 import static com.sevensec.utils.Constants.DB_COLLECTION_USERS;
@@ -37,11 +37,8 @@ import com.sevensec.utils.Dlog;
 import com.sevensec.utils.SharedPref;
 import com.sevensec.utils.Utils;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -57,8 +54,7 @@ public class FireStoreDataOperation implements DataOperation {
         firebaseFirestore = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
 
-        SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
-        currentDate = df.format(Calendar.getInstance().getTime());
+        currentDate = Utils.getCurrentDate();
     }
 
     public void setAttemptInterface(SetAttemptLastOpenTime setAttemptLastOpenTime) {
@@ -207,11 +203,11 @@ public class FireStoreDataOperation implements DataOperation {
         long attempts = (long) currentDateMap.get(DB_APP_ATTEMPTS);
         Dlog.d("checkAppAddedOrNot attempts: " + attempts);
 
-        long lastAttemptTime = (long) currentDateMap.get(DB_APP_LAST_OPEN_TIME);
-        long lastUsedDifference = Math.abs(lastAttemptTime - new Date().getTime());
+        long lastAttemptTime = (long) currentDateMap.get(DB_APP_LAST_ATTEMPT_TIME);
+        long lastAttemptTimeDifference = Math.abs(lastAttemptTime - new Date().getTime());
 
         //To show "Attempts" and "Last Used Time" in Warning screen
-        setAttemptLastOpenTime.addAttemptAndTimeListener((int) (attempts + 1), getTimeInFormat(lastUsedDifference));
+        setAttemptLastOpenTime.addAttemptAndTimeListener((int) (attempts + 1), getTimeInFormat(lastAttemptTimeDifference));
 
         addUpdateDateMap(userUID, datesMap, device_id, app_package, attempts);
     }
@@ -224,7 +220,7 @@ public class FireStoreDataOperation implements DataOperation {
 
         Map<String, Object> attemptMap = new HashMap<>();
         attemptMap.put(DB_APP_ATTEMPTS, 1);
-        attemptMap.put(DB_APP_LAST_OPEN_TIME, new Date().getTime());
+        attemptMap.put(DB_APP_LAST_ATTEMPT_TIME, new Date().getTime());
         attemptMap.put(DB_APP_TOTAL_TIME, 0);
 
         Map<String, Object> currentDateMap = new HashMap<>();
@@ -269,7 +265,7 @@ public class FireStoreDataOperation implements DataOperation {
 
         Map<String, Object> attemptMap = new HashMap<>();
         attemptMap.put(DB_APP_ATTEMPTS, attempts + 1);
-        attemptMap.put(DB_APP_LAST_OPEN_TIME, new Date().getTime());
+        attemptMap.put(DB_APP_LAST_ATTEMPT_TIME, new Date().getTime());
         attemptMap.put(DB_APP_TOTAL_TIME, 0);
 
         datesMap.put(currentDate, attemptMap);
