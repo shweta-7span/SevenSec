@@ -171,7 +171,7 @@ public class FireStoreDataOperation implements DataOperation {
                                 Dlog.d("checkAppAddedOrNot currentDateMap: " + currentDateMap);
 
                                 if (currentDateMap == null) {
-                                    addUpdateDateMap(currentUser.getUid(), datesMap, device_id, app_package, 0);
+                                    addUpdateDateMap(currentUser.getUid(), datesMap, device_id, app_package, 0, 0);
 
                                 } else {
                                     getLastAttemptAndTime(currentUser.getUid(), datesMap, device_id, app_package, currentDateMap);
@@ -206,10 +206,12 @@ public class FireStoreDataOperation implements DataOperation {
         long lastAttemptTime = (long) currentDateMap.get(DB_APP_LAST_ATTEMPT_TIME);
         long lastAttemptTimeDifference = Math.abs(lastAttemptTime - new Date().getTime());
 
+        long lastAppUsageTime = (long) currentDateMap.get(DB_APP_TOTAL_TIME);
+
         //To show "Attempts" and "Last Used Time" in Warning screen
         setAttemptLastOpenTime.addAttemptAndTimeListener((int) (attempts + 1), getTimeInFormat(lastAttemptTimeDifference));
 
-        addUpdateDateMap(userUID, datesMap, device_id, app_package, attempts);
+        addUpdateDateMap(userUID, datesMap, device_id, app_package, attempts, lastAppUsageTime);
     }
 
     @Override
@@ -261,12 +263,12 @@ public class FireStoreDataOperation implements DataOperation {
     }
 
     @Override
-    public void addUpdateDateMap(String userUID, Map<String, Object> datesMap, String device_id, String app_package, long attempts) {
+    public void addUpdateDateMap(String userUID, Map<String, Object> datesMap, String device_id, String app_package, long attempts, long appUsageTime) {
 
         Map<String, Object> attemptMap = new HashMap<>();
         attemptMap.put(DB_APP_ATTEMPTS, attempts + 1);
         attemptMap.put(DB_APP_LAST_ATTEMPT_TIME, new Date().getTime());
-        attemptMap.put(DB_APP_TOTAL_TIME, 0);
+        attemptMap.put(DB_APP_TOTAL_TIME, appUsageTime);
 
         datesMap.put(currentDate, attemptMap);
 
@@ -376,5 +378,98 @@ public class FireStoreDataOperation implements DataOperation {
                 }
             });
         }
+    }
+
+    @Override
+    public void checkAppUsageForCurrentDate(String device_id, String app_package, long appUsageTotalTime) {
+
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+
+        if (currentUser != null) {
+            firebaseFirestore.collection(DB_COLLECTION_USERS).document(currentUser.getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+
+                        if (document.exists()) {
+                            Dlog.d("checkAppAddedOrNot: Document exists!");
+
+                            Map<String, Object> deviceMapData = (Map<String, Object>) document.get(DB_DEVICE_MAP);
+                            Dlog.d("checkAppAddedOrNot deviceMapData: " + deviceMapData);
+
+                            Map<String, Object> appMapData = (Map<String, Object>) deviceMapData.get(device_id);
+                            Dlog.d("checkAppAddedOrNot appMapData: " + appMapData);
+
+                            if (appMapData != null && appMapData.containsKey(app_package)) {
+                                Dlog.d("checkAppAddedOrNot: " + app_package + " exists!");
+
+                                Map<String, Object> packageMap = (Map<String, Object>) appMapData.get(app_package);
+                                Dlog.d("checkAppAddedOrNot packageMap: " + packageMap);
+
+                                Map<String, Object> datesMap = (Map<String, Object>) packageMap.get(DB_APP_DATE_MAP);
+                                Dlog.d("checkAppAddedOrNot packageMap: " + packageMap);
+
+                                Map<String, Object> currentDateMap = (Map<String, Object>) datesMap.get(currentDate);
+                                Dlog.d("checkAppAddedOrNot currentDateMap: " + currentDateMap);
+
+                                if (currentDateMap == null) {
+//                                    addUpdateDateMap(currentUser.getUid(), datesMap, device_id, app_package, 0);
+
+                                } else {
+                                    getAppUsageTime(currentUser.getUid(), datesMap, device_id, app_package, currentDateMap, appUsageTotalTime);
+                                }
+
+                            } else {
+                                Dlog.d("checkAppAddedOrNot: " + app_package + " NOT exists!");
+                            }
+
+                        } else {
+                            Dlog.d("checkAppAddedOrNot FireStore: Document does not exist!");
+                        }
+                    } else {
+                        Dlog.d("checkAppAddedOrNot FireStore: Failed with: " + task.getException());
+                    }
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Dlog.d("checkAppAddedOrNot onFailure: " + e.getMessage());
+                }
+            });
+        }
+    }
+
+    private void getAppUsageTime(String userUID, Map<String, Object> datesMap, String device_id, String app_package, Map<String, Object> currentDateMap, long appUsageTotalTime) {
+
+        long attempts = (long) currentDateMap.get(DB_APP_ATTEMPTS);
+        Dlog.d("checkAppAddedOrNot attempts: " + attempts);
+
+        long lastAttemptTime = (long) currentDateMap.get(DB_APP_LAST_ATTEMPT_TIME);
+
+        long lastAppUsageTime = (long) currentDateMap.get(DB_APP_TOTAL_TIME);
+        long totalAppUsageTime = lastAppUsageTime + appUsageTotalTime;
+
+        Map<String, Object> attemptMap = new HashMap<>();
+        attemptMap.put(DB_APP_ATTEMPTS, attempts);
+        attemptMap.put(DB_APP_LAST_ATTEMPT_TIME, lastAttemptTime);
+        attemptMap.put(DB_APP_TOTAL_TIME, totalAppUsageTime);
+
+        datesMap.put(currentDate, attemptMap);
+
+        Dlog.d("getAppUsageTime datesMap: " + datesMap);
+
+        firebaseFirestore.collection(DB_COLLECTION_USERS).document(userUID).update(FieldPath.of("device", device_id, app_package, "dates"), datesMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                Dlog.d("updateAppUsageTime onComplete");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Dlog.d("updateAppUsageTime onFailure");
+            }
+        });
     }
 }

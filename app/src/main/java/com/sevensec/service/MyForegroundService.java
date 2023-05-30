@@ -6,6 +6,7 @@ import static com.sevensec.utils.Constants.CHECK_TOP_APPLICATION_WHEN_ATTEMPT_OP
 import static com.sevensec.utils.Constants.OPEN_ATTEMPT_SCREEN_DELAY;
 import static com.sevensec.utils.Constants.PREF_BLOCK_APP_OPEN_TIME;
 import static com.sevensec.utils.Constants.PREF_APP_SWITCH_DURATION;
+import static com.sevensec.utils.Constants.PREF_DEVICE_ID;
 import static com.sevensec.utils.Constants.STR_LAST_WARN_APP;
 import static com.sevensec.utils.Constants.getIsUserOpenBlockAppKey;
 
@@ -34,6 +35,7 @@ import com.sevensec.activities.MainActivity;
 import com.sevensec.database.AppUsageDao;
 import com.sevensec.database.DatabaseHelper;
 import com.sevensec.database.table.AppUsage;
+import com.sevensec.repo.FireStoreDataOperation;
 import com.sevensec.utils.Dlog;
 import com.sevensec.utils.SharedPref;
 import com.sevensec.utils.Utils;
@@ -53,6 +55,8 @@ public class MyForegroundService extends Service {
 
     AppUsageDao appUsageDao;
 
+    FireStoreDataOperation fireStoreDataOperation;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -60,6 +64,8 @@ public class MyForegroundService extends Service {
             startMyOwnForeground();
         else
             startForeground(1, new Notification());
+
+        fireStoreDataOperation = new FireStoreDataOperation();
     }
 
     @Override
@@ -256,6 +262,8 @@ public class MyForegroundService extends Service {
 
         Dlog.d("appPackage: " + appPackage);
         Dlog.d("appOpenTime: " + appOpenTime);
+
+        //Store appUsage in Room database
         List<AppUsage> appUsageList = appUsageDao.getAppUsageByPackageNameAndOpenTime(appPackage, appOpenTime);
 
         if (appUsageList.size() > 0) {
@@ -268,6 +276,12 @@ public class MyForegroundService extends Service {
         } else {
             Dlog.e("Not get this Data");
         }
+
+        //Store appUsage in FireStore
+        String DEVICE_ID = SharedPref.readString(PREF_DEVICE_ID, "");
+        long appUsageTimeInSeconds = appUsageTimeMillis / 1000;
+
+        fireStoreDataOperation.checkAppUsageForCurrentDate(DEVICE_ID, lastAppPN, appUsageTimeInSeconds);
     }
 
     private boolean isAppSwitchTimeExpire(String lastAppPN) {
@@ -290,8 +304,8 @@ public class MyForegroundService extends Service {
             if (appUsage == null) {
                 Dlog.d("close time: NULL");
                 appCloseTime = new Date().getTime() + (appSwitchDuration * 1000 * 60);
-            }else{
-                Dlog.d("close time: "+appUsage.getAppCloseTime());
+            } else {
+                Dlog.d("close time: " + appUsage.getAppCloseTime());
                 appCloseTime = appUsage.getAppCloseTime();
             }
 

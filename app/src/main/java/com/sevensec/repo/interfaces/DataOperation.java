@@ -18,9 +18,11 @@ public interface DataOperation {
 
     void addAppDataWithCurrentDate(String userUID, Map<String, Object> appMapData, String device_id, String app_name, String app_package);
 
-    void addUpdateDateMap(String userUID, Map<String, Object> datesMap, String device_id, String app_package, long attempts);
+    void addUpdateDateMap(String userUID, Map<String, Object> datesMap, String device_id, String app_package, long attempts, long appUsageTime);
 
     void addUserAuthData(Activity activity, FirebaseUser user, AuthFailureListener authFailureListener, GoogleSignInAccount googleSignInAccount);
 
     void updateUserAuthData(GoogleSignInAccount googleSignInAccount);
+
+    void checkAppUsageForCurrentDate(String device_id, String app_package, long appUsageTotalTime);
 }
