@@ -32,9 +32,7 @@ import androidx.core.app.NotificationCompat;
 import com.sevensec.R;
 import com.sevensec.activities.AttemptActivity;
 import com.sevensec.activities.MainActivity;
-import com.sevensec.database.AppUsageDao;
-import com.sevensec.database.DatabaseHelper;
-import com.sevensec.database.table.AppUsage;
+import com.sevensec.database.AppUsageRoomDbHelper;
 import com.sevensec.repo.FireStoreDataOperation;
 import com.sevensec.utils.Dlog;
 import com.sevensec.utils.SharedPref;
@@ -53,7 +51,7 @@ public class MyForegroundService extends Service {
     //    String[] androidStrings;
     List<String> favAppList = new ArrayList<>();
 
-    AppUsageDao appUsageDao;
+    AppUsageRoomDbHelper appUsageRoomDbHelper;
 
     FireStoreDataOperation fireStoreDataOperation;
 
@@ -80,7 +78,7 @@ public class MyForegroundService extends Service {
 
         TAG = getApplicationContext().getClass().getName();
         instance = this;
-        appUsageDao = DatabaseHelper.getDatabase(this).appUsageDao();
+        appUsageRoomDbHelper = new AppUsageRoomDbHelper(this);
 
         //androidStrings = getResources().getStringArray(R.array.arrFavApps);
         Dlog.d("onStartCommand: " + lastAppPN);
@@ -264,18 +262,7 @@ public class MyForegroundService extends Service {
         Dlog.d("appOpenTime: " + appOpenTime);
 
         //Store appUsage in Room database
-        List<AppUsage> appUsageList = appUsageDao.getAppUsageByPackageNameAndOpenTime(appPackage, appOpenTime);
-
-        if (appUsageList.size() > 0) {
-            AppUsage appUsage = appUsageList.get(0);
-
-            appUsage.setAppCloseTime(appCloseTime);
-            appUsage.setAppUsageTime(appUsageTimeMillis);
-
-            appUsageDao.updateAppData(appUsage);
-        } else {
-            Dlog.e("Not get this Data");
-        }
+        appUsageRoomDbHelper.storeAppUsageData(lastAppPN, appOpenTime, appCloseTime, appUsageTimeMillis);
 
         //Store appUsage in FireStore
         String DEVICE_ID = SharedPref.readString(PREF_DEVICE_ID, "");
@@ -298,16 +285,7 @@ public class MyForegroundService extends Service {
             return true;
 
         } else {
-            long appCloseTime;
-
-            AppUsage appUsage = appUsageDao.getAppCloseTime(lastAppPN);
-            if (appUsage == null) {
-                Dlog.d("close time: NULL");
-                appCloseTime = new Date().getTime() + (appSwitchDuration * 1000 * 60);
-            } else {
-                Dlog.d("close time: " + appUsage.getAppCloseTime());
-                appCloseTime = appUsage.getAppCloseTime();
-            }
+            long appCloseTime = appUsageRoomDbHelper.getAppCloseTimeForApp(lastAppPN, appSwitchDuration);
 
             long lastUsedDifference = Math.abs(appCloseTime - new Date().getTime());
             long elapsedSeconds = lastUsedDifference / 1000;

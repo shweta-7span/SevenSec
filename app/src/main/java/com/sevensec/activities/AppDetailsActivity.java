@@ -22,8 +22,7 @@ import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.sevensec.R;
-import com.sevensec.database.AppUsageDao;
-import com.sevensec.database.DatabaseHelper;
+import com.sevensec.database.AppUsageRoomDbHelper;
 import com.sevensec.databinding.ActivityAppDetailsBinding;
 import com.sevensec.model.AppInfoModel;
 import com.sevensec.model.AppUsageByDate;
@@ -42,7 +41,7 @@ public class AppDetailsActivity extends AppCompatActivity {
 
     ActivityAppDetailsBinding binding;
     AppInfoModel appInfoModel;
-    AppUsageDao appUsageDao;
+    AppUsageRoomDbHelper appUsageRoomDbHelper;
     @SuppressLint("SimpleDateFormat")
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM");
     @SuppressLint("SimpleDateFormat")
@@ -56,7 +55,8 @@ public class AppDetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_app_details);
 
-        appUsageDao = DatabaseHelper.getDatabase(this).appUsageDao();
+        appUsageRoomDbHelper = new AppUsageRoomDbHelper(this);
+
         currentDate = new Date();
         cal = Calendar.getInstance();
 
@@ -77,7 +77,7 @@ public class AppDetailsActivity extends AppCompatActivity {
 
         binding.ivAppIcon.setImageBitmap(appInfoModel.getAppIconBitmap());
 
-        String currentDateAppUsage = Utils.getAppUsageTimeInFormat(appUsageDao.getTotalAppUsageTimeForDay(packageName, currentDate), false);
+        String currentDateAppUsage = Utils.getAppUsageTimeInFormat(appUsageRoomDbHelper.getTotalAppUsageTimeForDate(packageName, currentDate), false);
         binding.tvCurrentDayUsage.setText(String.format("%s", currentDateAppUsage.isEmpty() ? "0 Sec" : currentDateAppUsage));
 
         //Show "UsageTime" for the week in which the user selected date include
@@ -176,7 +176,7 @@ public class AppDetailsActivity extends AppCompatActivity {
 
         while (calendar.getTime().before(endDate) || calendar.getTime().equals(endDate)) {
 
-            long totalAppUsageTime = appUsageDao.getTotalAppUsageTimeForDay(packageName, calendar.getTime());
+            long totalAppUsageTime = appUsageRoomDbHelper.getTotalAppUsageTimeForDate(packageName, calendar.getTime());
             if (totalAppUsageTime != 0) {
                 isSelectedWeekHaveData = true;
             }

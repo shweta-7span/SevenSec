@@ -1,6 +1,5 @@
 package com.sevensec.activities;
 
-import static com.sevensec.utils.Constants.PREF_BLOCK_APP_OPEN_TIME;
 import static com.sevensec.utils.Constants.PREF_BREATHING_POSITION;
 import static com.sevensec.utils.Constants.PREF_DEVICE_ID;
 import static com.sevensec.utils.Constants.getIsUserOpenBlockAppKey;
@@ -19,9 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 
 import com.sevensec.R;
-import com.sevensec.database.AppUsageDao;
-import com.sevensec.database.DatabaseHelper;
-import com.sevensec.database.table.AppUsage;
+import com.sevensec.database.AppUsageRoomDbHelper;
 import com.sevensec.databinding.ActivityAttemptBinding;
 import com.sevensec.repo.FireStoreDataOperation;
 import com.sevensec.repo.interfaces.SetAttemptLastOpenTime;
@@ -39,7 +36,9 @@ public class AttemptActivity extends AppCompatActivity implements SetAttemptLast
 
     private String appLabel;
     private String appPackageName;
-    private AppUsageDao appUsageDao;
+//    private AppUsageDao appUsageDao;
+
+    AppUsageRoomDbHelper appUsageRoomDbHelper;
 
     FireStoreDataOperation fireStoreDataOperation;
 
@@ -56,7 +55,7 @@ public class AttemptActivity extends AppCompatActivity implements SetAttemptLast
         String DEVICE_ID = SharedPref.readString(PREF_DEVICE_ID, "");
         PackageManager packageManager = getPackageManager();
 
-        appUsageDao = DatabaseHelper.getDatabase(this).appUsageDao();
+        appUsageRoomDbHelper = new AppUsageRoomDbHelper(this);
 
         binding.tvBreathDesc.setVisibility(View.VISIBLE);
         binding.rlAttempt.setVisibility(View.GONE);
@@ -90,7 +89,7 @@ public class AttemptActivity extends AppCompatActivity implements SetAttemptLast
         }
 
         binding.tvContinue.setOnClickListener(view -> {
-            addAppOpenTimeInDB(appLabel, appPackageName, new Date(), System.currentTimeMillis());
+            appUsageRoomDbHelper.addAppOpenTimeInDB(appLabel, appPackageName, new Date(), System.currentTimeMillis());
             finish();
 
             //Store LastOpenedBlockApp in Service's variable
@@ -122,12 +121,6 @@ public class AttemptActivity extends AppCompatActivity implements SetAttemptLast
         }, DELAY_OPEN_GREY_PAGE);*/
 
         fireStoreDataOperation.checkAppAddedOrNot(DEVICE_ID, appLabel, appPackageName);
-    }
-
-    private void addAppOpenTimeInDB(String appLabel, String appPackageName, Date currentDate, long appUsageStartTime) {
-        SharedPref.writeBoolean(getIsUserOpenBlockAppKey(appPackageName), true);
-        SharedPref.writeLong(PREF_BLOCK_APP_OPEN_TIME, appUsageStartTime);
-        appUsageDao.addAppData(new AppUsage(appLabel, appPackageName, currentDate, appUsageStartTime));
     }
 
     private void openBlockApp(String appPackageName) {
