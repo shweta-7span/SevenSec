@@ -266,9 +266,9 @@ public class MyForegroundService extends Service {
 
         //Store appUsage in FireStore
         String DEVICE_ID = SharedPref.readString(PREF_DEVICE_ID, "");
-        long appUsageTimeInSeconds = appUsageTimeMillis / 1000;
+        long totalAppUsageTimeInSeconds = appUsageRoomDbHelper.getTotalAppUsageTimeForDate(lastAppPN, new Date()) / 1000;
 
-        fireStoreDataOperation.checkAppUsageForCurrentDate(DEVICE_ID, lastAppPN, appUsageTimeInSeconds);
+        fireStoreDataOperation.checkAppUsageForCurrentDate(DEVICE_ID, lastAppPN, totalAppUsageTimeInSeconds);
     }
 
     private boolean isAppSwitchTimeExpire(String lastAppPN) {

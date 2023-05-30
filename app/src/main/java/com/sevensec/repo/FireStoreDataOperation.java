@@ -418,7 +418,7 @@ public class FireStoreDataOperation implements DataOperation {
 //                                    addUpdateDateMap(currentUser.getUid(), datesMap, device_id, app_package, 0);
 
                                 } else {
-                                    getAppUsageTime(currentUser.getUid(), datesMap, device_id, app_package, currentDateMap, appUsageTotalTime);
+                                    updateAppUsageTime(currentUser.getUid(), datesMap, device_id, app_package, currentDateMap, appUsageTotalTime);
                                 }
 
                             } else {
@@ -441,20 +441,20 @@ public class FireStoreDataOperation implements DataOperation {
         }
     }
 
-    private void getAppUsageTime(String userUID, Map<String, Object> datesMap, String device_id, String app_package, Map<String, Object> currentDateMap, long appUsageTotalTime) {
+    private void updateAppUsageTime(String userUID, Map<String, Object> datesMap, String device_id, String app_package, Map<String, Object> currentDateMap, long appUsageTotalTime) {
 
         long attempts = (long) currentDateMap.get(DB_APP_ATTEMPTS);
         Dlog.d("checkAppAddedOrNot attempts: " + attempts);
 
         long lastAttemptTime = (long) currentDateMap.get(DB_APP_LAST_ATTEMPT_TIME);
 
-        long lastAppUsageTime = (long) currentDateMap.get(DB_APP_TOTAL_TIME);
-        long totalAppUsageTime = lastAppUsageTime + appUsageTotalTime;
+//        long lastAppUsageTime = (long) currentDateMap.get(DB_APP_TOTAL_TIME);
+//        long totalAppUsageTime = lastAppUsageTime + appUsageTotalTime;
 
         Map<String, Object> attemptMap = new HashMap<>();
         attemptMap.put(DB_APP_ATTEMPTS, attempts);
         attemptMap.put(DB_APP_LAST_ATTEMPT_TIME, lastAttemptTime);
-        attemptMap.put(DB_APP_TOTAL_TIME, totalAppUsageTime);
+        attemptMap.put(DB_APP_TOTAL_TIME, appUsageTotalTime);
 
         datesMap.put(currentDate, attemptMap);
 
