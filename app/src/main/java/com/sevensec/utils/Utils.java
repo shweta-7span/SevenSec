@@ -47,7 +47,6 @@ import com.sevensec.activities.MainActivity;
 
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -389,8 +388,8 @@ public class Utils {
             SharedPref.writeString(PREF_GOOGLE_AUTH_USER_PIC, photoUrl.toString());
     }
 
-    public static String getCurrentDate() {
+    public static String getCurrentDateInFireStoreFormat(Date date) {
         SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
-        return df.format(Calendar.getInstance().getTime());
+        return df.format(date);
     }
 }

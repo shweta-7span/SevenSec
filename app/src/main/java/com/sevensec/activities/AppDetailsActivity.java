@@ -2,6 +2,8 @@ package com.sevensec.activities;
 
 import static com.sevensec.utils.Constants.ADD_DAYS_FOR_END_DATE;
 import static com.sevensec.utils.Constants.ADD_DAYS_FOR_NEXT_WEEK;
+import static com.sevensec.utils.Constants.DB_APP_TOTAL_TIME;
+import static com.sevensec.utils.Constants.PREF_DEVICE_ID;
 import static com.sevensec.utils.Constants.REMOVE_DAYS_FOR_PREV_WEEK;
 import static com.sevensec.utils.Constants.START_DAY;
 import static com.sevensec.utils.Constants.STR_PASS_APP_INFO;
@@ -26,7 +28,10 @@ import com.sevensec.database.AppUsageRoomDbHelper;
 import com.sevensec.databinding.ActivityAppDetailsBinding;
 import com.sevensec.model.AppInfoModel;
 import com.sevensec.model.AppUsageByDate;
+import com.sevensec.repo.FireStoreDataOperation;
+import com.sevensec.repo.interfaces.AppUsageFromFireStore;
 import com.sevensec.utils.Dlog;
+import com.sevensec.utils.SharedPref;
 import com.sevensec.utils.Utils;
 import com.sevensec.utils.WeekType;
 
@@ -36,19 +41,22 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public class AppDetailsActivity extends AppCompatActivity {
 
     ActivityAppDetailsBinding binding;
     AppInfoModel appInfoModel;
-    AppUsageRoomDbHelper appUsageRoomDbHelper;
     @SuppressLint("SimpleDateFormat")
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM");
     @SuppressLint("SimpleDateFormat")
     private static final SimpleDateFormat dateFormatForDay = new SimpleDateFormat("EEE");
     Calendar cal;
     Date currentDate, startDate, endDate;
-    String appName, packageName;
+    String appName, packageName, device_id;
+    AppUsageRoomDbHelper appUsageRoomDbHelper;
+    FireStoreDataOperation fireStoreDataOperation;
+    boolean isSelectedWeekHaveData = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +64,9 @@ public class AppDetailsActivity extends AppCompatActivity {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_app_details);
 
         appUsageRoomDbHelper = new AppUsageRoomDbHelper(this);
+        fireStoreDataOperation = new FireStoreDataOperation();
+
+        device_id = SharedPref.readString(PREF_DEVICE_ID, "");
 
         currentDate = new Date();
         cal = Calendar.getInstance();
@@ -77,8 +88,40 @@ public class AppDetailsActivity extends AppCompatActivity {
 
         binding.ivAppIcon.setImageBitmap(appInfoModel.getAppIconBitmap());
 
-        String currentDateAppUsage = Utils.getAppUsageTimeInFormat(appUsageRoomDbHelper.getTotalAppUsageTimeForDate(packageName, currentDate), false);
-        binding.tvCurrentDayUsage.setText(String.format("%s", currentDateAppUsage.isEmpty() ? "0 Sec" : currentDateAppUsage));
+        if (Utils.isInternetAvailable(this)) {
+            Dlog.d("totalAppUsageTime isInternetAvailable");
+
+            fireStoreDataOperation.getTotalAppUsageTimeForDate(device_id, packageName, new AppUsageFromFireStore() {
+                        @Override
+                        public void getTotalAppUsageFromFireStore(Map<String, Object> datesMap) {
+
+                            Map<String, Object> currentDateMap = (Map<String, Object>) datesMap.get(Utils.getCurrentDateInFireStoreFormat(currentDate));
+                            Dlog.d("getTotalAppUsageFromFireStore currentDateMap: " + currentDateMap);
+
+                            long totalAppUsageTimeFromFireStore = 0;
+
+                            if (currentDateMap == null) {
+                                Dlog.d("getTotalAppUsageFromFireStore: currentDateMap is NULL");
+
+                            } else {
+                                Dlog.d("getTotalAppUsageFromFireStore: currentDateMap is exist !");
+                                totalAppUsageTimeFromFireStore = (long) currentDateMap.get(DB_APP_TOTAL_TIME) * 1000;
+                            }
+
+                            Dlog.d("getTotalAppUsageFromFireStore totalAppUsageTimeFromFireStore: " + totalAppUsageTimeFromFireStore);
+                            showAppUsageForCurrentDate(totalAppUsageTimeFromFireStore);
+                        }
+                    }
+            );
+
+        } else {
+            Dlog.d("totalAppUsageTime isInternet NOT Available");
+
+            long totalAppUsageTimeFromRoom = appUsageRoomDbHelper.getTotalAppUsageTimeForDate(packageName, currentDate);
+            Dlog.d("totalAppUsageTime from Room: " + totalAppUsageTimeFromRoom);
+
+            showAppUsageForCurrentDate(totalAppUsageTimeFromRoom);
+        }
 
         //Show "UsageTime" for the week in which the user selected date include
         initAndOpenDatePicker();
@@ -87,6 +130,11 @@ public class AppDetailsActivity extends AppCompatActivity {
         binding.ibNext.setOnClickListener(v -> setStartEndDate(WeekType.Next));
 
         setStartEndDate(WeekType.Current);
+    }
+
+    private void showAppUsageForCurrentDate(long appUsageTime) {
+        String currentDateAppUsage = Utils.getAppUsageTimeInFormat(appUsageTime, false);
+        binding.tvCurrentDayUsage.setText(String.format("%s", currentDateAppUsage.isEmpty() ? "0 Sec" : currentDateAppUsage));
     }
 
     private void setStartEndDate(WeekType type) {
@@ -135,7 +183,7 @@ public class AppDetailsActivity extends AppCompatActivity {
             showAppUsageForSelectedDate(startDate, endDate);
         };
 
-        DatePickerDialog datePickerDialog = new DatePickerDialog(AppDetailsActivity.this, R.style.DialogTheme,dateSetListener, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
+        DatePickerDialog datePickerDialog = new DatePickerDialog(AppDetailsActivity.this, R.style.DialogTheme, dateSetListener, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
         datePickerDialog.getDatePicker().setMaxDate(currentDate.getTime());
 
         binding.tvDate.setOnClickListener(v -> datePickerDialog.show());
@@ -166,7 +214,7 @@ public class AppDetailsActivity extends AppCompatActivity {
     }
 
     private void showTotalUsage(Date startDate, Date endDate) {
-        boolean isSelectedWeekHaveData = false;
+        isSelectedWeekHaveData = false;
 
         // Get appUsage for each day of the selected week
         Calendar calendar = Calendar.getInstance();
@@ -177,6 +225,8 @@ public class AppDetailsActivity extends AppCompatActivity {
         while (calendar.getTime().before(endDate) || calendar.getTime().equals(endDate)) {
 
             long totalAppUsageTime = appUsageRoomDbHelper.getTotalAppUsageTimeForDate(packageName, calendar.getTime());
+//            Dlog.d("getAppUsage totalAppUsageTime: " + totalAppUsageTime);
+
             if (totalAppUsageTime != 0) {
                 isSelectedWeekHaveData = true;
             }
@@ -184,6 +234,53 @@ public class AppDetailsActivity extends AppCompatActivity {
             usageByDateList.add(appUsageByDate);
 
             calendar.add(Calendar.DAY_OF_MONTH, 1);
+
+            /*if (Utils.isInternetAvailable(this)) {
+                Dlog.d("totalAppUsageTime isInternetAvailable");
+
+                fireStoreDataOperation.getTotalAppUsageTimeForDate(device_id, packageName, new AppUsageFromFireStore() {
+                            @Override
+                            public void getTotalAppUsageFromFireStore(Map<String, Object> datesMap) {
+
+                                Map<String, Object> currentDateMap = (Map<String, Object>) datesMap.get(Utils.getCurrentDateInFireStoreFormat(currentDate));
+                                Dlog.d("getTotalAppUsageFromFireStore currentDateMap: " + currentDateMap);
+
+                                long totalAppUsageTimeFromFireStore = 0;
+
+                                if (currentDateMap == null) {
+                                    Dlog.d("getTotalAppUsageFromFireStore: currentDateMap is NULL");
+
+                                } else {
+                                    Dlog.d("getTotalAppUsageFromFireStore: currentDateMap is exist !");
+                                    totalAppUsageTimeFromFireStore = (long) currentDateMap.get(DB_APP_TOTAL_TIME) * 1000;
+                                }
+
+                                Dlog.d("getTotalAppUsageFromFireStore totalAppUsageTimeFromFireStore: " + totalAppUsageTimeFromFireStore);
+                                if (totalAppUsageTimeFromFireStore != 0) {
+                                    isSelectedWeekHaveData = true;
+                                }
+                                AppUsageByDate appUsageByDate = new AppUsageByDate(dateFormatForDay.format(calendar.getTime()), totalAppUsageTimeFromFireStore);
+                                usageByDateList.add(appUsageByDate);
+
+                                calendar.add(Calendar.DAY_OF_MONTH, 1);
+                            }
+                        }
+                );
+
+            } else {
+                Dlog.d("totalAppUsageTime isInternet NOT Available");
+
+                long totalAppUsageTimeFromRoom = appUsageRoomDbHelper.getTotalAppUsageTimeForDate(packageName, currentDate);
+                Dlog.d("totalAppUsageTime from Room: " + totalAppUsageTimeFromRoom);
+
+                if (totalAppUsageTimeFromRoom != 0) {
+                    isSelectedWeekHaveData = true;
+                }
+                AppUsageByDate appUsageByDateFromRoom = new AppUsageByDate(dateFormatForDay.format(calendar.getTime()), totalAppUsageTimeFromRoom);
+                usageByDateList.add(appUsageByDateFromRoom);
+
+                calendar.add(Calendar.DAY_OF_MONTH, 1);
+            }*/
         }
 
         Dlog.i("isSelectedWeekHaveData: " + isSelectedWeekHaveData);
@@ -285,4 +382,14 @@ public class AppDetailsActivity extends AppCompatActivity {
         onBackPressed();
         return true;
     }
+
+    /*private long getTotalAppUsageTime(Date date) {
+        long totalAppUsageTime;
+        if (Utils.isInternetAvailable(this)) {
+            totalAppUsageTime = fireStoreDataOperation.getTotalAppUsageTimeForDate(device_id, packageName) * 1000;
+        } else {
+            totalAppUsageTime = appUsageRoomDbHelper.getTotalAppUsageTimeForDate(packageName, date);
+        }
+        return totalAppUsageTime;
+    }*/
 }
