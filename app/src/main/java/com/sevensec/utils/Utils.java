@@ -32,6 +32,7 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -45,7 +46,10 @@ import com.sevensec.R;
 import com.sevensec.activities.LoginActivity;
 import com.sevensec.activities.MainActivity;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -391,5 +395,26 @@ public class Utils {
     public static String getCurrentDateInFireStoreFormat(Date date) {
         SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
         return df.format(date);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public static String convertDateFormat(String inputDateStr, String outputDateFormat) {
+        SimpleDateFormat inputDateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy");
+        DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern(outputDateFormat);
+
+        try {
+            // Parse the input date string into a Date object
+            Date date = inputDateFormat.parse(inputDateStr);
+
+            // Convert Date object to a Java 8 LocalDateTime
+            java.time.LocalDateTime localDateTime = date.toInstant().atZone(ZoneId.of("GMT+05:30")).toLocalDateTime();
+
+            // Format LocalDateTime object to the desired output format
+            return localDateTime.format(outputFormatter);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            // Handle the exception appropriately
+        }
+        return null;
     }
 }
