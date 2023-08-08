@@ -65,7 +65,7 @@ public class AppDetailsActivity extends AppCompatActivity {
     AppUsageRoomDbHelper appUsageRoomDbHelper;
     FireStoreDataOperation fireStoreDataOperation;
     boolean isSelectedWeekHaveData = false;
-    List<AppUsageByDate> usageByDateList = new ArrayList<>();
+
     ValueFormatter yAxisFormatter = new ValueFormatter() {
         @Override
         public String getFormattedValue(float value) {
@@ -237,10 +237,11 @@ public class AppDetailsActivity extends AppCompatActivity {
 
         Calendar firebaseCalender = Calendar.getInstance();
         firebaseCalender.setTime(startDate);
-        usageByDateList.clear();
         Dlog.d("showTotalUsage() called with: device_id = [" + device_id + "]");
 
         if (Utils.isInternetAvailable(this)) {
+            List<AppUsageByDate> fireStoreUsageByDateList = new ArrayList<>();
+
             fireStoreDataOperation.getTotalAppUsageTimeForDate(device_id, packageName, new AppUsageFromFireStore() {
                         @RequiresApi(api = Build.VERSION_CODES.O)
                         @Override
@@ -271,11 +272,11 @@ public class AppDetailsActivity extends AppCompatActivity {
                                         }
                                         totalAppUsageTimeFromFireStore = totalTimeSpent * 1000L;
                                         AppUsageByDate appUsageByDate = new AppUsageByDate(dateFormatForDay.format(firebaseCalender.getTime()), totalAppUsageTimeFromFireStore);
-                                        usageByDateList.add(appUsageByDate);
+                                        fireStoreUsageByDateList.add(appUsageByDate);
                                     } else {
                                         totalAppUsageTimeFromFireStore = 0;
                                         AppUsageByDate appUsageByDate = new AppUsageByDate(dateFormatForDay.format(firebaseCalender.getTime()), totalAppUsageTimeFromFireStore);
-                                        usageByDateList.add(appUsageByDate);
+                                        fireStoreUsageByDateList.add(appUsageByDate);
                                     }
 
                                     firebaseCalender.add(Calendar.DAY_OF_MONTH, 1);
@@ -284,11 +285,11 @@ public class AppDetailsActivity extends AppCompatActivity {
                                 }
                             }
 
-                            if (usageByDateList.size() > 0) {
-                                Dlog.d("run: usageByDateList.size():->" + usageByDateList.size());
+                            if (fireStoreUsageByDateList.size() > 0) {
+                                Dlog.d("run: usageByDateList.size():->" + fireStoreUsageByDateList.size());
                                 binding.barChartView.setVisibility(View.VISIBLE);
                                 binding.llNoData.setVisibility(View.GONE);
-                                showBarChart(usageByDateList);
+                                showBarChart(fireStoreUsageByDateList);
                             } else {
                                 Dlog.d("run: isSelectedWeekHaveData:->" + isSelectedWeekHaveData);
                                 binding.barChartView.setVisibility(View.GONE);
@@ -301,6 +302,7 @@ public class AppDetailsActivity extends AppCompatActivity {
             Dlog.d("totalAppUsageTime isInternet NOT Available");
             Calendar offlineCalender = Calendar.getInstance();
             offlineCalender.setTime(startDate);
+            List<AppUsageByDate> databaseUsageByDateList = new ArrayList<>();
 
             while (offlineCalender.getTime().before(endDate)) {
 
@@ -310,7 +312,7 @@ public class AppDetailsActivity extends AppCompatActivity {
                     isSelectedWeekHaveData = true;
                 }
                 AppUsageByDate appUsageByDate = new AppUsageByDate(dateFormatForDay.format(offlineCalender.getTime()), totalAppUsageTime);
-                usageByDateList.add(appUsageByDate);
+                databaseUsageByDateList.add(appUsageByDate);
 
                 offlineCalender.add(Calendar.DAY_OF_MONTH, 1);
             }
@@ -320,7 +322,7 @@ public class AppDetailsActivity extends AppCompatActivity {
             if (isSelectedWeekHaveData) {
                 binding.barChartView.setVisibility(View.VISIBLE);
                 binding.llNoData.setVisibility(View.GONE);
-                showBarChart(usageByDateList);
+                showBarChart(databaseUsageByDateList);
             } else {
                 binding.barChartView.setVisibility(View.GONE);
                 binding.llNoData.setVisibility(View.VISIBLE);
@@ -333,10 +335,13 @@ public class AppDetailsActivity extends AppCompatActivity {
         // Create a BarDataSet
         BarDataSet dataSet = new BarDataSet(getDataEntries(aUsageByDateList), "");
         Dlog.d("showBarChart() called with: dataSet = [" + dataSet + "]");
-        boolean isEmptyData = false;
+        boolean isEmptyData = true;
 
         for (int i = 0; i < aUsageByDateList.size(); i++) {
-                isEmptyData= aUsageByDateList.get(i).getUsage()==0;
+                if(aUsageByDateList.get(i).getUsage() > 0) {
+                    isEmptyData =false;
+                    break;
+                }
         }
 
         if (isEmptyData) {
