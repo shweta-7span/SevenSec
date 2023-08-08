@@ -15,8 +15,8 @@ android {
         applicationId "com.sevensec"
         minSdk 23
         targetSdk 33
-        versionCode 5
-        versionName "1.0.2"
+        versionCode 12
+        versionName "1.0.3"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -80,4 +80,6 @@ dependencies {
 
     // Dependency for Firebase Dynamic Links
     implementation 'com.google.firebase:firebase-dynamic-links-ktx:21.0.0'
+
+    implementation 'com.android.billingclient:billing:6.0.1'
 }

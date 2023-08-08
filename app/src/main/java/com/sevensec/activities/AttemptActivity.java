@@ -79,7 +79,7 @@ public class AttemptActivity extends AppCompatActivity implements SetAttemptLast
                 binding.tvAppLabel.setText(appLabel);
                 binding.tvActionDescription.setText(String.format(getString(R.string.do_you_want_to_still), appLabel));
 
-//                binding.tvContinue.setText(String.format("%s %s", getString(R.string.strContinue), appLabel));
+//              binding.tvContinue.setText(String.format("%s %s", getString(R.string.strContinue), appLabel));
                 binding.tvContinue.setText(getString(R.string.strContinue));
                 binding.tvExit.setText(getString(R.string.exit));
             }

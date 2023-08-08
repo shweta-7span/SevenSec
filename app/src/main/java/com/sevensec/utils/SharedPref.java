@@ -4,9 +4,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.sevensec.model.AppInfoModel;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
+import com.sevensec.model.AppInfoModel;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -24,7 +24,10 @@ public class SharedPref {
     }
 
     public static String readString(String key, String defValue) {
-        return mSharedPref.getString(key, defValue);
+        if (mSharedPref != null)
+            return mSharedPref.getString(key, defValue);
+        else
+            return "";
     }
 
     public static void writeString(String key, String value) {
@@ -68,26 +71,28 @@ public class SharedPref {
         writeString(key, json);
     }
 
-    public static List<String> readListString(String key){
+    public static List<String> readListString(String key) {
         List<String> arrayItems = new ArrayList<>();
         String serializedObject = readString(key, null);
 
         if (serializedObject != null) {
             Gson gson = new Gson();
-            Type type = new TypeToken<List<String>>(){}.getType();
+            Type type = new TypeToken<List<String>>() {
+            }.getType();
             arrayItems = gson.fromJson(serializedObject, type);
         }
 
         return arrayItems;
     }
 
-    public static List<AppInfoModel> readList(String key){
+    public static List<AppInfoModel> readList(String key) {
         List<AppInfoModel> arrayItems = new ArrayList<>();
         String serializedObject = readString(key, null);
 
         if (serializedObject != null) {
             Gson gson = new Gson();
-            Type type = new TypeToken<List<AppInfoModel>>(){}.getType();
+            Type type = new TypeToken<List<AppInfoModel>>() {
+            }.getType();
             arrayItems = gson.fromJson(serializedObject, type);
         }
 

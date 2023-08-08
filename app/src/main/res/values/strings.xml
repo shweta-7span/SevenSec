@@ -20,6 +20,8 @@
     <string name="permission_required">Permission Required</string>
     <string name="permission_description">7Sec requires special permissions to access your app usage data and to overlay the breathing exercise screen when you open configured apps. Your data remains private, offline, on-device.</string>
     <string name="grant_permission">Grant Permission</string>
+    <string name="btn_subscription1">Buy Subscription - 1</string>
+    <string name="btn_subscription2">Buy Subscription - 2</string>
     <string name="skip">Skip</string>
     <string name="next">Next</string>
     <string name="title">title</string>

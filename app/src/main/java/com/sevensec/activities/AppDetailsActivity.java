@@ -7,15 +7,18 @@ import static com.sevensec.utils.Constants.PREF_DEVICE_ID;
 import static com.sevensec.utils.Constants.REMOVE_DAYS_FOR_PREV_WEEK;
 import static com.sevensec.utils.Constants.START_DAY;
 import static com.sevensec.utils.Constants.STR_PASS_APP_INFO;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-import androidx.databinding.DataBindingUtil;
+import static com.sevensec.utils.Utils.convertDateFormat;
 
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.databinding.DataBindingUtil;
 
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
@@ -23,6 +26,8 @@ import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.formatter.ValueFormatter;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.sevensec.R;
 import com.sevensec.database.AppUsageRoomDbHelper;
 import com.sevensec.databinding.ActivityAppDetailsBinding;
@@ -35,6 +40,8 @@ import com.sevensec.utils.SharedPref;
 import com.sevensec.utils.Utils;
 import com.sevensec.utils.WeekType;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -42,21 +49,38 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class AppDetailsActivity extends AppCompatActivity {
 
-    ActivityAppDetailsBinding binding;
-    AppInfoModel appInfoModel;
     @SuppressLint("SimpleDateFormat")
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM");
     @SuppressLint("SimpleDateFormat")
     private static final SimpleDateFormat dateFormatForDay = new SimpleDateFormat("EEE");
+    ActivityAppDetailsBinding binding;
+    AppInfoModel appInfoModel;
     Calendar cal;
     Date currentDate, startDate, endDate;
     String appName, packageName, device_id;
     AppUsageRoomDbHelper appUsageRoomDbHelper;
     FireStoreDataOperation fireStoreDataOperation;
     boolean isSelectedWeekHaveData = false;
+    List<AppUsageByDate> usageByDateList = new ArrayList<>();
+    ValueFormatter yAxisFormatter = new ValueFormatter() {
+        @Override
+        public String getFormattedValue(float value) {
+            long timeMills = (long) value;
+            return Utils.getAppUsageTimeInFormat(timeMills, true);
+        }
+    };
+    //Set the Bar Value formatter
+    ValueFormatter barValueFormatter = new ValueFormatter() {
+        @Override
+        public String getFormattedValue(float value) {
+            Dlog.i("App Usage: " + Utils.getAppUsageTimeInFormat((long) value, false));
+            return Utils.getAppUsageTimeInFormat((long) value, false);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,40 +112,51 @@ public class AppDetailsActivity extends AppCompatActivity {
 
         binding.ivAppIcon.setImageBitmap(appInfoModel.getAppIconBitmap());
 
-        if (Utils.isInternetAvailable(this)) {
-            Dlog.d("totalAppUsageTime isInternetAvailable");
+//        if (Utils.isInternetAvailable(this)) {
+//            Dlog.d("totalAppUsageTime isInternetAvailable");
 
-            fireStoreDataOperation.getTotalAppUsageTimeForDate(device_id, packageName, new AppUsageFromFireStore() {
-                        @Override
-                        public void getTotalAppUsageFromFireStore(Map<String, Object> datesMap) {
+            if (Utils.isInternetAvailable(this)) {
+                Dlog.d("totalAppUsageTime isInternetAvailable");
 
-                            Map<String, Object> currentDateMap = (Map<String, Object>) datesMap.get(Utils.getCurrentDateInFireStoreFormat(currentDate));
-                            Dlog.d("getTotalAppUsageFromFireStore currentDateMap: " + currentDateMap);
+                fireStoreDataOperation.getTotalAppUsageTimeForDate(device_id, packageName, new AppUsageFromFireStore() {
+                            @Override
+                            public void getTotalAppUsageFromFireStore(Map<String, Object> datesMap) {
 
-                            long totalAppUsageTimeFromFireStore = 0;
+                                Map<String, Object> currentDateMap = (Map<String, Object>) datesMap.get(Utils.getCurrentDateInFireStoreFormat(currentDate));
+                                Dlog.d("getTotalAppUsageFromFireStore currentDateMap: " + currentDateMap);
 
-                            if (currentDateMap == null) {
-                                Dlog.d("getTotalAppUsageFromFireStore: currentDateMap is NULL");
+                                long totalAppUsageTimeFromFireStore = 0;
 
-                            } else {
-                                Dlog.d("getTotalAppUsageFromFireStore: currentDateMap is exist !");
-                                totalAppUsageTimeFromFireStore = (long) currentDateMap.get(DB_APP_TOTAL_TIME) * 1000;
+                                if (currentDateMap == null) {
+                                    Dlog.d("getTotalAppUsageFromFireStore: currentDateMap is NULL");
+
+                                } else {
+                                    Dlog.d("getTotalAppUsageFromFireStore: currentDateMap is exist !");
+                                    totalAppUsageTimeFromFireStore = (long) currentDateMap.get(DB_APP_TOTAL_TIME) * 1000;
+                                }
+
+                                Dlog.d("getTotalAppUsageFromFireStore totalAppUsageTimeFromFireStore: " + totalAppUsageTimeFromFireStore);
+                                showAppUsageForCurrentDate(totalAppUsageTimeFromFireStore);
                             }
-
-                            Dlog.d("getTotalAppUsageFromFireStore totalAppUsageTimeFromFireStore: " + totalAppUsageTimeFromFireStore);
-                            showAppUsageForCurrentDate(totalAppUsageTimeFromFireStore);
                         }
-                    }
-            );
+                );
+            } else {
+                Dlog.d("totalAppUsageTime isInternet NOT Available");
 
-        } else {
-            Dlog.d("totalAppUsageTime isInternet NOT Available");
+                long totalAppUsageTimeFromRoom = appUsageRoomDbHelper.getTotalAppUsageTimeForDate(packageName, currentDate);
+                Dlog.d("totalAppUsageTime from Room: " + totalAppUsageTimeFromRoom);
 
-            long totalAppUsageTimeFromRoom = appUsageRoomDbHelper.getTotalAppUsageTimeForDate(packageName, currentDate);
-            Dlog.d("totalAppUsageTime from Room: " + totalAppUsageTimeFromRoom);
+                showAppUsageForCurrentDate(totalAppUsageTimeFromRoom);
+            }
 
-            showAppUsageForCurrentDate(totalAppUsageTimeFromRoom);
-        }
+//        } else {
+//            Dlog.d("totalAppUsageTime isInternet NOT Available");
+//
+//            long totalAppUsageTimeFromRoom = appUsageRoomDbHelper.getTotalAppUsageTimeForDate(packageName, currentDate);
+//            Dlog.d("totalAppUsageTime from Room: " + totalAppUsageTimeFromRoom);
+//
+//            showAppUsageForCurrentDate(totalAppUsageTimeFromRoom);
+//        }
 
         //Show "UsageTime" for the week in which the user selected date include
         initAndOpenDatePicker();
@@ -158,8 +193,8 @@ public class AppDetailsActivity extends AppCompatActivity {
                 break;
         }
 
-        Dlog.d("Check startDate: " + dateFormat.format(startDate));
-        Dlog.d("Check endDate: " + dateFormat.format(endDate));
+        //Dlog.d("Check startDate: " + dateFormat.format(startDate));
+        //Dlog.d("Check endDate: " + dateFormat.format(endDate));
 
         showAppUsageForSelectedDate(startDate, endDate);
     }
@@ -177,8 +212,8 @@ public class AppDetailsActivity extends AppCompatActivity {
             startDate = getDateForSelectedType(START_DAY);
             endDate = getDateForSelectedType(ADD_DAYS_FOR_END_DATE);
 
-            Dlog.d("Pick startDate: " + dateFormat.format(startDate));
-            Dlog.d("Pick endDate: " + dateFormat.format(endDate));
+            //Dlog.d("Pick startDate: " + dateFormat.format(startDate));
+            //Dlog.d("Pick endDate: " + dateFormat.format(endDate));
 
             showAppUsageForSelectedDate(startDate, endDate);
         };
@@ -199,12 +234,13 @@ public class AppDetailsActivity extends AppCompatActivity {
     }
 
     private void showAppUsageForSelectedDate(Date startDate, Date endDate) {
+        Dlog.e("showAppUsageForSelectedDate() called with: startDate = [" + startDate + "], endDate = [" + endDate + "]");
         binding.tvDate.setText(String.format("%s - %s", dateFormat.format(startDate), dateFormat.format(endDate)));
         showTotalUsage(startDate, endDate);
 
-        Dlog.d("showAppUsageForSelectedDate currentDate: " + currentDate);
-        Dlog.d("showAppUsageForSelectedDate startDate: " + startDate);
-        Dlog.d("showAppUsageForSelectedDate endDate: " + endDate);
+//        Dlog.d("showAppUsageForSelectedDate currentDate: " + currentDate);
+//        Dlog.d("showAppUsageForSelectedDate startDate: " + startDate);
+//        Dlog.d("showAppUsageForSelectedDate endDate: " + endDate);
 
         if (currentDate.compareTo(startDate) >= 0 && currentDate.compareTo(endDate) <= 0) {
             binding.ibNext.setVisibility(View.INVISIBLE);
@@ -214,160 +250,207 @@ public class AppDetailsActivity extends AppCompatActivity {
     }
 
     private void showTotalUsage(Date startDate, Date endDate) {
+        Dlog.i("showTotalUsage() called with: startDate = [" + startDate + "], endDate = [" + endDate + "]");
         isSelectedWeekHaveData = false;
 
-        // Get appUsage for each day of the selected week
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(startDate);
+        Calendar firebaseCalender = Calendar.getInstance();
+        firebaseCalender.setTime(startDate);
+        usageByDateList.clear();
+        Dlog.d("showTotalUsage() called with: device_id = [" + device_id + "]");
 
-        List<AppUsageByDate> usageByDateList = new ArrayList<>();
+        if (Utils.isInternetAvailable(this)) {
+            fireStoreDataOperation.getTotalAppUsageTimeForDate(device_id, packageName, new AppUsageFromFireStore() {
+                        @RequiresApi(api = Build.VERSION_CODES.O)
+                        @Override
+                        public void getTotalAppUsageFromFireStore(Map<String, Object> datesMap) {
 
-        while (calendar.getTime().before(endDate) || calendar.getTime().equals(endDate)) {
+                            Dlog.d("datesMap:->" + datesMap);
+                            long totalAppUsageTimeFromFireStore = 0;
+                            while (firebaseCalender.getTime().before(endDate)) {
+                                try {
+                                    Dlog.d("getTotalAppUsageFromFireStore() called with: datesMap = [" + firebaseCalender.getTime() + "]");
 
-            long totalAppUsageTime = appUsageRoomDbHelper.getTotalAppUsageTimeForDate(packageName, calendar.getTime());
-//            Dlog.d("getAppUsage totalAppUsageTime: " + totalAppUsageTime);
+                                    String inputDateStr = firebaseCalender.getTime().toString();
+                                    String outputDateFormat = "dd-MM-yyyy";
+                                    String convertedDateStr = convertDateFormat(inputDateStr, outputDateFormat);
 
-            if (totalAppUsageTime != 0) {
-                isSelectedWeekHaveData = true;
-            }
-            AppUsageByDate appUsageByDate = new AppUsageByDate(dateFormatForDay.format(calendar.getTime()), totalAppUsageTime);
-            usageByDateList.add(appUsageByDate);
+                                    Object currentMap = datesMap.get(convertedDateStr);
 
-            calendar.add(Calendar.DAY_OF_MONTH, 1);
+                                    if (currentMap != null) {
+                                        Dlog.d("currentDateMap:->" + currentMap);
+                                        int totalTimeSpent = 0;
+                                        try {
+                                            JSONObject jsonObject = new JSONObject(currentMap.toString());
+                                            totalTimeSpent = (int) jsonObject.get("total_time_spent");
+                                            Dlog.d("totalTimeSpent:-> " + totalTimeSpent);
 
-            /*if (Utils.isInternetAvailable(this)) {
-                Dlog.d("totalAppUsageTime isInternetAvailable");
+                                        } catch (JSONException e) {
+                                            throw new RuntimeException(e);
+                                        }
+                                        totalAppUsageTimeFromFireStore = totalTimeSpent * 1000L;
+                                        AppUsageByDate appUsageByDate = new AppUsageByDate(dateFormatForDay.format(firebaseCalender.getTime()), totalAppUsageTimeFromFireStore);
+                                        usageByDateList.add(appUsageByDate);
+                                    } else {
+                                        totalAppUsageTimeFromFireStore = 0;
+                                        AppUsageByDate appUsageByDate = new AppUsageByDate(dateFormatForDay.format(firebaseCalender.getTime()), totalAppUsageTimeFromFireStore);
+                                        usageByDateList.add(appUsageByDate);
+                                    }
 
-                fireStoreDataOperation.getTotalAppUsageTimeForDate(device_id, packageName, new AppUsageFromFireStore() {
-                            @Override
-                            public void getTotalAppUsageFromFireStore(Map<String, Object> datesMap) {
-
-                                Map<String, Object> currentDateMap = (Map<String, Object>) datesMap.get(Utils.getCurrentDateInFireStoreFormat(currentDate));
-                                Dlog.d("getTotalAppUsageFromFireStore currentDateMap: " + currentDateMap);
-
-                                long totalAppUsageTimeFromFireStore = 0;
-
-                                if (currentDateMap == null) {
-                                    Dlog.d("getTotalAppUsageFromFireStore: currentDateMap is NULL");
-
-                                } else {
-                                    Dlog.d("getTotalAppUsageFromFireStore: currentDateMap is exist !");
-                                    totalAppUsageTimeFromFireStore = (long) currentDateMap.get(DB_APP_TOTAL_TIME) * 1000;
+                                    firebaseCalender.add(Calendar.DAY_OF_MONTH, 1);
+                                } catch (Exception e) {
+                                    throw new RuntimeException(e);
                                 }
+                            }
 
-                                Dlog.d("getTotalAppUsageFromFireStore totalAppUsageTimeFromFireStore: " + totalAppUsageTimeFromFireStore);
-                                if (totalAppUsageTimeFromFireStore != 0) {
-                                    isSelectedWeekHaveData = true;
-                                }
-                                AppUsageByDate appUsageByDate = new AppUsageByDate(dateFormatForDay.format(calendar.getTime()), totalAppUsageTimeFromFireStore);
-                                usageByDateList.add(appUsageByDate);
-
-                                calendar.add(Calendar.DAY_OF_MONTH, 1);
+                            if (usageByDateList.size() > 0) {
+                                Dlog.d("run: usageByDateList.size():->" + usageByDateList.size());
+                                binding.barChartView.setVisibility(View.VISIBLE);
+                                binding.llNoData.setVisibility(View.GONE);
+                                showBarChart(usageByDateList);
+                            } else {
+                                Dlog.d("run: isSelectedWeekHaveData:->" + isSelectedWeekHaveData);
+                                binding.barChartView.setVisibility(View.GONE);
+                                binding.llNoData.setVisibility(View.VISIBLE);
                             }
                         }
-                );
+                    }
+            );
+        } else {
+            Dlog.d("totalAppUsageTime isInternet NOT Available");
+//            while (calendar.getTime().equals(endDate)) {
+//                long totalAppUsageTimeFromRoom = appUsageRoomDbHelper.getTotalAppUsageTimeForDate(packageName, calendar.getTime());
+//                Dlog.d("totalAppUsageTime dateFormatForDay.format(calendar.getTime(): " + dateFormatForDay.format(calendar.getTime()));
+//                Dlog.d("totalAppUsageTime from Room: " + totalAppUsageTimeFromRoom);
+//
+//                if (totalAppUsageTimeFromRoom != 0) {
+//                    isSelectedWeekHaveData = true;
+//                }
+//                AppUsageByDate appUsageByDateFromRoom = new AppUsageByDate(dateFormatForDay.format(calendar.getTime()), totalAppUsageTimeFromRoom);
+//                usageByDateList.add(appUsageByDateFromRoom);
+//
+//                calendar.add(Calendar.DAY_OF_MONTH, 1);
+//            }
+//
+//            if (isSelectedWeekHaveData) {
+//                Dlog.d("run: usageByDateList.size():->" + usageByDateList.size());
+//                binding.barChartView.setVisibility(View.VISIBLE);
+//                binding.llNoData.setVisibility(View.GONE);
+//                showBarChart(usageByDateList);
+//            } else {
+//                Dlog.d("run: isSelectedWeekHaveData:->" + isSelectedWeekHaveData);
+//                binding.barChartView.setVisibility(View.GONE);
+//                binding.llNoData.setVisibility(View.VISIBLE);
+//            }
+            Calendar offlineCalender = Calendar.getInstance();
+            offlineCalender.setTime(startDate);
 
-            } else {
-                Dlog.d("totalAppUsageTime isInternet NOT Available");
+           // List<AppUsageByDate> usageByDateList = new ArrayList<>();
 
-                long totalAppUsageTimeFromRoom = appUsageRoomDbHelper.getTotalAppUsageTimeForDate(packageName, currentDate);
-                Dlog.d("totalAppUsageTime from Room: " + totalAppUsageTimeFromRoom);
+            while (offlineCalender.getTime().before(endDate)) {
 
-                if (totalAppUsageTimeFromRoom != 0) {
+                long totalAppUsageTime = appUsageRoomDbHelper.getTotalAppUsageTimeForDate(packageName, offlineCalender.getTime());
+//              Dlog.d("getAppUsage totalAppUsageTime: " + totalAppUsageTime);
+
+                if (totalAppUsageTime != 0) {
                     isSelectedWeekHaveData = true;
                 }
-                AppUsageByDate appUsageByDateFromRoom = new AppUsageByDate(dateFormatForDay.format(calendar.getTime()), totalAppUsageTimeFromRoom);
-                usageByDateList.add(appUsageByDateFromRoom);
+                AppUsageByDate appUsageByDate = new AppUsageByDate(dateFormatForDay.format(offlineCalender.getTime()), totalAppUsageTime);
+                usageByDateList.add(appUsageByDate);
 
-                calendar.add(Calendar.DAY_OF_MONTH, 1);
-            }*/
+                offlineCalender.add(Calendar.DAY_OF_MONTH, 1);
+            }
+
+            Dlog.i("isSelectedWeekHaveData: " + isSelectedWeekHaveData);
+
+            if (isSelectedWeekHaveData) {
+                binding.barChartView.setVisibility(View.VISIBLE);
+                binding.llNoData.setVisibility(View.GONE);
+                showBarChart(usageByDateList);
+            } else {
+                binding.barChartView.setVisibility(View.GONE);
+                binding.llNoData.setVisibility(View.VISIBLE);
+            }
+        }
+    }
+
+    private void showBarChart(List<AppUsageByDate> aUsageByDateList) {
+        Dlog.d("showBarChart() called with: usageByDateList = [" + new Gson().toJson(aUsageByDateList) + "]");
+        // Create a BarDataSet
+        BarDataSet dataSet = new BarDataSet(getDataEntries(aUsageByDateList), "");
+        Dlog.d("showBarChart() called with: dataSet = [" + dataSet + "]");
+        boolean isEmptyData = false;
+
+        for (int i = 0; i < aUsageByDateList.size(); i++) {
+                isEmptyData= aUsageByDateList.get(i).getUsage()==0;
         }
 
-        Dlog.i("isSelectedWeekHaveData: " + isSelectedWeekHaveData);
-
-        if (isSelectedWeekHaveData) {
-            binding.barChartView.setVisibility(View.VISIBLE);
-            binding.llNoData.setVisibility(View.GONE);
-            showBarChart(usageByDateList);
-        } else {
+        if (isEmptyData) {
             binding.barChartView.setVisibility(View.GONE);
             binding.llNoData.setVisibility(View.VISIBLE);
+        } else {
+            // Create a BarData object
+            BarData data = new BarData(dataSet);
+            //Dlog.d( "showBarChart() called with: data = [" + new Gson().toJson(data) + "]");
+            Dlog.d("showBarChart() called with: data = [" + new GsonBuilder().serializeSpecialFloatingPointValues().create().toJson(data)
+                    + "]");
+            // Set the x-axis value formatter
+            binding.barChartView.setVisibility(View.VISIBLE);
+            binding.llNoData.setVisibility(View.GONE);
+            ValueFormatter xAxisFormatter = new ValueFormatter() {
+                @Override
+                public String getFormattedValue(float value) {
+                    if (aUsageByDateList.size() > (int) value) {
+                        return aUsageByDateList.get((int) value).getDate();
+                    } else {
+                        return "No Data";
+                    }
+                }
+            };
+
+            XAxis xAxis = binding.barChartView.getXAxis();
+            xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+            xAxis.setTextSize(12f);
+            xAxis.setValueFormatter(xAxisFormatter);
+
+            YAxis yAxis = binding.barChartView.getAxisLeft();
+            yAxis.setTextSize(12f);
+            yAxis.setValueFormatter(yAxisFormatter);
+
+            //Remove label from Right Side
+            binding.barChartView.getAxisRight().setEnabled(false);
+
+            //Show formatted value on the bar
+            dataSet.setValueFormatter(barValueFormatter);
+            dataSet.setValueTextSize(10f);
+
+            //Set Color of Bar
+            dataSet.setColors(ContextCompat.getColor(this, R.color.primary700));
+
+            //Remove Lines form background
+            binding.barChartView.getXAxis().setDrawGridLines(false);
+
+            //Remove Description
+            binding.barChartView.getDescription().setEnabled(false);
+
+            //Remove extra space in bottom of X Axis
+            binding.barChartView.getAxisLeft().setAxisMinimum(0f);
+            binding.barChartView.getAxisRight().setAxisMinimum(0f);
+
+            //Remove Title
+            binding.barChartView.getLegend().setEnabled(true);
+            binding.barChartView.getLegend().setFormSize(0f);
+
+            //Animation
+            binding.barChartView.animateY(1000);
+
+            //Stop zooming
+            binding.barChartView.setScaleEnabled(false);
+
+            binding.barChartView.setData(data);
+            binding.barChartView.invalidate();
         }
+
     }
-
-    private void showBarChart(List<AppUsageByDate> usageByDateList) {
-        // Create a BarDataSet
-        BarDataSet dataSet = new BarDataSet(getDataEntries(usageByDateList), "");
-
-        // Create a BarData object
-        BarData data = new BarData(dataSet);
-
-        // Set the x-axis value formatter
-        ValueFormatter xAxisFormatter = new ValueFormatter() {
-            @Override
-            public String getFormattedValue(float value) {
-                return usageByDateList.get((int) value).getDate();
-            }
-        };
-        XAxis xAxis = binding.barChartView.getXAxis();
-        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxis.setTextSize(12f);
-        xAxis.setValueFormatter(xAxisFormatter);
-
-        YAxis yAxis = binding.barChartView.getAxisLeft();
-        yAxis.setTextSize(12f);
-        yAxis.setValueFormatter(yAxisFormatter);
-
-        //Remove label from Right Side
-        binding.barChartView.getAxisRight().setEnabled(false);
-
-        //Show formatted value on the bar
-        dataSet.setValueFormatter(barValueFormatter);
-        dataSet.setValueTextSize(10f);
-
-        //Set Color of Bar
-        dataSet.setColors(ContextCompat.getColor(this, R.color.primary700));
-
-        //Remove Lines form background
-        binding.barChartView.getXAxis().setDrawGridLines(false);
-
-        //Remove Description
-        binding.barChartView.getDescription().setEnabled(false);
-
-        //Remove extra space in bottom of X Axis
-        binding.barChartView.getAxisLeft().setAxisMinimum(0f);
-        binding.barChartView.getAxisRight().setAxisMinimum(0f);
-
-        //Remove Title
-        binding.barChartView.getLegend().setEnabled(true);
-        binding.barChartView.getLegend().setFormSize(0f);
-
-        //Animation
-        binding.barChartView.animateY(1000);
-
-        //Stop zooming
-        binding.barChartView.setScaleEnabled(false);
-
-        binding.barChartView.setData(data);
-        binding.barChartView.invalidate();
-    }
-
-    ValueFormatter yAxisFormatter = new ValueFormatter() {
-        @Override
-        public String getFormattedValue(float value) {
-            long timeMills = (long) value;
-            return Utils.getAppUsageTimeInFormat(timeMills, true);
-        }
-    };
-
-    //Set the Bar Value formatter
-    ValueFormatter barValueFormatter = new ValueFormatter() {
-        @Override
-        public String getFormattedValue(float value) {
-            Dlog.i("App Usage: " + Utils.getAppUsageTimeInFormat((long) value, false));
-            return Utils.getAppUsageTimeInFormat((long) value, false);
-        }
-    };
 
     private List<BarEntry> getDataEntries(List<AppUsageByDate> usageByDateList) {
         List<BarEntry> entries = new ArrayList<>();

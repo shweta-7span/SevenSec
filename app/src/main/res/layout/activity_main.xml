@@ -12,11 +12,13 @@
         android:layout_height="match_parent"
         tools:context="com.sevensec.activities.MainActivity">
 
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
             android:divider="@color/material_blue_grey_800"
+            app:layout_constraintBottom_toBottomOf="parent"
             android:dividerHeight="@dimen/divider_height"
             android:visibility="gone" />
 
@@ -96,6 +98,31 @@
                 android:textStyle="bold" />
 
         </LinearLayout>
+
+        <Button
+            android:id="@+id/btn_subscription1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toTopOf="@id/btn_subscription2"
+            android:background="@drawable/blue_btn"
+            android:text="@string/btn_subscription1"
+            android:layout_marginBottom="@dimen/space_8"
+            android:textColor="@color/white"
+            android:visibility="gone"
+            android:theme="@style/Widget.AppCompat.Button.Colored" />
+
+        <Button
+            android:id="@+id/btn_subscription2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginTop="@dimen/space_8"
+            android:background="@drawable/blue_btn"
+            android:text="@string/btn_subscription2"
+            android:textColor="@color/white"
+            android:visibility="gone"
+            android:theme="@style/Widget.AppCompat.Button.Colored" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

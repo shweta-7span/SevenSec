@@ -15,7 +15,9 @@ import static com.sevensec.utils.Constants.XIAOMI_OVERLAY_REQUEST_CODE;
 import static com.sevensec.utils.Utils.isAccessGranted;
 import static com.sevensec.utils.Utils.isDrawOverlayPermissionGranted;
 
+import android.annotation.SuppressLint;
 import android.app.SearchManager;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -24,10 +26,15 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.provider.Settings;
+import android.telephony.SubscriptionPlan;
 import android.text.Html;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -43,7 +50,21 @@ import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.android.billingclient.api.AcknowledgePurchaseParams;
+import com.android.billingclient.api.AcknowledgePurchaseResponseListener;
+import com.android.billingclient.api.BillingClient;
+import com.android.billingclient.api.BillingClientStateListener;
+import com.android.billingclient.api.BillingFlowParams;
+import com.android.billingclient.api.BillingResult;
+import com.android.billingclient.api.ProductDetails;
+import com.android.billingclient.api.Purchase;
+import com.android.billingclient.api.PurchasesUpdatedListener;
+import com.android.billingclient.api.QueryProductDetailsParams;
+import com.android.billingclient.api.QueryPurchasesParams;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.common.collect.ImmutableList;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.gson.Gson;
 import com.sevensec.R;
 import com.sevensec.adapter.MyListAdapter;
 import com.sevensec.databinding.ActivityMainBinding;
@@ -75,6 +96,9 @@ public class MainActivity extends AppCompatActivity implements ActionClickInterf
 
     FireStoreDataOperation fireStoreDataOperation;
 
+    BillingClient billingClient;
+    List<ProductDetails> productDetailsList;
+
     @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +106,7 @@ public class MainActivity extends AppCompatActivity implements ActionClickInterf
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
 
         fireStoreDataOperation = new FireStoreDataOperation();
+        productDetailsList = new ArrayList<>();
 
         pm = (PowerManager) getSystemService(POWER_SERVICE);
         FirebaseAnalytics.getInstance(this).setAnalyticsCollectionEnabled(true);
@@ -94,8 +119,285 @@ public class MainActivity extends AppCompatActivity implements ActionClickInterf
         permissionDialog = new PermissionDialog(MainActivity.this, MainActivity.this);
 
         binding.btnPermission.setOnClickListener(view -> askPermissions());
+        binding.btnSubscription1.setOnClickListener(view -> buySubscription1());
+        binding.btnSubscription2.setOnClickListener(view -> buySubscription2());
 
         Utils.checkForInAppUpdate(getApplicationContext(), this);
+        //Initialize a BillingClient with PurchasesUpdatedListener onCreate method
+
+        billingClient = BillingClient.newBuilder(this)
+                .enablePendingPurchases()
+                .setListener(
+                        new PurchasesUpdatedListener() {
+                            @Override
+                            public void onPurchasesUpdated(@NonNull BillingResult billingResult, @Nullable List<Purchase> list) {
+
+                                showAlertDialogButtonClicked(billingResult.getResponseCode(),list);
+
+                                if(list.size()>0) {
+                                    for (Purchase purchase : list) {
+                                        //verifySubPurchase(purchase);
+
+                                        AcknowledgePurchaseParams acknowledgePurchaseParams = AcknowledgePurchaseParams
+                                                .newBuilder()
+                                                .setPurchaseToken(purchase.getPurchaseToken())
+                                                .build();
+
+                                        billingClient.acknowledgePurchase(acknowledgePurchaseParams, billingResult1 -> {
+                                            Toast.makeText(getBaseContext(), "billingResult: " + billingResult1.getResponseCode(), Toast.LENGTH_SHORT).show();
+
+                                            if (billingResult1.getResponseCode() == BillingClient.BillingResponseCode.OK) {
+                                                //user prefs to set premium
+
+                                                Toast.makeText(getBaseContext(), "Subscription activated, Enjoy!", Toast.LENGTH_SHORT).show();
+                                                //Setting premium to 1
+                                                // 1 - premium
+                                                // 0 - no premium
+
+                                                // prefs.setPremium(1);
+                                                // startActivity(new Intent(this,MainActivity.class));
+                                                // finish();
+
+                                            }
+                                        });
+                                    }
+                                }
+//                                if(billingResult.getResponseCode()==BillingClient.BillingResponseCode.OK && list !=null) {
+//                                    Toast.makeText(getBaseContext(), "BillingResult Response Code:"
+//                                            +billingResult.getResponseCode()
+//                                            +"list size"+list.size(), Toast.LENGTH_LONG).show();
+//
+//                                    for (Purchase purchase: list){
+//                                        verifySubPurchase(purchase);
+//                                    }
+//                                }else
+                                if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.USER_CANCELED) {
+                                    // Handle an error caused by a user cancelling the purchase flow.
+                                    Toast.makeText(getBaseContext(), "Canceled Code:"
+                                            +billingResult.getResponseCode()
+                                            +"list size"
+                                            +list.size(), Toast.LENGTH_LONG).show();
+                                } else {
+                                    // Handle any other error codes.
+                                }
+
+                              //  ShowDialog(billingResult.getResponseCode(),list);
+                            }
+                        }
+                ).build();
+
+        //start the connection after initializing the billing client
+        establishConnection();
+    }
+//
+//    private void ShowDialog(int responseCode, List<Purchase> list){
+//        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+//
+//        // Set the message show for the Alert time
+//        builder.setTitle("ResponseCode: "+responseCode);
+//
+//        builder.setMessage("Message: list"+new Gson().toJson(list));
+//
+//        // Set Cancelable false for when the user clicks on the outside the Dialog Box then it will remain show
+//        builder.setCancelable(false);
+//
+//        // Set the positive button with yes name Lambda OnClickListener method is use of DialogInterface interface.
+//        builder.setPositiveButton("Okay", (DialogInterface.OnClickListener) (dialog, which) -> {
+//            // When the user click yes button then app will close
+//            dialog.cancel();
+//        });
+//
+////        // Set the Negative button with No name Lambda OnClickListener method is use of DialogInterface interface.
+////        builder.setNegativeButton("No", (DialogInterface.OnClickListener) (dialog, which) -> {
+////            // If user click no then dialog box is canceled.
+////            dialog.cancel();
+////        });
+//
+//        // Create the Alert dialog
+//        AlertDialog alertDialog = builder.create();
+//        // Show the Alert Dialog box
+//        alertDialog.show();
+//    }
+
+    public void showAlertDialogButtonClicked(int responseCode, List<Purchase> list) {
+        // Create an alert builder
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Name");
+
+        // set the custom layout
+        final View customLayout = getLayoutInflater().inflate(R.layout.custom_layout, null);
+        builder.setView(customLayout);
+        TextView tvTitle = customLayout.findViewById(R.id.tvTitle);
+        EditText edtMessage = customLayout.findViewById(R.id.editText);
+
+        tvTitle.setText("ResponseCode: "+responseCode);
+
+        edtMessage.setText(new Gson().toJson(list));
+
+        // add a button
+        builder.setPositiveButton("OK", (dialog, which) -> {
+            // send data from the AlertDialog to the Activity
+        });
+        // create and show the alert dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        billingClient.queryPurchasesAsync(
+                QueryPurchasesParams.newBuilder().setProductType(BillingClient.ProductType.SUBS).build(),
+                (billingResult, list) -> {
+                    if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
+                        for (Purchase purchase : list) {
+                            if (purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED && !purchase.isAcknowledged()) {
+                                verifySubPurchase(purchase);
+                            }
+                        }
+                    }
+                }
+        );
+    }
+
+    void checkSubscription(){
+
+        billingClient = BillingClient.newBuilder(this).enablePendingPurchases().setListener((billingResult, list) -> {}).build();
+        final BillingClient finalBillingClient = billingClient;
+        billingClient.startConnection(new BillingClientStateListener() {
+            @Override
+            public void onBillingServiceDisconnected() {
+
+            }
+
+            @Override
+            public void onBillingSetupFinished(@NonNull BillingResult billingResult) {
+
+                if(billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK){
+                    finalBillingClient.queryPurchasesAsync(
+                            QueryPurchasesParams.newBuilder().setProductType(BillingClient.ProductType.SUBS).build(), (billingResult1, list) -> {
+                                if (billingResult1.getResponseCode() == BillingClient.BillingResponseCode.OK){
+                                    Dlog.d("testOffer"+ list.size() + " size");
+                                    if(list.size()>0){
+                                        //prefs.setPremium(1); // set 1 to activate premium feature
+                                        int i = 0;
+                                        for (Purchase purchase: list){
+                                            //Here you can manage each product, if you have multiple subscription
+                                            Dlog.d("testOffer"+purchase.getOriginalJson()); // Get to see the order information
+                                            Dlog.d("testOffer"+" index" + i);
+                                            i++;
+                                        }
+                                    }else {
+                                        //prefs.setPremium(0); // set 0 to de-activate premium feature
+                                    }
+                                }
+                            });
+                }
+            }
+        });
+    }
+
+    void establishConnection() {
+        billingClient.startConnection(new BillingClientStateListener() {
+            @Override
+            public void onBillingSetupFinished(@NonNull BillingResult billingResult) {
+                if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
+                    // The BillingClient is ready. You can query purchases here.
+                    showProducts();
+                }
+            }
+
+            @Override
+            public void onBillingServiceDisconnected() {
+                // Try to restart the connection on the next request to
+                // Google Play by calling the startConnection() method.
+                establishConnection();
+            }
+        });
+    }
+
+    @SuppressLint("SetTextI18n")
+    void showProducts() {
+
+        ImmutableList<QueryProductDetailsParams.Product> productList = ImmutableList.of(
+                //Product 1
+                QueryProductDetailsParams.Product.newBuilder()
+                        .setProductId("test_1")
+                        .setProductType(BillingClient.ProductType.SUBS)
+                        .build(),
+
+                  //Product 2
+                QueryProductDetailsParams.Product.newBuilder()
+                        .setProductId("test_2")
+                        .setProductType(BillingClient.ProductType.SUBS)
+                        .build()
+//                //Product 3
+//                QueryProductDetailsParams.Product.newBuilder()
+//                        .setProductId("one_year")
+//                        .setProductType(BillingClient.ProductType.SUBS)
+//                        .build()
+        );
+
+        QueryProductDetailsParams params = QueryProductDetailsParams.newBuilder()
+                .setProductList(productList)
+                .build();
+
+        billingClient.queryProductDetailsAsync(
+                params,
+                (billingResult, prodDetailsList) -> {
+                    // Process the result
+                    if (prodDetailsList.size() > 0) {
+                        productDetailsList.clear();
+                        productDetailsList.addAll(prodDetailsList);
+                    }
+                }
+        );
+    }
+
+    void launchPurchaseFlow(ProductDetails productDetails) {
+        assert productDetails.getSubscriptionOfferDetails() != null;
+        ImmutableList<BillingFlowParams.ProductDetailsParams> productDetailsParamsList =
+                ImmutableList.of(
+                        BillingFlowParams.ProductDetailsParams.newBuilder()
+                                .setProductDetails(productDetails)
+                                .setOfferToken(productDetails.getSubscriptionOfferDetails().get(0).getOfferToken())
+                                .build()
+                );
+        BillingFlowParams billingFlowParams = BillingFlowParams.newBuilder()
+                .setProductDetailsParamsList(productDetailsParamsList)
+                .build();
+
+        BillingResult billingResult = billingClient.launchBillingFlow(this, billingFlowParams);
+    }
+
+    void verifySubPurchase(Purchase purchases) {
+        Log.d("verifySubPurchase", "called with: purchases = [" + purchases + "]");
+
+        AcknowledgePurchaseParams acknowledgePurchaseParams = AcknowledgePurchaseParams
+                .newBuilder()
+                .setPurchaseToken(purchases.getPurchaseToken())
+                .build();
+
+        billingClient.acknowledgePurchase(acknowledgePurchaseParams, billingResult -> {
+            Toast.makeText(this, "billingResult: "+billingResult.getResponseCode(), Toast.LENGTH_SHORT).show();
+
+            if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
+                //user prefs to set premium
+
+                Toast.makeText(this, "Subscription activated, Enjoy!", Toast.LENGTH_SHORT).show();
+                //Setting premium to 1
+                // 1 - premium
+                // 0 - no premium
+
+               //  prefs.setPremium(1);
+               // startActivity(new Intent(this,MainActivity.class));
+               // finish();
+              }
+        });
+
+        Dlog.d("Purchase Token: " + purchases.getPurchaseToken());
+        Dlog.d("Purchase Time: " + purchases.getPurchaseTime());
+        Dlog.d("Purchase OrderID: " + purchases.getOrderId());
     }
 
     @Override
@@ -177,6 +479,8 @@ public class MainActivity extends AppCompatActivity implements ActionClickInterf
             Dlog.w("onActivityResult All Permissions NOT Granted: ");
             binding.llPermission.setVisibility(View.VISIBLE);
             binding.recyclerView.setVisibility(View.GONE);
+            binding.btnSubscription1.setVisibility(View.GONE);
+            binding.btnSubscription2.setVisibility(View.GONE);
             binding.llNoData.setVisibility(View.GONE);
 
             isPermissionGranted = false;
@@ -190,10 +494,14 @@ public class MainActivity extends AppCompatActivity implements ActionClickInterf
         if (appInfoModelList.size() == 0) {
             binding.llPermission.setVisibility(View.GONE);
             binding.recyclerView.setVisibility(View.GONE);
+            binding.btnSubscription1.setVisibility(View.GONE);
+            binding.btnSubscription2.setVisibility(View.GONE);
             binding.llNoData.setVisibility(View.VISIBLE);
         } else {
             binding.llPermission.setVisibility(View.GONE);
             binding.recyclerView.setVisibility(View.VISIBLE);
+            binding.btnSubscription1.setVisibility(View.VISIBLE);
+            binding.btnSubscription2.setVisibility(View.VISIBLE);
             binding.llNoData.setVisibility(View.GONE);
         }
 
@@ -312,6 +620,14 @@ public class MainActivity extends AppCompatActivity implements ActionClickInterf
         }
     }
 
+    private void buySubscription1(){
+        launchPurchaseFlow(productDetailsList.get(0));
+    }
+
+    private void buySubscription2(){
+        launchPurchaseFlow(productDetailsList.get(1));
+    }
+
     private void batteryOptimizationRequest() {
         if (!pm.isIgnoringBatteryOptimizations(Constants.APP_PACKAGE_NAME)) {
             showPermissionDialog(getString(R.string.disable_battery_optimization),
@@ -344,7 +660,7 @@ public class MainActivity extends AppCompatActivity implements ActionClickInterf
                 Utils.checkForInAppUpdate(getApplicationContext(), this);
             } else {
                 Dlog.d("APP UPDATE: onActivityResult: Update flow done");
-//                Toast.makeText(this, "Update Successfully Done", Toast.LENGTH_SHORT).show();
+//               Toast.makeText(this, "Update Successfully Done", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -378,4 +694,5 @@ public class MainActivity extends AppCompatActivity implements ActionClickInterf
     public void onNegativeButtonClickAI() {
 
     }
+
 }
