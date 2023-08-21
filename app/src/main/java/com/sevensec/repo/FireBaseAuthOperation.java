@@ -138,7 +138,8 @@ public class FireBaseAuthOperation implements AuthOperation {
 
     GoogleSignInClient getGoogleSignInClient(Context mContext) {
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(mContext.getString(R.string.default_web_client_id))
+                //.requestIdToken(mContext.getString(R.string.default_web_client_id))
+                .requestIdToken("213355730574-2uf6jjf1sokhao00nfa88v538pp3f13v.apps.googleusercontent.com")
                 .requestEmail()
                 .build();
 
