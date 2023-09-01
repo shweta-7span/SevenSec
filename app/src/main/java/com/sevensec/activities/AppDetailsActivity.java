@@ -7,7 +7,6 @@ import static com.sevensec.utils.Constants.PREF_DEVICE_ID;
 import static com.sevensec.utils.Constants.REMOVE_DAYS_FOR_PREV_WEEK;
 import static com.sevensec.utils.Constants.START_DAY;
 import static com.sevensec.utils.Constants.STR_PASS_APP_INFO;
-import static com.sevensec.utils.Utils.convertDateFormat;
 
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
@@ -49,7 +48,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class AppDetailsActivity extends AppCompatActivity {
 
@@ -253,11 +251,7 @@ public class AppDetailsActivity extends AppCompatActivity {
                                 try {
                                     Dlog.d("getTotalAppUsageFromFireStore() called with: datesMap = [" + firebaseCalender.getTime() + "]");
 
-                                    String inputDateStr = firebaseCalender.getTime().toString();
-                                    String outputDateFormat = "dd-MM-yyyy";
-                                    String convertedDateStr = convertDateFormat(inputDateStr, outputDateFormat);
-
-                                    Object currentMap = datesMap.get(convertedDateStr);
+                                    Object currentMap = datesMap.get(Utils.getCurrentDateInFireStoreFormat(firebaseCalender.getTime()));
 
                                     if (currentMap != null) {
                                         Dlog.d("currentDateMap:->" + currentMap);
