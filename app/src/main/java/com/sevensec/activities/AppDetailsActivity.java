@@ -62,7 +62,6 @@ public class AppDetailsActivity extends AppCompatActivity {
     String appName, packageName, device_id;
     AppUsageRoomDbHelper appUsageRoomDbHelper;
     FireStoreDataOperation fireStoreDataOperation;
-    boolean isSelectedWeekHaveData = false;
 
     ValueFormatter yAxisFormatter = new ValueFormatter() {
         @Override
@@ -231,7 +230,6 @@ public class AppDetailsActivity extends AppCompatActivity {
 
     private void showTotalUsage(Date startDate, Date endDate) {
         Dlog.i("showTotalUsage() called with: startDate = [" + startDate + "], endDate = [" + endDate + "]");
-        isSelectedWeekHaveData = false;
 
         Calendar firebaseCalender = Calendar.getInstance();
         firebaseCalender.setTime(startDate);
@@ -280,12 +278,11 @@ public class AppDetailsActivity extends AppCompatActivity {
                             }
 
                             if (fireStoreUsageByDateList.size() > 0) {
-                                Dlog.d("run: usageByDateList.size():->" + fireStoreUsageByDateList.size());
+                                Dlog.d("run: usageByDateList fireStoreUsageByDateList.size():->" + fireStoreUsageByDateList.size());
                                 binding.barChartView.setVisibility(View.VISIBLE);
                                 binding.llNoData.setVisibility(View.GONE);
                                 showBarChart(fireStoreUsageByDateList);
                             } else {
-                                Dlog.d("run: isSelectedWeekHaveData:->" + isSelectedWeekHaveData);
                                 binding.barChartView.setVisibility(View.GONE);
                                 binding.llNoData.setVisibility(View.VISIBLE);
                             }
@@ -300,20 +297,16 @@ public class AppDetailsActivity extends AppCompatActivity {
 
             while (offlineCalender.getTime().before(endDate)) {
 
-                long totalAppUsageTime = appUsageRoomDbHelper.getTotalAppUsageTimeForDate(packageName, offlineCalender.getTime());
+                long totalAppUsageTimeFromRoom = appUsageRoomDbHelper.getTotalAppUsageTimeForDate(packageName, offlineCalender.getTime());
 
-                if (totalAppUsageTime != 0) {
-                    isSelectedWeekHaveData = true;
-                }
-                AppUsageByDate appUsageByDate = new AppUsageByDate(dateFormatForDay.format(offlineCalender.getTime()), totalAppUsageTime);
-                databaseUsageByDateList.add(appUsageByDate);
+                AppUsageByDate appUsageByDateFromRoom = new AppUsageByDate(dateFormatForDay.format(offlineCalender.getTime()), totalAppUsageTimeFromRoom);
+                databaseUsageByDateList.add(appUsageByDateFromRoom);
 
                 offlineCalender.add(Calendar.DAY_OF_MONTH, 1);
             }
 
-            Dlog.i("isSelectedWeekHaveData: " + isSelectedWeekHaveData);
-
-            if (isSelectedWeekHaveData) {
+            if (databaseUsageByDateList.size() > 0) {
+                Dlog.d("run: usageByDateList databaseUsageByDateList.size():->" + databaseUsageByDateList.size());
                 binding.barChartView.setVisibility(View.VISIBLE);
                 binding.llNoData.setVisibility(View.GONE);
                 showBarChart(databaseUsageByDateList);
@@ -329,38 +322,21 @@ public class AppDetailsActivity extends AppCompatActivity {
         // Create a BarDataSet
         BarDataSet dataSet = new BarDataSet(getDataEntries(aUsageByDateList), "");
         Dlog.d("showBarChart() called with: dataSet = [" + dataSet + "]");
-        boolean isEmptyData = true;
 
-        for (int i = 0; i < aUsageByDateList.size(); i++) {
-                if(aUsageByDateList.get(i).getUsage() > 0) {
-                    isEmptyData =false;
-                    break;
-                }
-        }
-
-        if (isEmptyData) {
-            binding.barChartView.setVisibility(View.GONE);
-            binding.llNoData.setVisibility(View.VISIBLE);
-        } else {
-            // Create a BarData object
-            BarData data = new BarData(dataSet);
-            //Dlog.d( "showBarChart() called with: data = [" + new Gson().toJson(data) + "]");
-            Dlog.d("showBarChart() called with: data = [" + new GsonBuilder().serializeSpecialFloatingPointValues().create().toJson(data)
-                    + "]");
-            // Set the x-axis value formatter
-            binding.barChartView.setVisibility(View.VISIBLE);
-            binding.llNoData.setVisibility(View.GONE);
-            ValueFormatter xAxisFormatter = new ValueFormatter() {
-                @Override
-                public String getFormattedValue(float value) {
-                    if (aUsageByDateList.size() > (int) value) {
-                        return aUsageByDateList.get((int) value).getDate();
-                    } else {
-                        return "No Data";
-                    }
-                }
-            };
-
+        // Create a BarData object
+        BarData data = new BarData(dataSet);
+        //Dlog.d( "showBarChart() called with: data = [" + new Gson().toJson(data) + "]");
+        Dlog.d("showBarChart() called with: data = [" + new GsonBuilder().serializeSpecialFloatingPointValues().create().toJson(data)
+                + "]");
+        // Set the x-axis value formatter
+        binding.barChartView.setVisibility(View.VISIBLE);
+        binding.llNoData.setVisibility(View.GONE);
+        ValueFormatter xAxisFormatter = new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                return aUsageByDateList.get((int) value).getDate();
+            }
+        };
             XAxis xAxis = binding.barChartView.getXAxis();
             xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
             xAxis.setTextSize(12f);
@@ -402,8 +378,6 @@ public class AppDetailsActivity extends AppCompatActivity {
 
             binding.barChartView.setData(data);
             binding.barChartView.invalidate();
-        }
-
     }
 
     private List<BarEntry> getDataEntries(List<AppUsageByDate> usageByDateList) {
