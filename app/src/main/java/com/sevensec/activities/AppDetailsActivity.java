@@ -109,8 +109,8 @@ public class AppDetailsActivity extends AppCompatActivity {
 
         binding.ivAppIcon.setImageBitmap(appInfoModel.getAppIconBitmap());
 
-            if (Utils.isInternetAvailable(this)) {
-                Dlog.d("totalAppUsageTime isInternetAvailable");
+//            if (Utils.isInternetAvailable(this)) {
+//                Dlog.d("totalAppUsageTime isInternetAvailable");
 
                 fireStoreDataOperation.getTotalAppUsageTimeForDate(device_id, packageName, new AppUsageFromFireStore() {
                             @Override
@@ -134,14 +134,14 @@ public class AppDetailsActivity extends AppCompatActivity {
                             }
                         }
                 );
-            } else {
+            /*} else {
                 Dlog.d("totalAppUsageTime isInternet NOT Available");
 
                 long totalAppUsageTimeFromRoom = appUsageRoomDbHelper.getTotalAppUsageTimeForDate(packageName, currentDate);
                 Dlog.d("totalAppUsageTime from Room: " + totalAppUsageTimeFromRoom);
 
                 showAppUsageForCurrentDate(totalAppUsageTimeFromRoom);
-            }
+            }*/
 
         //Show "UsageTime" for the week in which the user selected date include
         initAndOpenDatePicker();
@@ -235,7 +235,7 @@ public class AppDetailsActivity extends AppCompatActivity {
         firebaseCalender.setTime(startDate);
         Dlog.d("showTotalUsage() called with: device_id = [" + device_id + "]");
 
-        if (Utils.isInternetAvailable(this)) {
+//        if (Utils.isInternetAvailable(this)) {
             List<AppUsageByDate> fireStoreUsageByDateList = new ArrayList<>();
 
             fireStoreDataOperation.getTotalAppUsageTimeForDate(device_id, packageName, new AppUsageFromFireStore() {
@@ -289,7 +289,7 @@ public class AppDetailsActivity extends AppCompatActivity {
                         }
                     }
             );
-        } else {
+        /*} else {
             Dlog.d("totalAppUsageTime isInternet NOT Available");
             Calendar offlineCalender = Calendar.getInstance();
             offlineCalender.setTime(startDate);
@@ -314,7 +314,7 @@ public class AppDetailsActivity extends AppCompatActivity {
                 binding.barChartView.setVisibility(View.GONE);
                 binding.llNoData.setVisibility(View.VISIBLE);
             }
-        }
+        }*/
     }
 
     private void showBarChart(List<AppUsageByDate> aUsageByDateList) {

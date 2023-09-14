@@ -18,6 +18,7 @@ import android.app.Activity;
 import android.content.Intent;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -26,8 +27,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.SetOptions;
 import com.sevensec.activities.MainActivity;
 import com.sevensec.helper.AuthFailureListener;
@@ -54,6 +58,13 @@ public class FireStoreDataOperation implements DataOperation {
     public FireStoreDataOperation() {
         firebaseFirestore = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
+
+        FirebaseFirestoreSettings settings =
+                new FirebaseFirestoreSettings.Builder(firebaseFirestore.getFirestoreSettings())
+                        .setPersistenceEnabled(true)
+                        .setCacheSizeBytes(FirebaseFirestoreSettings.CACHE_SIZE_UNLIMITED)
+                        .build();
+        firebaseFirestore.setFirestoreSettings(settings);
 
         currentDate = Utils.getCurrentDateInFireStoreFormat(Calendar.getInstance().getTime());
     }
@@ -481,62 +492,55 @@ public class FireStoreDataOperation implements DataOperation {
         FirebaseUser currentUser = mAuth.getCurrentUser();
 
         if (currentUser != null) {
-            firebaseFirestore.collection(DB_COLLECTION_USERS).document(currentUser.getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            firebaseFirestore.collection(DB_COLLECTION_USERS).document(currentUser.getUid()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
                 @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                public void onEvent(@Nullable DocumentSnapshot document, @Nullable FirebaseFirestoreException error) {
 
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
+                    if (document != null) {
+                        Dlog.d("getTotalAppUsageTimeForDate: Document exists!");
 
-                        if (document.exists()) {
-                            Dlog.d("getTotalAppUsageTimeForDate: Document exists!");
+                        Map<String, Object> deviceMapData = (Map<String, Object>) document.get(DB_DEVICE_MAP);
+                        Dlog.d("getTotalAppUsageTimeForDate deviceMapData: " + deviceMapData);
 
-                            Map<String, Object> deviceMapData = (Map<String, Object>) document.get(DB_DEVICE_MAP);
-                            Dlog.d("getTotalAppUsageTimeForDate deviceMapData: " + deviceMapData);
+                        Map<String, Object> appMapData = (Map<String, Object>) deviceMapData.get(device_id);
+                        Dlog.d("getTotalAppUsageTimeForDate appMapData: " + appMapData);
 
-                            Map<String, Object> appMapData = (Map<String, Object>) deviceMapData.get(device_id);
-                            Dlog.d("getTotalAppUsageTimeForDate appMapData: " + appMapData);
+                        if (appMapData != null && appMapData.containsKey(app_package)) {
+                            Dlog.d("getTotalAppUsageTimeForDate: " + app_package + " exists!");
 
-                            if (appMapData != null && appMapData.containsKey(app_package)) {
-                                Dlog.d("getTotalAppUsageTimeForDate: " + app_package + " exists!");
+                            Map<String, Object> packageMap = (Map<String, Object>) appMapData.get(app_package);
+                            Dlog.d("getTotalAppUsageTimeForDate packageMap: " + packageMap);
 
-                                Map<String, Object> packageMap = (Map<String, Object>) appMapData.get(app_package);
-                                Dlog.d("getTotalAppUsageTimeForDate packageMap: " + packageMap);
+                            Map<String, Object> datesMap = (Map<String, Object>) packageMap.get(DB_APP_DATE_MAP);
+                            Dlog.d("getTotalAppUsageTimeForDate datesMap: " + datesMap);
 
-                                Map<String, Object> datesMap = (Map<String, Object>) packageMap.get(DB_APP_DATE_MAP);
-                                Dlog.d("getTotalAppUsageTimeForDate datesMap: " + datesMap);
+                            /*Map<String, Object> currentDateMap = (Map<String, Object>) datesMap.get(dateForAppUsage);
+                            Dlog.d("getTotalAppUsageTimeForDate currentDateMap: " + currentDateMap);
 
-                                /*Map<String, Object> currentDateMap = (Map<String, Object>) datesMap.get(dateForAppUsage);
-                                Dlog.d("getTotalAppUsageTimeForDate currentDateMap: " + currentDateMap);
+                            long totalAppUsageTime = 0;
 
-                                long totalAppUsageTime = 0;
-
-                                if (currentDateMap == null) {
-                                    Dlog.d("getTotalAppUsageTimeForDate: currentDateMap is NULL");
-
-                                } else {
-                                    Dlog.d("getTotalAppUsageTimeForDate: currentDateMap is exist !");
-                                    totalAppUsageTime = (long) currentDateMap.get(DB_APP_TOTAL_TIME);
-                                }
-
-                                Dlog.d("getTotalAppUsageTimeForDate getAppUsage totalAppUsageTime: " + totalAppUsageTime);*/
-                                appUsageFromFirestore.getTotalAppUsageFromFireStore(datesMap);
+                            if (currentDateMap == null) {
+                                Dlog.d("getTotalAppUsageTimeForDate: currentDateMap is NULL");
 
                             } else {
-                                Dlog.d("getTotalAppUsageTimeForDate: " + app_package + " NOT exists!");
+                                Dlog.d("getTotalAppUsageTimeForDate: currentDateMap is exist !");
+                                totalAppUsageTime = (long) currentDateMap.get(DB_APP_TOTAL_TIME);
                             }
 
+                            Dlog.d("getTotalAppUsageTimeForDate getAppUsage totalAppUsageTime: " + totalAppUsageTime);*/
+                            appUsageFromFirestore.getTotalAppUsageFromFireStore(datesMap);
+
                         } else {
-                            Dlog.d("getTotalAppUsageTimeForDate FireStore: Document does not exist!");
+                            Dlog.d("getTotalAppUsageTimeForDate: " + app_package + " NOT exists!");
                         }
+
                     } else {
-                        Dlog.d("getTotalAppUsageTimeForDate FireStore: Failed with: " + task.getException());
+                        Dlog.d("getTotalAppUsageTimeForDate FireStore: Document does not exist!");
                     }
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Dlog.e("getTotalAppUsageTimeForDate onFailure: " + e.getMessage());
+
+                    if(error!=null){
+                        Dlog.e("getTotalAppUsageTimeForDate onFailure: " + error.getMessage());
+                    }
                 }
             });
         }
